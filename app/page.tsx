@@ -263,14 +263,14 @@ export default function Home() {
         style={{ scrollSnapType: "y mandatory" }}
       >
         <div
-          className="flex min-h-full flex-col justify-center"
+          key={displayQuestion.id}
+          className="animate-feedSlide flex min-h-full flex-col justify-center"
           style={{ scrollSnapAlign: "start", scrollSnapStop: "always" }}
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
           onWheel={handleWheel}
         >
           <QuestionFeedCard
-            key={displayQuestion.id}
             question={displayQuestion}
             onChoose={handleChoice}
             onSkip={skipQuestion}
