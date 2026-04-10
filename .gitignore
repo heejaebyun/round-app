@@ -20,6 +20,11 @@
 # production
 /build
 
+# toss mini-app build artifacts
+/dist
+/.granite
+*.ait
+
 # misc
 .DS_Store
 *.pem

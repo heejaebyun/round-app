@@ -1,0 +1,23 @@
+<svg width="800" height="1000" viewBox="0 0 800 1000" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="800" height="1000" rx="48" fill="#DDF5FF"/>
+  <rect x="32" y="32" width="736" height="936" rx="36" fill="url(#sky)"/>
+  <circle cx="630" cy="176" r="82" fill="#FFE8A3"/>
+  <path d="M32 544C112 498 186 490 276 532C362 572 444 584 536 546C620 512 688 512 768 544V726H32V544Z" fill="#4BB4D8"/>
+  <path d="M32 624C110 584 194 582 282 620C366 658 450 664 540 628C620 598 690 598 768 624V764H32V624Z" fill="#2587C7"/>
+  <path d="M32 694C116 648 194 650 286 694C368 732 452 740 544 704C624 674 694 676 768 700V968H32V694Z" fill="#F6D7A6"/>
+  <path d="M576 352L544 748" stroke="#6B4F33" stroke-width="16" stroke-linecap="round"/>
+  <path d="M576 352C552 286 492 246 418 258" stroke="#48A56A" stroke-width="22" stroke-linecap="round"/>
+  <path d="M576 352C634 292 672 262 730 250" stroke="#48A56A" stroke-width="22" stroke-linecap="round"/>
+  <path d="M576 400C524 352 470 338 410 344" stroke="#5AC07A" stroke-width="18" stroke-linecap="round"/>
+  <path d="M576 400C634 346 686 332 744 338" stroke="#5AC07A" stroke-width="18" stroke-linecap="round"/>
+  <rect x="520" y="790" width="156" height="18" rx="9" fill="#F7FAFC" fill-opacity="0.7"/>
+  <rect x="96" y="878" width="188" height="58" rx="29" fill="#F7FAFC" fill-opacity="0.9"/>
+  <text x="190" y="917" text-anchor="middle" fill="#0F172A" font-family="Noto Sans KR, sans-serif" font-size="38" font-weight="800">바다</text>
+  <defs>
+    <linearGradient id="sky" x1="400" y1="32" x2="400" y2="968" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#D9F3FF"/>
+      <stop offset="0.52" stop-color="#AEE3FF"/>
+      <stop offset="1" stop-color="#F7E0B6"/>
+    </linearGradient>
+  </defs>
+</svg>

@@ -1,0 +1,20 @@
+<svg width="800" height="1000" viewBox="0 0 800 1000" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="800" height="1000" rx="48" fill="#D9EFF8"/>
+  <rect x="32" y="32" width="736" height="936" rx="36" fill="url(#sky)"/>
+  <circle cx="618" cy="186" r="78" fill="#FFF0A6"/>
+  <path d="M84 804L264 520L416 742L550 434L716 804H84Z" fill="#365B5A"/>
+  <path d="M144 804L300 590L404 714L566 496L704 804H144Z" fill="#4A736F"/>
+  <path d="M264 520L310 592L220 592L264 520Z" fill="#F7FAFC"/>
+  <path d="M550 434L612 530H494L550 434Z" fill="#F7FAFC"/>
+  <path d="M32 742C120 708 184 702 270 742C362 786 440 786 522 742C610 694 676 696 768 742V968H32V742Z" fill="#7BB17B"/>
+  <path d="M32 816C122 774 200 780 286 826C380 876 446 872 534 826C620 780 684 776 768 812V968H32V816Z" fill="#4F8B57"/>
+  <rect x="96" y="878" width="188" height="58" rx="29" fill="#F7FAFC" fill-opacity="0.9"/>
+  <text x="190" y="917" text-anchor="middle" fill="#0F172A" font-family="Noto Sans KR, sans-serif" font-size="38" font-weight="800">산</text>
+  <defs>
+    <linearGradient id="sky" x1="400" y1="32" x2="400" y2="968" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#D7F2FF"/>
+      <stop offset="0.48" stop-color="#B7E0F4"/>
+      <stop offset="1" stop-color="#E8F5EA"/>
+    </linearGradient>
+  </defs>
+</svg>

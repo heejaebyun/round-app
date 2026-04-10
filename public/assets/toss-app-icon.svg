@@ -1,0 +1,21 @@
+<svg width="600" height="600" viewBox="0 0 600 600" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="600" height="600" fill="#07101A"/>
+  <rect x="26" y="26" width="548" height="548" rx="132" fill="url(#bg)"/>
+  <circle cx="300" cy="218" r="118" fill="url(#glow)" fill-opacity="0.9"/>
+  <rect x="120" y="334" width="360" height="110" rx="55" fill="rgba(8,16,28,0.88)"/>
+  <rect x="120.75" y="334.75" width="358.5" height="108.5" rx="54.25" stroke="rgba(255,255,255,0.12)" stroke-width="1.5"/>
+  <text x="300" y="256" text-anchor="middle" fill="#F8FBFF" font-family="Noto Sans KR, Apple SD Gothic Neo, sans-serif" font-size="190" font-weight="900" letter-spacing="-10">라</text>
+  <text x="300" y="406" text-anchor="middle" fill="#F8FBFF" font-family="Noto Sans KR, Apple SD Gothic Neo, sans-serif" font-size="64" font-weight="800" letter-spacing="-3">라운드</text>
+  <defs>
+    <linearGradient id="bg" x1="74" y1="52" x2="524" y2="560" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#101B2B"/>
+      <stop offset="0.55" stop-color="#0B1321"/>
+      <stop offset="1" stop-color="#09111B"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(254 148) rotate(42.4) scale(286.816)">
+      <stop stop-color="#25D3EE"/>
+      <stop offset="0.44" stop-color="#1986D9"/>
+      <stop offset="1" stop-color="#0E1623"/>
+    </radialGradient>
+  </defs>
+</svg>

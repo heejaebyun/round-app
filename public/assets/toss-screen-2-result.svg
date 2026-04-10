@@ -1,0 +1,45 @@
+<svg width="636" height="1048" viewBox="0 0 636 1048" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="636" height="1048" fill="#050810"/>
+  <rect x="20" y="20" width="596" height="1008" rx="36" fill="url(#bg)"/>
+  <circle cx="500" cy="160" r="160" fill="#22D3EE" fill-opacity="0.18"/>
+  <circle cx="120" cy="880" r="180" fill="#0EA5E9" fill-opacity="0.14"/>
+
+  <text x="52" y="96" fill="#F8FAFC" font-family="Noto Sans KR, sans-serif" font-size="36" font-weight="800">선택하면 바로 결과가 나와요</text>
+  <text x="52" y="132" fill="#9FB0C6" font-family="Noto Sans KR, sans-serif" font-size="22" font-weight="500">내 선택이 다수파인지 소수파인지 즉시 확인하세요.</text>
+
+  <rect x="52" y="192" width="532" height="660" rx="34" fill="#0B1220" fill-opacity="0.88"/>
+  <rect x="52.75" y="192.75" width="530.5" height="658.5" rx="33.25" stroke="rgba(255,255,255,0.1)" stroke-width="1.5"/>
+
+  <text x="86" y="274" fill="#F8FAFC" font-family="Noto Sans KR, sans-serif" font-size="46" font-weight="900">야식은?</text>
+  <text x="86" y="314" fill="#93A3B8" font-family="Noto Sans KR, sans-serif" font-size="22" font-weight="500">12,482명이 이미 골랐어요</text>
+
+  <rect x="86" y="382" width="464" height="92" rx="24" fill="#111A29"/>
+  <rect x="86" y="382" width="269" height="92" rx="24" fill="url(#barA)"/>
+  <rect x="104" y="407" width="58" height="42" rx="21" fill="#22D3EE"/>
+  <text x="133" y="435" text-anchor="middle" fill="#03111A" font-family="JetBrains Mono, monospace" font-size="18" font-weight="800">MY</text>
+  <text x="182" y="435" fill="#F8FAFC" font-family="Noto Sans KR, sans-serif" font-size="28" font-weight="800">A. 떡볶이</text>
+  <text x="530" y="436" text-anchor="end" fill="#F8FAFC" font-family="JetBrains Mono, monospace" font-size="32" font-weight="800">58%</text>
+
+  <rect x="86" y="500" width="464" height="92" rx="24" fill="#111A29"/>
+  <rect x="86" y="500" width="195" height="92" rx="24" fill="#1E293B"/>
+  <text x="118" y="554" fill="#F8FAFC" font-family="Noto Sans KR, sans-serif" font-size="28" font-weight="800">B. 치킨</text>
+  <text x="530" y="554" text-anchor="end" fill="#C8D3E3" font-family="JetBrains Mono, monospace" font-size="32" font-weight="800">42%</text>
+
+  <rect x="86" y="634" width="464" height="112" rx="28" fill="#22D3EE" fill-opacity="0.10"/>
+  <rect x="86.75" y="634.75" width="462.5" height="110.5" rx="27.25" stroke="rgba(34,211,238,0.25)" stroke-width="1.5"/>
+  <text x="318" y="684" text-anchor="middle" fill="#8FEAFE" font-family="JetBrains Mono, monospace" font-size="18" font-weight="800">SURPRISE</text>
+  <text x="318" y="723" text-anchor="middle" fill="#F8FAFC" font-family="Noto Sans KR, sans-serif" font-size="30" font-weight="800">58%가 당신과 같은 선택</text>
+
+  <text x="52" y="926" fill="#C8D3E3" font-family="Noto Sans KR, sans-serif" font-size="24" font-weight="600">다른 사람의 이유도 바로 이어서 볼 수 있습니다</text>
+
+  <defs>
+    <linearGradient id="bg" x1="76" y1="40" x2="568" y2="1002" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0A1322"/>
+      <stop offset="1" stop-color="#081019"/>
+    </linearGradient>
+    <linearGradient id="barA" x1="86" y1="382" x2="355" y2="474" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#22D3EE"/>
+      <stop offset="1" stop-color="#2563EB"/>
+    </linearGradient>
+  </defs>
+</svg>

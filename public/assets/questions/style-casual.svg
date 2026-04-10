@@ -1,0 +1,22 @@
+<svg width="800" height="1000" viewBox="0 0 800 1000" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="800" height="1000" rx="48" fill="#E8EEF5"/>
+  <rect x="32" y="32" width="736" height="936" rx="36" fill="url(#bg)"/>
+  <circle cx="621" cy="182" r="166" fill="#FFE2B8" fill-opacity="0.6"/>
+  <circle cx="179" cy="829" r="178" fill="#D8E7FF" fill-opacity="0.7"/>
+  <rect x="212" y="246" width="376" height="522" rx="160" fill="#111827"/>
+  <ellipse cx="400" cy="227" rx="118" ry="126" fill="#F2C8A4"/>
+  <path d="M280 214C280 147 333 98 400 98C467 98 520 147 520 214V286H280V214Z" fill="#2A211F"/>
+  <rect x="299" y="354" width="202" height="276" rx="44" fill="#E7F0FF"/>
+  <rect x="265" y="354" width="58" height="219" rx="29" fill="#DDE7F5"/>
+  <rect x="477" y="354" width="58" height="219" rx="29" fill="#DDE7F5"/>
+  <rect x="340" y="641" width="120" height="142" rx="30" fill="#95A3B8"/>
+  <rect x="270" y="780" width="90" height="116" rx="26" fill="#F4F7FB"/>
+  <rect x="440" y="780" width="90" height="116" rx="26" fill="#F4F7FB"/>
+  <text x="400" y="904" text-anchor="middle" fill="#0F172A" font-family="Noto Sans KR, sans-serif" font-size="44" font-weight="800">캐주얼</text>
+  <defs>
+    <linearGradient id="bg" x1="80" y1="72" x2="714" y2="930" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F7FBFF"/>
+      <stop offset="1" stop-color="#DDE7F3"/>
+    </linearGradient>
+  </defs>
+</svg>

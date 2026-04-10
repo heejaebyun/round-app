@@ -1,0 +1,20 @@
+<svg width="600" height="600" viewBox="0 0 600 600" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="600" height="600" fill="#F3F7FF"/>
+  <rect x="22" y="22" width="556" height="556" rx="64" fill="url(#paint0_linear)"/>
+  <rect x="36" y="36" width="528" height="528" rx="52" fill="#F8FBFF"/>
+  <circle cx="300" cy="300" r="162" fill="url(#paint1_radial)"/>
+  <text x="300" y="325" text-anchor="middle" fill="#0C1724" font-size="150" font-weight="800" font-family="Arial Black, Inter, Noto Sans KR, sans-serif" letter-spacing="-8">
+    Round
+  </text>
+  <defs>
+    <linearGradient id="paint0_linear" x1="74" y1="60" x2="538" y2="544" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#E6F0FF"/>
+      <stop offset="1" stop-color="#F9FBFF"/>
+    </linearGradient>
+    <radialGradient id="paint1_radial" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(230 188) rotate(46.9092) scale(383.864)">
+      <stop stop-color="#DFF5FF"/>
+      <stop offset="0.45" stop-color="#EEF5FF"/>
+      <stop offset="1" stop-color="#FFFFFF"/>
+    </radialGradient>
+  </defs>
+</svg>

@@ -1,0 +1,21 @@
+name: Update Question Metrics
+
+on:
+  schedule:
+    # Every 6 hours (UTC)
+    - cron: "0 */6 * * *"
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call cron endpoint
+        run: |
+          response=$(curl -s -w "\nHTTP %{http_code}" \
+            -X POST https://round-app-one.vercel.app/api/cron/update-metrics \
+            -H "Content-Type: application/json" \
+            -H "x-internal-key: ${{ secrets.INTERNAL_API_KEY }}")
+          echo "$response"
+          # Fail if HTTP status is not 200
+          echo "$response" | grep -q "HTTP 200" || exit 1

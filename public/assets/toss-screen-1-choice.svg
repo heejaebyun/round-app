@@ -1,0 +1,40 @@
+<svg width="636" height="1048" viewBox="0 0 636 1048" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="636" height="1048" fill="#050810"/>
+  <rect x="20" y="20" width="596" height="1008" rx="36" fill="url(#bg)"/>
+  <circle cx="520" cy="180" r="140" fill="#22D3EE" fill-opacity="0.18"/>
+  <circle cx="120" cy="900" r="160" fill="#2563EB" fill-opacity="0.18"/>
+
+  <rect x="52" y="62" width="72" height="72" rx="20" fill="#0B1220"/>
+  <text x="88" y="109" text-anchor="middle" fill="#F8FAFC" font-family="Noto Sans KR, sans-serif" font-size="38" font-weight="900">R</text>
+  <text x="144" y="96" fill="#F8FAFC" font-family="Noto Sans KR, sans-serif" font-size="36" font-weight="800">Round</text>
+  <text x="144" y="127" fill="#8FEAFE" font-family="Noto Sans KR, sans-serif" font-size="18" font-weight="700">고르기로 발견하는 나의 Choice DNA</text>
+
+  <rect x="52" y="176" width="532" height="724" rx="34" fill="#0B1220" fill-opacity="0.86"/>
+  <rect x="52.75" y="176.75" width="530.5" height="722.5" rx="33.25" stroke="rgba(255,255,255,0.1)" stroke-width="1.5"/>
+
+  <rect x="86" y="212" width="126" height="44" rx="22" fill="#22D3EE" fill-opacity="0.16"/>
+  <text x="149" y="241" text-anchor="middle" fill="#8FEAFE" font-family="Noto Sans KR, sans-serif" font-size="20" font-weight="700">질문 카드</text>
+  <text x="86" y="322" fill="#F8FAFC" font-family="Noto Sans KR, sans-serif" font-size="54" font-weight="900" letter-spacing="-2">오늘 더 끌리는 건?</text>
+  <text x="86" y="372" fill="#96A3B8" font-family="Noto Sans KR, sans-serif" font-size="24" font-weight="500">질문을 넘기며 A/B 중 하나를 빠르게 고르세요.</text>
+
+  <rect x="86" y="484" width="464" height="112" rx="28" fill="#101A2A"/>
+  <rect x="86.75" y="484.75" width="462.5" height="110.5" rx="27.25" stroke="rgba(255,255,255,0.08)" stroke-width="1.5"/>
+  <rect x="112" y="517" width="52" height="52" rx="18" fill="#22D3EE" fill-opacity="0.18"/>
+  <text x="138" y="552" text-anchor="middle" fill="#8FEAFE" font-family="JetBrains Mono, monospace" font-size="22" font-weight="800">A</text>
+  <text x="190" y="553" fill="#F8FAFC" font-family="Noto Sans KR, sans-serif" font-size="30" font-weight="800">꾸안꾸</text>
+
+  <rect x="86" y="626" width="464" height="112" rx="28" fill="#101A2A"/>
+  <rect x="86.75" y="626.75" width="462.5" height="110.5" rx="27.25" stroke="rgba(255,255,255,0.08)" stroke-width="1.5"/>
+  <rect x="112" y="659" width="52" height="52" rx="18" fill="#2563EB" fill-opacity="0.18"/>
+  <text x="138" y="694" text-anchor="middle" fill="#93C5FD" font-family="JetBrains Mono, monospace" font-size="22" font-weight="800">B</text>
+  <text x="190" y="695" fill="#F8FAFC" font-family="Noto Sans KR, sans-serif" font-size="30" font-weight="800">존재감 확실</text>
+
+  <text x="86" y="820" fill="#C8D3E3" font-family="Noto Sans KR, sans-serif" font-size="24" font-weight="600">탭 한 번이면 바로 결과를 볼 수 있어요</text>
+
+  <defs>
+    <linearGradient id="bg" x1="70" y1="52" x2="566" y2="995" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0B1323"/>
+      <stop offset="1" stop-color="#08101A"/>
+    </linearGradient>
+  </defs>
+</svg>

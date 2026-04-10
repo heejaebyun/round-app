@@ -6,12 +6,19 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "dev:toss": "ait dev",
+    "build:toss": "ait build"
   },
   "dependencies": {
+    "@apps-in-toss/web-framework": "^2.4.1",
+    "@supabase/supabase-js": "^2.101.1",
+    "@vercel/og": "^0.11.1",
+    "lightningcss": "^1.32.0",
     "next": "16.2.2",
     "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react-dom": "19.2.4",
+    "sharp": "^0.34.5"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
