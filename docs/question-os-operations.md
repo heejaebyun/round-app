@@ -37,6 +37,55 @@ curl "https://round-app-one.vercel.app/api/internal/question-inspect?all=true"
 
 Returns: all questions sorted by heat, with status counts.
 
+## Question Candidates Admin
+
+- Admin page: `/admin/questions`
+- Enter `INTERNAL_API_KEY` once in the admin page
+- Create a candidate
+- Approve it
+- Approved candidates are merged into the runtime feed without a code deploy
+- Run metrics batch from the admin page
+- Inspect status cards / question score table
+- Moderate recent replies from the same page
+
+Internal APIs:
+
+### List / create candidates
+```bash
+curl "https://round-app-one.vercel.app/api/internal/question-candidates?status=pending" \
+  -H "x-internal-key: YOUR_KEY"
+```
+
+```bash
+curl -X POST "https://round-app-one.vercel.app/api/internal/question-candidates" \
+  -H "Content-Type: application/json" \
+  -H "x-internal-key: YOUR_KEY" \
+  -d '{"question":"친구가 계산을 애매하게 넘기면, 더 가까운 쪽은?","category":"관계","optionA":"바로 말한다","optionB":"그냥 넘긴다","valueA":"직설파","valueB":"완곡파","topic":"relationship","tension":"honesty_vs_harmony"}'
+```
+
+### Approve candidate
+```bash
+curl -X POST "https://round-app-one.vercel.app/api/internal/question-candidates/CANDIDATE_ID/approve" \
+  -H "x-internal-key: YOUR_KEY"
+```
+
+### Reject candidate
+```bash
+curl -X POST "https://round-app-one.vercel.app/api/internal/question-candidates/CANDIDATE_ID/reject" \
+  -H "x-internal-key: YOUR_KEY"
+```
+
+### Recent replies moderation
+```bash
+curl "https://round-app-one.vercel.app/api/internal/moderation/replies?limit=20" \
+  -H "x-internal-key: YOUR_KEY"
+```
+
+```bash
+curl -X DELETE "https://round-app-one.vercel.app/api/internal/moderation/replies/REPLY_ID" \
+  -H "x-internal-key: YOUR_KEY"
+```
+
 ## What the metrics mean
 
 | Metric | Source | Meaning |

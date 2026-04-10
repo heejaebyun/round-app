@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import type { TouchEvent, WheelEvent } from "react";
 import { useRouter } from "next/navigation";
 import { appLogin } from "@apps-in-toss/web-framework";
 import QuestionFeedCard from "@/components/QuestionFeedCard";
@@ -8,7 +9,6 @@ import { apiFetch } from "@/lib/api-client";
 // CATEGORY_COLORS now used inside QuestionFeedCard
 import { heartReason } from "@/lib/reasons";
 import { useChoiceState } from "@/hooks/useChoiceState";
-import { useDNA } from "@/hooks/useDNA";
 import { useQuestionReasons } from "@/hooks/useQuestionReasons";
 import { useQuestionResult } from "@/hooks/useQuestionResult";
 import { isTossMiniApp } from "@/lib/toss";
@@ -23,14 +23,12 @@ export default function Home() {
     showResult,
     choices,
     totalAnswered,
-    totalQuestions,
     allDone,
     choose,
     nextQuestion,
     skipQuestion,
     addReason,
   } = useChoiceState();
-  const { progressMessage } = useDNA(choices);
   const displayQuestion =
     showResult || selectedSide ? resultQuestion ?? currentQuestion : currentQuestion;
 
@@ -53,6 +51,8 @@ export default function Home() {
   const [mounted, setMounted] = useState(false);
   const [authenticated, setAuthenticated] = useState(false);
   const isTossEnv = mounted && isTossMiniApp();
+  const touchStartRef = useRef<{ x: number; y: number } | null>(null);
+  const lastWheelAdvanceRef = useRef(0);
 
   useEffect(() => {
     const frame = requestAnimationFrame(() => setMounted(true));
@@ -145,6 +145,57 @@ export default function Home() {
     router.push("/dna");
   }
 
+  const advanceFeed = useCallback(() => {
+    if (!displayQuestion) return false;
+
+    if (!showResult && !selectedSide) {
+      skipQuestion();
+      return true;
+    }
+
+    if (showResult && showNext) {
+      setShowNext(false);
+      nextQuestion();
+      return true;
+    }
+
+    return false;
+  }, [displayQuestion, nextQuestion, selectedSide, showNext, showResult, skipQuestion]);
+
+  function handleTouchStart(event: TouchEvent<HTMLDivElement>) {
+    const touch = event.touches[0];
+    touchStartRef.current = { x: touch.clientX, y: touch.clientY };
+  }
+
+  function handleTouchEnd(event: TouchEvent<HTMLDivElement>) {
+    const start = touchStartRef.current;
+    if (!start) return;
+    touchStartRef.current = null;
+
+    const touch = event.changedTouches[0];
+    const deltaX = touch.clientX - start.x;
+    const deltaY = touch.clientY - start.y;
+
+    const isVerticalSwipe = Math.abs(deltaY) > 72 && Math.abs(deltaY) > Math.abs(deltaX) * 1.2;
+    const isSwipeUp = deltaY < 0;
+
+    if (isVerticalSwipe && isSwipeUp) {
+      advanceFeed();
+    }
+  }
+
+  function handleWheel(event: WheelEvent<HTMLDivElement>) {
+    if (showResult && !showNext) return;
+    if (!showResult && selectedSide) return;
+    if (event.deltaY < 48) return;
+
+    const now = Date.now();
+    if (now - lastWheelAdvanceRef.current < 500) return;
+
+    lastWheelAdvanceRef.current = now;
+    advanceFeed();
+  }
+
   if (!mounted) return null;
 
   if (allDone) {
@@ -182,30 +233,27 @@ export default function Home() {
             onClick={handleOpenDNA}
             className="round-mono inline-flex h-7 items-center gap-1 rounded-full border border-white/12 bg-white/5 px-2.5 text-[11px] font-medium text-white/60"
           >
-            🧬 DNA{totalAnswered > 0 && <span className="text-cyan-300/80">{totalAnswered}</span>}
+            🧬 DNA
           </button>
         ) : (
           <a
             href="/dna"
             className="round-mono inline-flex h-7 items-center gap-1 rounded-full border border-white/12 bg-white/5 px-2.5 text-[11px] font-medium text-white/60"
           >
-            🧬 DNA{totalAnswered > 0 && <span className="text-cyan-300/80">{totalAnswered}</span>}
+            🧬 DNA
           </a>
         )}
       </header>
 
-      <div className="relative z-10 px-4 pb-1.5">
-        <div className="h-[3px] overflow-hidden rounded-full bg-white/8">
-          <div
-            className="h-full rounded-full bg-gradient-to-r from-cyan-300 via-sky-400 to-violet-400 transition-all duration-500"
-            style={{ width: `${totalQuestions > 0 ? Math.min((totalAnswered / totalQuestions) * 100, 100) : 0}%` }}
-          />
-        </div>
-      </div>
-
       <main className="no-scrollbar relative z-10 flex flex-1 flex-col overflow-y-auto px-4 pb-24">
-        <div className={showResult ? "" : "my-auto"}>
+        <div
+          className={showResult ? "" : "my-auto"}
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+          onWheel={handleWheel}
+        >
           <QuestionFeedCard
+            key={displayQuestion.id}
             question={displayQuestion}
             onChoose={handleChoice}
             onSkip={skipQuestion}
@@ -224,8 +272,6 @@ export default function Home() {
               addReason(text);
               if (selectedSide) prependLocalReason(selectedSide, text);
             }}
-            progressMessage={progressMessage}
-            totalAnswered={totalAnswered}
             showNext={showNext}
             onNext={() => { setShowNext(false); nextQuestion(); }}
           />

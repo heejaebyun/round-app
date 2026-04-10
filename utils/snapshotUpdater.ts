@@ -11,6 +11,7 @@ import { splitGrade } from "./splitScore";
 import { computeReasonCtr, computeHeatScore, computeLongevityScore } from "./scoring";
 import type { QuestionSplitGrade, QuestionStatus } from "@/lib/types";
 import { SEED_QUESTIONS } from "@/data/questions";
+import { getApprovedQuestionCandidates } from "@/lib/questionCandidates";
 
 interface VoteRow { question_id: string; side: string }
 interface EventRow { event_name: string; event_data: Record<string, unknown>; created_at: string }
@@ -113,7 +114,8 @@ export async function updateActiveQuestionSnapshots(): Promise<{
   failed: number;
   results: { questionId: string; ok: boolean }[];
 }> {
-  const ids = SEED_QUESTIONS.map((q) => q.id);
+  const approved = await getApprovedQuestionCandidates();
+  const ids = [...SEED_QUESTIONS, ...approved].map((q) => q.id);
   const results: { questionId: string; ok: boolean }[] = [];
 
   for (const id of ids) {

@@ -6,6 +6,7 @@ import { STARTER_QUESTIONS, FEED_QUESTIONS } from "@/data/questions";
 import { getQuestionOpsMetrics } from "@/utils/questionOps";
 import { getActiveFeedQuestions } from "@/utils/feedSelection";
 import { getQuestionMetricsBatch } from "@/lib/questionMetrics";
+import { getApprovedQuestionCandidates } from "@/lib/questionCandidates";
 import { trackEvent, getDeviceId } from "@/utils/analytics";
 import { saveVote } from "@/lib/votes";
 import { saveReason } from "@/lib/reasons";
@@ -28,16 +29,28 @@ function persistChoices(choices: UserChoice[]) {
 /**
  * Fallback feed (no metrics yet): starter fixed → feed shuffled.
  */
-function buildFallbackSequence(): Question[] {
-  const shuffled = [...FEED_QUESTIONS].sort(() => Math.random() - 0.5);
+function mergeFeedQuestions(dynamicQuestions: Question[] = []): Question[] {
+  const seen = new Set<string>();
+  return [...FEED_QUESTIONS, ...dynamicQuestions].filter((q) => {
+    if (seen.has(q.id)) return false;
+    seen.add(q.id);
+    return true;
+  });
+}
+
+function buildFallbackSequence(dynamicQuestions: Question[] = []): Question[] {
+  const shuffled = [...mergeFeedQuestions(dynamicQuestions)].sort(() => Math.random() - 0.5);
   return [...STARTER_QUESTIONS, ...shuffled];
 }
 
 /**
  * Status-aware feed: starter fixed → feed sorted by status policy.
  */
-function buildStatusAwareSequence(metricsMap: Map<string, QuestionMetricsSnapshot>): Question[] {
-  const activeFeed = getActiveFeedQuestions(FEED_QUESTIONS, metricsMap);
+function buildStatusAwareSequence(
+  feedQuestions: Question[],
+  metricsMap: Map<string, QuestionMetricsSnapshot>,
+): Question[] {
+  const activeFeed = getActiveFeedQuestions(feedQuestions, metricsMap);
   return [...STARTER_QUESTIONS, ...activeFeed];
 }
 
@@ -55,14 +68,28 @@ export function useChoiceState() {
 
   // Load metrics once on mount, then rebuild feed
   useEffect(() => {
-    const ids = FEED_QUESTIONS.map((q) => q.id);
-    getQuestionMetricsBatch(ids).then((metricsMap) => {
-      if (metricsMap.size > 0) {
-        setAllQuestions(buildStatusAwareSequence(metricsMap));
+    let cancelled = false;
+    void (async () => {
+      try {
+        const approved = await getApprovedQuestionCandidates();
+        const mergedFeed = mergeFeedQuestions(approved);
+        if (!cancelled && approved.length > 0) {
+          setAllQuestions(buildFallbackSequence(approved));
+        }
+
+        const ids = mergedFeed.map((q) => q.id);
+        const metricsMap = await getQuestionMetricsBatch(ids);
+        if (!cancelled && metricsMap.size > 0) {
+          setAllQuestions(buildStatusAwareSequence(mergedFeed, metricsMap));
+        }
+      } catch {
+        // Keep fallback
       }
-    }).catch(() => {
-      // Metrics unavailable — keep fallback
-    });
+    })();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const answeredIds = useMemo(
@@ -145,6 +172,11 @@ export function useChoiceState() {
       category: currentQuestion.category,
       reason: "manual_skip",
     });
+
+    // Defensive reset so skip always returns to a clean pre-answer state.
+    setSelectedSide(null);
+    setShowResult(false);
+    setResultQuestion(null);
 
     setSkippedIds((prev) => {
       // Remove if already in queue, then push to end

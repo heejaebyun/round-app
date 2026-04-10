@@ -24,6 +24,9 @@ const excludedRoutes = [
   "app/api/auth/toss/logout/route.ts",
   "app/api/auth/toss/unlink/route.ts",
   "app/api/members/me/route.ts",
+  "app/api/internal/question-inspect/route.ts",
+  "app/api/internal/question-metrics/route.ts",
+  "app/api/cron/update-metrics/route.ts",
 ];
 
 function stashPath(path) {

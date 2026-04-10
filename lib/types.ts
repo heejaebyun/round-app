@@ -39,6 +39,8 @@ export type QuestionStakes = "low" | "social" | "identity" | "financial";
 export type QuestionRiskTag = "ragebait" | "gender_war" | "political" | "defamation_risk" | "too_niche" | "sensitive";
 export type QuestionStatus = "test" | "rising" | "evergreen" | "archive";
 export type QuestionSourceType = "community" | "news_comment" | "internal_submission" | "manual_editorial";
+export type QuestionLocale = "ko-KR" | "en-US" | "en-GB";
+export type QuestionCandidateReviewStatus = "pending" | "approved" | "rejected";
 
 interface BaseQuestion {
   id: string;
@@ -58,6 +60,9 @@ interface BaseQuestion {
   tension?: QuestionTension;
   stakes?: QuestionStakes;
   riskTag?: QuestionRiskTag[];
+  emotionTag?: string[];
+  audienceHint?: string[];
+  locale?: QuestionLocale;
   // Lifecycle
   status?: QuestionStatus;
   sourceType?: QuestionSourceType;
@@ -176,6 +181,68 @@ export interface QuestionFeedbackInsert {
   question_id: string;
   device_id: string;
   reason: QuestionFeedbackReason;
+}
+
+// --- Question Candidates ---
+
+export interface QuestionCandidate {
+  id: string;
+  reviewStatus: QuestionCandidateReviewStatus;
+  question: string;
+  category: Category;
+  categoryEmoji: string;
+  optionA: { label: string };
+  optionB: { label: string };
+  valueA: SnackTag;
+  valueB: SnackTag;
+  displayType: "text";
+  topic: QuestionTopic;
+  subtopic?: string | null;
+  tension: QuestionTension;
+  stakes?: QuestionStakes | null;
+  riskTag?: QuestionRiskTag[];
+  emotionTag?: string[];
+  audienceHint?: string[];
+  locale?: QuestionLocale;
+  sourceType?: QuestionSourceType;
+  sourceNote?: string | null;
+  approvedAt?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface QuestionCandidateInsert {
+  question: string;
+  category: Category;
+  optionA: string;
+  optionB: string;
+  valueA: SnackTag;
+  valueB: SnackTag;
+  topic: QuestionTopic;
+  subtopic?: string;
+  tension: QuestionTension;
+  stakes?: QuestionStakes;
+  riskTag?: QuestionRiskTag[];
+  emotionTag?: string[];
+  audienceHint?: string[];
+  locale?: QuestionLocale;
+  sourceType?: QuestionSourceType;
+  sourceNote?: string;
+}
+
+// --- Admin / moderation ---
+
+export interface AdminReplyItem {
+  id: string;
+  reasonId: string;
+  questionId: string | null;
+  questionText: string | null;
+  reasonText: string;
+  reasonSide: "A" | "B" | null;
+  replyText: string;
+  tone: ReplyTone;
+  selectedOptionId: string | null;
+  createdAt: string;
 }
 
 // --- Reason Reply ---

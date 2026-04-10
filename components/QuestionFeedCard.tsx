@@ -27,9 +27,6 @@ interface Props {
   allReasons: Reason[];
   onHeart?: (id: string) => Promise<{ ok: boolean; alreadyLiked?: boolean }>;
   onReasonSubmit: (text: string) => void;
-  // progress
-  progressMessage: string;
-  totalAnswered: number;
   // next
   showNext: boolean;
   onNext: () => void;
@@ -39,7 +36,6 @@ export default function QuestionFeedCard({
   question, onChoose, onSkip, disabled, selectedSide, isPending,
   showResult, pctA, pctB, totalVotes,
   bestSame, bestOpposite, allReasons, onHeart, onReasonSubmit,
-  progressMessage, totalAnswered,
   showNext, onNext,
 }: Props) {
   const color = CATEGORY_COLORS[question.category];
@@ -207,13 +203,6 @@ export default function QuestionFeedCard({
             <div className="mt-3">
               <ReasonInput onSubmit={onReasonSubmit} />
             </div>
-
-            {/* DNA 프로그레스 */}
-            {progressMessage && totalAnswered > 0 && (
-              <div className="mt-3 rounded-xl border border-cyan-300/15 bg-cyan-300/[0.05] px-3 py-2 text-center text-xs text-cyan-100/70">
-                {progressMessage}
-              </div>
-            )}
 
             {/* 다음 질문 + 피드백 */}
             {showNext && (

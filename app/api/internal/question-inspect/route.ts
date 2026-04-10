@@ -3,6 +3,7 @@ import { SEED_QUESTIONS } from "@/data/questions";
 import { getQuestionMetrics, getQuestionMetricsBatch } from "@/lib/questionMetrics";
 import { getQuestionFeedbackSummary, getQuestionFeedbackBatch } from "@/lib/questionFeedbackSummary";
 import { getQuestionOpsMetrics, deriveQuestionStatus } from "@/utils/questionOps";
+import { getApprovedQuestionCandidates } from "@/lib/questionCandidates";
 
 const INTERNAL_KEY = process.env.INTERNAL_API_KEY?.trim();
 
@@ -26,10 +27,12 @@ export async function GET(request: NextRequest) {
 
   const questionId = request.nextUrl.searchParams.get("id");
   const all = request.nextUrl.searchParams.get("all") === "true";
+  const approved = await getApprovedQuestionCandidates();
+  const allQuestions = [...SEED_QUESTIONS, ...approved];
 
   // ─── Single question ───
   if (questionId) {
-    const question = SEED_QUESTIONS.find((q) => q.id === questionId);
+    const question = allQuestions.find((q) => q.id === questionId);
     if (!question) return NextResponse.json({ message: "question not found" }, { status: 404 });
 
     const snapshot = await getQuestionMetrics(questionId);
@@ -51,11 +54,11 @@ export async function GET(request: NextRequest) {
 
   // ─── All questions summary ───
   if (all) {
-    const ids = SEED_QUESTIONS.map((q) => q.id);
+    const ids = allQuestions.map((q) => q.id);
     const metricsMap = await getQuestionMetricsBatch(ids);
     const feedbackMap = await getQuestionFeedbackBatch(ids);
 
-    const items = SEED_QUESTIONS.map((q) => {
+    const items = allQuestions.map((q) => {
       const snapshot = metricsMap.get(q.id) ?? null;
       const ops = getQuestionOpsMetrics(q, snapshot);
       const status = deriveQuestionStatus(ops);
@@ -74,6 +77,7 @@ export async function GET(request: NextRequest) {
         reasonCtr: ops.reasonCtr ?? 0,
         derivedStatus: status,
         feedbackTotal: fb?.total ?? 0,
+        feedbackByReason: fb?.byReason ?? null,
       };
     });
 
