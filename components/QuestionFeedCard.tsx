@@ -112,7 +112,7 @@ export default function QuestionFeedCard({
           type="button"
           onClick={onSkip}
           aria-label="건너뛰기"
-          className="mt-3 inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/8 bg-white/[0.03] text-[13px] text-white/35 transition hover:text-white/70"
+          className="mt-3 inline-flex h-7 w-7 items-center justify-center rounded-full text-[12px] text-white/25 transition hover:bg-white/[0.04] hover:text-white/65 active:scale-[0.9]"
         >
           ✕
         </button>
