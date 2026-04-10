@@ -2,6 +2,32 @@ import type { Category, UserChoice } from "./types";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
+/** 오늘(local midnight 이후)의 선택만 추출한 요약 — 피드 상단 미니 칩용 */
+export interface TodayTrace {
+  count: number;
+  topCategory: { category: Category; count: number } | null;
+}
+
+export function computeTodayTrace(choices: UserChoice[]): TodayTrace {
+  const now = new Date();
+  const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+
+  const today = choices.filter((c) => {
+    const t = c.chosenAt instanceof Date ? c.chosenAt.getTime() : new Date(c.chosenAt).getTime();
+    return Number.isFinite(t) && t >= midnight;
+  });
+
+  if (today.length === 0) return { count: 0, topCategory: null };
+
+  const counts = new Map<Category, number>();
+  for (const c of today) counts.set(c.category, (counts.get(c.category) ?? 0) + 1);
+  const top = Array.from(counts.entries())
+    .map(([category, count]) => ({ category, count }))
+    .sort((a, b) => b.count - a.count)[0];
+
+  return { count: today.length, topCategory: top ?? null };
+}
+
 export interface ActivityStats {
   /** 총 응답 수 (전체 기간) */
   totalAll: number;
