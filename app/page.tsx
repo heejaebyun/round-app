@@ -95,16 +95,8 @@ export default function Home() {
     trackEvent("result_viewed", { questionId: displayQuestion?.id });
     trackEvent("reason_impression", { questionId: displayQuestion?.id });
     const showTimer = setTimeout(() => setShowNext(true), 1200);
-    // Auto-advance to next card after result has been visible for 3.7s total
-    const autoAdvanceTimer = setTimeout(() => {
-      setShowNext(false);
-      nextQuestion();
-    }, 3700);
-    return () => {
-      clearTimeout(showTimer);
-      clearTimeout(autoAdvanceTimer);
-    };
-  }, [showResult, displayQuestion, nextQuestion]);
+    return () => clearTimeout(showTimer);
+  }, [showResult, displayQuestion]);
 
   async function ensureTossLogin() {
     if (!isTossEnv) return true;
