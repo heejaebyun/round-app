@@ -7,6 +7,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { appLogin } from "@apps-in-toss/web-framework";
 import QuestionFeedCard from "@/components/QuestionFeedCard";
 import TraceChip from "@/components/TraceChip";
+import { buildContextHint } from "@/lib/userActivity";
 import { apiFetch } from "@/lib/api-client";
 // CATEGORY_COLORS now used inside QuestionFeedCard
 import { heartReason } from "@/lib/reasons";
@@ -33,6 +34,10 @@ export default function Home() {
   } = useChoiceState();
   const displayQuestion =
     showResult || selectedSide ? resultQuestion ?? currentQuestion : currentQuestion;
+
+  // Context hint — only derived from currentQuestion (the *next* pick),
+  // never from a resolved result. Pre-selection surface only.
+  const contextHint = buildContextHint(currentQuestion ?? null, choices);
 
   const liveResult = useQuestionResult(
     displayQuestion?.id,
@@ -291,6 +296,7 @@ export default function Home() {
               addReason(text);
               if (selectedSide) prependLocalReason(selectedSide, text);
             }}
+            contextHint={contextHint}
           />
         </motion.div>
       </AnimatePresence>

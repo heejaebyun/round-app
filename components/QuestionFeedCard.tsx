@@ -27,6 +27,8 @@ interface Props {
   allReasons: Reason[];
   onHeart?: (id: string) => Promise<{ ok: boolean; alreadyLiked?: boolean }>;
   onReasonSubmit: (text: string) => void;
+  // context
+  contextHint?: string | null;
 }
 
 /**
@@ -57,6 +59,7 @@ export default function QuestionFeedCard({
   allReasons,
   onHeart,
   onReasonSubmit,
+  contextHint,
 }: Props) {
   const color = CATEGORY_COLORS[question.category];
   const sideLabel = (s: "A" | "B") =>
@@ -120,6 +123,17 @@ export default function QuestionFeedCard({
 
       {/* ─── Middle: category badge + big question ─── */}
       <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-6 pb-4 text-center">
+        {/* Context hint — only pre-selection, only if hint exists */}
+        {contextHint && !showResult && !selectedSide && (
+          <motion.p
+            initial={{ opacity: 0, y: -2 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.22 }}
+            className="round-mono mb-3 text-[11px] font-medium tracking-tight text-white/40"
+          >
+            {contextHint}
+          </motion.p>
+        )}
         <motion.div
           initial={{ opacity: 0, y: 4 }}
           animate={{ opacity: 1, y: 0 }}

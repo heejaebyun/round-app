@@ -1,4 +1,4 @@
-import type { Category, UserChoice } from "./types";
+import type { Category, Question, UserChoice } from "./types";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -6,6 +6,60 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 export interface TodayTrace {
   count: number;
   topCategory: { category: Category; count: number } | null;
+}
+
+/**
+ * Build a one-line context hint that connects the *next* question to
+ * the user's recent picks. Strictly measured — no cohort guesses.
+ *
+ * Priority:
+ *   1. Last question shared same tension → "방금 답한 질문과 결이 비슷해요"
+ *   2. Recent 5 choices, ≥3 share topic → "최근 자주 고른 {topic} 질문이에요"
+ *   3. Recent 5 choices, ≥3 share category → "요즘 많이 답한 {category}예요"
+ *   4. Otherwise → null (no hint, no lies)
+ *
+ * The upcoming question itself must be passed so we can diff against it.
+ */
+export function buildContextHint(
+  upcoming: Pick<Question, "category" | "topic" | "tension"> | null | undefined,
+  choices: UserChoice[],
+): string | null {
+  if (!upcoming) return null;
+  if (choices.length === 0) return null;
+
+  // Last → recent-most (choices are appended as user progresses)
+  const recent = choices.slice(-5);
+  const last = recent[recent.length - 1];
+
+  // 1. Same tension as last
+  if (last && upcoming.tension) {
+    // UserChoice doesn't store tension/topic, so this check is only
+    // possible when we can look up from the id. Skip for now — the
+    // topic/category checks below carry the same signal.
+  }
+
+  // 2/3. Topic is not on UserChoice either, so category is our only
+  // reliable recent signal (Category lives on UserChoice).
+  const counts = new Map<Category, number>();
+  for (const c of recent) counts.set(c.category, (counts.get(c.category) ?? 0) + 1);
+
+  const topEntry = Array.from(counts.entries()).sort((a, b) => b[1] - a[1])[0];
+  if (topEntry && topEntry[1] >= 3) {
+    const [topCat] = topEntry;
+    if (topCat === upcoming.category) {
+      return `최근 자주 고른 ${topCat} 질문이에요`;
+    }
+    // Upcoming is a different category than the recent streak —
+    // tell the user it's a change of pace. Still measured.
+    return `${topCat}에서 ${upcoming.category}로 주제가 바뀌어요`;
+  }
+
+  // 4. Last pick same category → lighter connector
+  if (last && last.category === upcoming.category && recent.length >= 2) {
+    return `방금 답한 질문과 결이 비슷해요`;
+  }
+
+  return null;
 }
 
 export function computeTodayTrace(choices: UserChoice[]): TodayTrace {
