@@ -70,7 +70,7 @@ export default function QuestionFeedCard({
       setShowBar(false);
       return;
     }
-    const t = setTimeout(() => setShowBar(true), 150);
+    const t = setTimeout(() => setShowBar(true), 80);
     return () => clearTimeout(t);
   }, [showResult]);
 
@@ -98,10 +98,10 @@ export default function QuestionFeedCard({
           <AnimatePresence>
             {showResult && (
               <motion.div
-                initial={{ opacity: 0, y: -8 }}
+                initial={{ opacity: 0, y: -6 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0 }}
-                transition={{ delay: 0.6 }}
+                transition={{ delay: 0.42, duration: 0.22 }}
               >
                 <QuestionFeedback questionId={question.id} />
               </motion.div>
@@ -121,9 +121,9 @@ export default function QuestionFeedCard({
       {/* ─── Middle: category badge + big question ─── */}
       <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-6 pb-4 text-center">
         <motion.div
-          initial={{ opacity: 0, y: 6 }}
+          initial={{ opacity: 0, y: 4 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
+          transition={{ duration: 0.2 }}
           className="inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[11px] font-semibold"
           style={{
             borderColor: `${color}44`,
@@ -135,9 +135,9 @@ export default function QuestionFeedCard({
           <span>{question.category}</span>
         </motion.div>
         <motion.h2
-          initial={{ opacity: 0, y: 10 }}
+          initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.35, delay: 0.05 }}
+          transition={{ duration: 0.24, delay: 0.04 }}
           className="mt-5 text-balance text-[26px] font-black leading-[1.25] tracking-[-0.035em] text-white sm:text-[28px]"
           style={{ textShadow: `0 6px 40px ${color}33` }}
         >
@@ -228,14 +228,14 @@ export default function QuestionFeedCard({
                     }}
                   >
                     <div
-                      className="absolute inset-y-0 left-0 transition-[width] duration-[900ms]"
+                      className="absolute inset-y-0 left-0 transition-[width] duration-[600ms]"
                       style={{
                         width: showBar ? `${pct}%` : "0%",
                         background: isMe
                           ? `linear-gradient(90deg, ${color}55, ${color}12)`
                           : "linear-gradient(90deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02))",
                         transitionTimingFunction:
-                          "cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+                          "cubic-bezier(0.2, 0.8, 0.2, 1)",
                       }}
                     />
                     <div className="relative flex items-center justify-between gap-3">
@@ -268,9 +268,9 @@ export default function QuestionFeedCard({
               {/* Best voices preview (1 line each) */}
               {(bestSame || bestOpposite) && (
                 <motion.div
-                  initial={{ opacity: 0, y: 8 }}
+                  initial={{ opacity: 0, y: 6 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.45 }}
+                  transition={{ delay: 0.28, duration: 0.22 }}
                   className="mt-1 flex flex-col gap-1.5"
                 >
                   {bestSame && (
@@ -292,9 +292,9 @@ export default function QuestionFeedCard({
               <motion.button
                 type="button"
                 onClick={() => setSheetOpen(true)}
-                initial={{ opacity: 0, y: 8 }}
+                initial={{ opacity: 0, y: 6 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.55 }}
+                transition={{ delay: 0.36, duration: 0.22 }}
                 whileTap={{ scale: 0.98 }}
                 className="mt-1 flex items-center justify-center gap-1.5 rounded-full border border-white/10 bg-white/[0.04] py-2.5 text-[12px] font-semibold text-white/70 transition hover:bg-white/[0.08]"
               >

@@ -7,7 +7,7 @@ interface Props {
   duration?: number;
 }
 
-export default function AnimatedNumber({ target, duration = 800 }: Props) {
+export default function AnimatedNumber({ target, duration = 520 }: Props) {
   const [value, setValue] = useState(0);
 
   useEffect(() => {
