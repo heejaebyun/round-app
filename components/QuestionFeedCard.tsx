@@ -7,12 +7,12 @@ import type { Question, Reason } from "@/lib/types";
 import AnimatedNumber from "./AnimatedNumber";
 import QuestionFeedback from "./QuestionFeedback";
 import VoicesSheet from "./VoicesSheet";
+// onSkip is handled by the page-level floating X button now
 
 interface Props {
   question: Question;
   // pre-choice
   onChoose: (side: "A" | "B") => void;
-  onSkip: () => void;
   disabled: boolean;
   selectedSide: "A" | "B" | null;
   isPending: boolean;
@@ -46,7 +46,6 @@ interface Props {
 export default function QuestionFeedCard({
   question,
   onChoose,
-  onSkip,
   disabled,
   selectedSide,
   isPending,
@@ -95,31 +94,9 @@ export default function QuestionFeedCard({
       }}
     >
       {/* ─── Top bar: feedback thumbs + skip X ─── */}
-      <div className="relative z-10 flex items-start justify-between px-5 pt-safe-top">
-        <div className="pt-3">
-          {/* Thumbs: only visible post-result (selection needed first) */}
-          <AnimatePresence>
-            {showResult && (
-              <motion.div
-                initial={{ opacity: 0, y: -6 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0 }}
-                transition={{ delay: 0.42, duration: 0.22 }}
-              >
-                <QuestionFeedback questionId={question.id} />
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-        <button
-          type="button"
-          onClick={onSkip}
-          aria-label="건너뛰기"
-          className="mt-3 inline-flex h-7 w-7 items-center justify-center rounded-full text-[12px] text-white/25 transition hover:bg-white/[0.04] hover:text-white/65 active:scale-[0.9]"
-        >
-          ✕
-        </button>
-      </div>
+      {/* Card no longer owns the top bar. Skip X + thumbs moved out:
+          - Skip X → floating header in app/page.tsx
+          - 👍/👎  → inline with the 의견 보기 CTA in the result area */}
 
       {/* ─── Middle: category badge + big question ─── */}
       <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-6 pb-4 text-center">
@@ -302,18 +279,22 @@ export default function QuestionFeedCard({
                 </motion.div>
               )}
 
-              {/* Voices sheet CTA */}
-              <motion.button
-                type="button"
-                onClick={() => setSheetOpen(true)}
+              {/* Voices sheet CTA + 👍/👎 inline */}
+              <motion.div
                 initial={{ opacity: 0, y: 6 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.36, duration: 0.22 }}
-                whileTap={{ scale: 0.98 }}
-                className="mt-1 flex items-center justify-center gap-1.5 rounded-full border border-white/10 bg-white/[0.04] py-2.5 text-[12px] font-semibold text-white/70 transition hover:bg-white/[0.08]"
+                className="mt-1 flex items-center gap-2"
               >
-                💬 의견 {allReasons.length}개 보기
-              </motion.button>
+                <button
+                  type="button"
+                  onClick={() => setSheetOpen(true)}
+                  className="flex flex-1 items-center justify-center gap-1.5 rounded-full border border-white/10 bg-white/[0.04] py-2.5 text-[12px] font-semibold text-white/70 transition hover:bg-white/[0.08] active:scale-[0.985]"
+                >
+                  💬 의견 {allReasons.length}개 보기
+                </button>
+                <QuestionFeedback questionId={question.id} />
+              </motion.div>
             </motion.div>
           )}
         </AnimatePresence>

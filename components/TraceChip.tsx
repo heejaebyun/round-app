@@ -32,15 +32,20 @@ export default function TraceChip({ choices, isTossEnv, onBeforeNavigate }: Prop
   const router = useRouter();
   const trace = computeTodayTrace(choices);
 
-  if (trace.count === 0) return null;
-
+  // No same-day footprint yet → fall back to plain DNA entry point.
+  // This chip is the *only* way into /dna now, so we always render
+  // something, but the content changes with activity.
   const emoji =
-    (trace.topCategory && EMOJI_BY_CATEGORY[trace.topCategory.category]) || "✨";
+    (trace.topCategory && EMOJI_BY_CATEGORY[trace.topCategory.category]) || null;
 
-  const label =
-    trace.count < 3 || !trace.topCategory
-      ? `오늘 ${trace.count}개`
-      : `${emoji} 오늘 ${trace.count}개`;
+  let label: string;
+  if (trace.count === 0) {
+    label = "🧬 DNA";
+  } else if (trace.count < 3 || !emoji) {
+    label = `오늘 ${trace.count}개`;
+  } else {
+    label = `${emoji} 오늘 ${trace.count}개`;
+  }
 
   const handleClick = async () => {
     if (onBeforeNavigate) {
