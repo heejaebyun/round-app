@@ -95,6 +95,7 @@ export default function DNAPage() {
           <DNAProfile
             dna={dna}
             progressMessage={progressMessage}
+            choices={choices}
             onResetChoices={handleResetChoices}
           />
         )}

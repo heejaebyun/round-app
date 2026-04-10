@@ -1,15 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import type { ChoiceDNA } from "@/lib/types";
+import type { ChoiceDNA, UserChoice } from "@/lib/types";
 import { buildDNAShareUrl } from "@/lib/share";
 import { SITE } from "@/lib/site";
 import { trackEvent } from "@/utils/analytics";
 import { getAxisInterpretation, getTagInterpretation, generateSummaryLine } from "@/utils/dnaCalculator";
+import ActivitySummary from "./ActivitySummary";
 
 interface Props {
   dna: ChoiceDNA;
   progressMessage: string;
+  choices: UserChoice[];
   onResetChoices: () => void;
 }
 
@@ -20,7 +22,7 @@ const AXIS_LABELS: Record<string, [string, string]> = {
   Motivation: ["안정", "도전"],
 };
 
-export default function DNAProfile({ dna, progressMessage, onResetChoices }: Props) {
+export default function DNAProfile({ dna, progressMessage, choices, onResetChoices }: Props) {
   const [shareState, setShareState] = useState<"idle" | "copied">("idle");
   const [deepDive, setDeepDive] = useState(false);
   const topTags = Object.entries(dna.tags).sort(([, a], [, b]) => b - a).slice(0, 3);
@@ -44,20 +46,10 @@ export default function DNAProfile({ dna, progressMessage, onResetChoices }: Pro
 
   return (
     <div className="round-shell flex flex-col gap-5 px-4 py-6">
-      {/* 메인 카드 */}
-      <section className="round-panel-strong overflow-hidden rounded-[34px] px-6 py-7">
-        <p className="round-mono text-[11px] uppercase tracking-[0.34em] text-cyan-200/58">Choice DNA</p>
-        {dna.topTag && <p className="mt-3 text-sm font-semibold text-cyan-300/80">#{dna.topTag}</p>}
-        <h1 className="mt-2 text-[2rem] font-black leading-none tracking-[-0.05em] text-white">{dna.archetype}</h1>
-        <p className="mt-3 max-w-xs text-sm leading-6 text-white/58">{dna.archetypeDescription}</p>
-        {dna.totalChoices >= 4 && (
-          <p className="mt-4 rounded-[16px] border border-white/8 bg-white/[0.03] px-4 py-3 text-[13px] leading-relaxed text-white/65">
-            {summaryLine}
-          </p>
-        )}
-      </section>
+      {/* 1. 최근 7일 실측 활동 요약 (맨 위) */}
+      <ActivitySummary choices={choices} />
 
-      {/* 4축 점수 */}
+      {/* 2. 4축 점수 */}
       <section className="round-panel rounded-[30px] px-5 py-5">
         <p className="round-mono text-[11px] uppercase tracking-[0.26em] text-white/35">4 Axes</p>
         <div className="mt-4 flex flex-col gap-3">
@@ -98,6 +90,27 @@ export default function DNAProfile({ dna, progressMessage, onResetChoices }: Pro
         <p className="text-xs text-white/40">총 선택</p>
         <p className="round-mono mt-2 text-2xl font-extrabold text-white/84">{dna.totalChoices}회</p>
       </div>
+
+      {/* 5. DNA 라벨 배지 (맨 아래, 요약 배지) */}
+      <section className="round-panel-strong overflow-hidden rounded-[30px] px-5 py-5">
+        <p className="round-mono text-[11px] uppercase tracking-[0.3em] text-cyan-200/60">
+          이번 주의 요약 라벨
+        </p>
+        {dna.topTag && (
+          <p className="mt-3 text-sm font-semibold text-cyan-300/80">#{dna.topTag}</p>
+        )}
+        <h2 className="mt-1 text-xl font-black leading-tight tracking-[-0.03em] text-white">
+          {dna.archetype}
+        </h2>
+        <p className="mt-2 text-[13px] leading-relaxed text-white/55">
+          {dna.archetypeDescription}
+        </p>
+        {dna.totalChoices >= 4 && (
+          <p className="mt-3 rounded-[14px] border border-white/8 bg-white/[0.03] px-3 py-2.5 text-[12px] leading-relaxed text-white/55">
+            {summaryLine}
+          </p>
+        )}
+      </section>
 
       {/* 심화 보기 CTA */}
       {/* TODO: reward ad gate candidate — 향후 리워드 광고 삽입 포인트 */}
