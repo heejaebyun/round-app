@@ -28,7 +28,7 @@ export default async function DNASharePage({ searchParams }: Props) {
   const share = parseDNAShareParams(await searchParams);
 
   return (
-    <main className="round-shell flex min-h-screen items-center justify-center px-5 py-10">
+    <main className="round-canvas round-shell items-center justify-center px-5 py-10">
       <div className="round-panel-strong w-full max-w-sm rounded-3xl px-5 py-6 text-center">
         <p className="round-mono text-[10px] uppercase tracking-[0.3em] text-cyan-200/50">
           Choice DNA

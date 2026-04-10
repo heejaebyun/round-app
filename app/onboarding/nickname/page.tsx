@@ -83,15 +83,15 @@ export default function NicknameOnboardingPage() {
 
   if (loading) {
     return (
-      <main className="round-shell flex h-full items-center justify-center px-6 text-sm text-white/60">
+      <main className="round-canvas round-shell items-center justify-center px-6 text-sm text-white/60">
         회원 정보를 불러오는 중...
       </main>
     );
   }
 
   return (
-    <main className="round-shell flex h-full flex-col px-6 py-12">
-      <div className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center">
+    <main className="round-canvas round-shell px-6 py-12">
+      <div className="flex w-full flex-1 flex-col justify-center">
         <div className="round-panel-strong rounded-[34px] px-6 py-8">
           <p className="round-mono text-[11px] uppercase tracking-[0.34em] text-cyan-300/70">
             Welcome

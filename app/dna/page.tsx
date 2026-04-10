@@ -52,7 +52,7 @@ export default function DNAPage() {
   if (!mounted) return null;
 
   return (
-    <div className="round-shell flex h-full flex-col">
+    <div className="round-canvas round-shell">
       <header className="relative z-10 flex items-center justify-between px-5 pb-4 pt-safe-top">
         <div className="pt-2">
           <p className="round-mono text-[11px] uppercase tracking-[0.36em] text-cyan-300/65">

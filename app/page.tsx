@@ -205,7 +205,7 @@ export default function Home() {
 
   if (allDone) {
     return (
-      <div className="round-shell flex h-full flex-col items-center justify-center px-6">
+      <div className="round-canvas round-shell items-center justify-center px-6">
         <div className="round-panel-strong w-full max-w-sm rounded-[34px] px-6 py-10 text-center">
           <p className="text-5xl">✨</p>
           <h2 className="mt-5 text-2xl font-black tracking-[-0.04em] text-white">
@@ -229,7 +229,7 @@ export default function Home() {
   if (!displayQuestion || !currentQuestion) return null;
 
   return (
-    <div className="round-shell relative flex h-full flex-col">
+    <div className="round-canvas round-shell">
       <header className="relative z-10 flex items-center justify-between px-4 pb-1.5 pt-safe-top">
         <p className="round-mono text-sm font-bold text-white/90">Round</p>
         {isTossEnv ? (

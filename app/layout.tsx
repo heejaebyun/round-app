@@ -70,7 +70,7 @@ export default function RootLayout({
       <head>
         <link rel="apple-touch-icon" href="/icon-192.png" />
       </head>
-      <body className="h-full bg-[#08080d]">{children}</body>
+      <body className="min-h-full bg-[#050608]">{children}</body>
     </html>
   );
 }

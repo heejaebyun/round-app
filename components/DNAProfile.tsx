@@ -45,7 +45,7 @@ export default function DNAProfile({ dna, progressMessage, choices, onResetChoic
   }
 
   return (
-    <div className="round-shell flex flex-col gap-5 px-4 py-6">
+    <div className="flex flex-col gap-5 px-4 py-6">
       {/* 1. 최근 7일 실측 활동 요약 (맨 위) */}
       <ActivitySummary choices={choices} />
 
