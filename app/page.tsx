@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { TouchEvent, WheelEvent } from "react";
 import { useRouter } from "next/navigation";
+import { AnimatePresence, motion } from "framer-motion";
 import { appLogin } from "@apps-in-toss/web-framework";
 import QuestionFeedCard from "@/components/QuestionFeedCard";
 import { apiFetch } from "@/lib/api-client";
@@ -47,7 +48,6 @@ export default function Home() {
     selectedSide,
   );
 
-  const [showNext, setShowNext] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [authenticated, setAuthenticated] = useState(false);
   const isTossEnv = mounted && isTossMiniApp();
@@ -94,8 +94,6 @@ export default function Home() {
     if (!showResult) return;
     trackEvent("result_viewed", { questionId: displayQuestion?.id });
     trackEvent("reason_impression", { questionId: displayQuestion?.id });
-    const showTimer = setTimeout(() => setShowNext(true), 1200);
-    return () => clearTimeout(showTimer);
   }, [showResult, displayQuestion]);
 
   async function ensureTossLogin() {
@@ -154,9 +152,8 @@ export default function Home() {
       return true;
     }
 
-    // Post-result: any swipe advances (don't wait for showNext)
+    // Post-result: any swipe advances
     if (showResult) {
-      setShowNext(false);
       nextQuestion();
       return true;
     }
@@ -229,38 +226,45 @@ export default function Home() {
   if (!displayQuestion || !currentQuestion) return null;
 
   return (
-    <div className="round-canvas round-shell">
-      <header className="relative z-10 flex items-center justify-between px-4 pb-1.5 pt-safe-top">
-        <p className="round-mono text-sm font-bold text-white/90">Round</p>
-        {isTossEnv ? (
-          <button
-            type="button"
-            onClick={handleOpenDNA}
-            className="round-mono inline-flex h-7 items-center gap-1 rounded-full border border-white/12 bg-white/5 px-2.5 text-[11px] font-medium text-white/60"
-          >
-            🧬 DNA
-          </button>
-        ) : (
-          <a
-            href="/dna"
-            className="round-mono inline-flex h-7 items-center gap-1 rounded-full border border-white/12 bg-white/5 px-2.5 text-[11px] font-medium text-white/60"
-          >
-            🧬 DNA
-          </a>
-        )}
-      </header>
+    <div
+      className="round-canvas round-shell relative overflow-hidden"
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+      onWheel={handleWheel}
+    >
+      {/* Floating top-left brand + DNA — over the full-bleed card */}
+      <div className="pointer-events-none absolute inset-x-0 top-0 z-20 flex items-center justify-between px-5 pt-safe-top">
+        <p className="round-mono pointer-events-auto pt-3 text-[13px] font-black tracking-tight text-white/85">
+          Round
+        </p>
+        <div className="pointer-events-auto pt-3">
+          {isTossEnv ? (
+            <button
+              type="button"
+              onClick={handleOpenDNA}
+              className="round-mono inline-flex h-8 items-center gap-1 rounded-full border border-white/10 bg-white/[0.05] px-3 text-[11px] font-semibold text-white/70 backdrop-blur"
+            >
+              🧬 DNA
+            </button>
+          ) : (
+            <a
+              href="/dna"
+              className="round-mono inline-flex h-8 items-center gap-1 rounded-full border border-white/10 bg-white/[0.05] px-3 text-[11px] font-semibold text-white/70 backdrop-blur"
+            >
+              🧬 DNA
+            </a>
+          )}
+        </div>
+      </div>
 
-      <main
-        className="no-scrollbar relative z-10 flex flex-1 flex-col overflow-y-auto px-4 pb-24"
-        style={{ scrollSnapType: "y mandatory" }}
-      >
-        <div
+      <AnimatePresence mode="wait">
+        <motion.div
           key={displayQuestion.id}
-          className="animate-feedSlide flex min-h-full flex-col justify-center"
-          style={{ scrollSnapAlign: "start", scrollSnapStop: "always" }}
-          onTouchStart={handleTouchStart}
-          onTouchEnd={handleTouchEnd}
-          onWheel={handleWheel}
+          initial={{ opacity: 0, y: 32 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -24 }}
+          transition={{ type: "spring", damping: 28, stiffness: 280 }}
+          className="absolute inset-0"
         >
           <QuestionFeedCard
             question={displayQuestion}
@@ -281,11 +285,9 @@ export default function Home() {
               addReason(text);
               if (selectedSide) prependLocalReason(selectedSide, text);
             }}
-            showNext={showNext}
-            onNext={() => { setShowNext(false); nextQuestion(); }}
           />
-        </div>
-      </main>
+        </motion.div>
+      </AnimatePresence>
     </div>
   );
 }

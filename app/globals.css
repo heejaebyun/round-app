@@ -48,6 +48,24 @@ input {
   padding-bottom: max(env(safe-area-inset-bottom), 12px);
 }
 
+/* Round category accent colors — used as --category-accent CSS var */
+[data-category="관계"]   { --category-accent: #FF4FA3; }
+[data-category="커리어"] { --category-accent: #3DDCFF; }
+[data-category="소비"]   { --category-accent: #F5B041; }
+[data-category="라이프"] { --category-accent: #34D399; }
+[data-category="음식"]   { --category-accent: #FF7A59; }
+[data-category="여행"]   { --category-accent: #8E6BFF; }
+[data-category="트렌드"] { --category-accent: #FF5D5D; }
+
+/* Bounce hint for "다음 질문" arrow */
+@keyframes hintBounce {
+  0%, 100% { transform: translateY(0); opacity: 0.35; }
+  50%      { transform: translateY(4px); opacity: 0.6; }
+}
+.animate-hintBounce {
+  animation: hintBounce 2s ease-in-out infinite;
+}
+
 /* 모바일 캔버스 래퍼 — 데스크톱에서도 420px 고정 */
 .round-canvas {
   position: relative;
