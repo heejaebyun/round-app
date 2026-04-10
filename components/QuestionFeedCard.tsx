@@ -64,12 +64,15 @@ export default function QuestionFeedCard({
       <div className="round-panel-strong relative overflow-hidden rounded-3xl">
         {/* ─── 상단: 카테고리 + 질문 (항상 보임) ─── */}
         <div className="px-5 pt-5 pb-1">
-          <div
-            className="inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[10px] font-semibold"
-            style={{ borderColor: `${color}33`, backgroundColor: `${color}14`, color }}
-          >
-            <span>{question.categoryEmoji}</span>
-            <span>{question.category}</span>
+          <div className="flex items-center justify-between gap-2">
+            <div
+              className="inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[10px] font-semibold"
+              style={{ borderColor: `${color}33`, backgroundColor: `${color}14`, color }}
+            >
+              <span>{question.categoryEmoji}</span>
+              <span>{question.category}</span>
+            </div>
+            <QuestionFeedback questionId={question.id} />
           </div>
           <h2 className={`mt-3 font-bold leading-snug tracking-[-0.02em] text-white ${isImage ? "text-base" : "text-lg"}`}>
             {question.question}
@@ -204,14 +207,13 @@ export default function QuestionFeedCard({
               <ReasonInput onSubmit={onReasonSubmit} />
             </div>
 
-            {/* 다음 질문 + 피드백 */}
+            {/* 다음 질문 */}
             {showNext && (
-              <div className="animate-fadeUp mt-4 flex flex-col items-center gap-3">
+              <div className="animate-fadeUp mt-4">
                 <button type="button" onClick={onNext}
                   className="w-full rounded-2xl border border-white/10 bg-white/90 py-3.5 text-sm font-bold text-slate-900 transition-transform active:scale-[0.985]">
                   다음 질문
                 </button>
-                <QuestionFeedback questionId={question.id} />
               </div>
             )}
           </div>

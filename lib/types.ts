@@ -171,6 +171,7 @@ export interface QuestionMetricsSnapshot {
 
 /** Question quality feedback from users */
 export type QuestionFeedbackReason =
+  | "liked"            // 좋아요 (사유 없음)
   | "too_obvious"      // 답이 너무 뻔해요
   | "too_provocative"  // 너무 자극적이에요
   | "weak_context"     // 맥락이 약해요

@@ -8,6 +8,7 @@ export interface FeedbackSummary {
 }
 
 const EMPTY_REASONS: Record<QuestionFeedbackReason, number> = {
+  liked: 0,
   too_obvious: 0,
   too_provocative: 0,
   weak_context: 0,

@@ -4,7 +4,7 @@ create table if not exists question_feedback (
   question_id text not null,
   device_id text not null,
   reason text not null check (reason in (
-    'too_obvious', 'too_provocative', 'weak_context', 'too_similar', 'not_interested'
+    'liked', 'too_obvious', 'too_provocative', 'weak_context', 'too_similar', 'not_interested'
   )),
   created_at timestamptz default now()
 );
