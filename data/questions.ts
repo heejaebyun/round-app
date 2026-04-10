@@ -235,36 +235,7 @@ export const FEED_QUESTIONS: Question[] = [
       { side: "B", text: "100만 원이면 여행 감", likes: 44 },
     ],
   },
-  // --- 라이프 ---
-  {
-    id: "ex-06", qtype: "Snack", axis: null,
-    valueA: "갓생러", valueB: "야행성",
-    displayType: "text", category: "라이프", categoryEmoji: "🌿",
-    topic: "self", tension: "freedom_vs_responsibility",
-    question: "알람은 몇 개?",
-    optionA: { label: "1개. 한 번에 일어남" },
-    optionB: { label: "5개 이상. 보험이 필요함" },
-    resultA: 35, resultB: 65, totalVotes: 423,
-    reasons: [
-      { side: "A", text: "의지력 하나로 버팀", likes: 30 },
-      { side: "B", text: "5분 간격 5개가 국룰", likes: 41 },
-    ],
-  },
-  {
-    id: "ex-07", qtype: "Snack", axis: null,
-    valueA: "핫플러", valueB: "집콕러",
-    displayType: "text", category: "라이프", categoryEmoji: "🌿",
-    topic: "lifestyle", tension: "stability_vs_growth",
-    question: "요즘 핫한 곳 vs 단골집",
-    optionA: { label: "새로운 데 가봐야지" },
-    optionB: { label: "맛 보장된 단골이 최고" },
-    resultA: 43, resultB: 57, totalVotes: 398,
-    reasons: [
-      { side: "A", text: "인생 맛집은 탐험에서 나옴", likes: 29 },
-      { side: "B", text: "실패 없는 선택이 좋음", likes: 37 },
-    ],
-  },
-  // --- 관계 (태그: 행동형 vs 관망형 — Snack이므로 가장 가까운 태그 매핑) ---
+  // --- 관계 ---
   {
     id: "ex-08", qtype: "Snack", axis: null,
     valueA: "갓생러", valueB: "집콕러",
@@ -365,35 +336,6 @@ export const FEED_QUESTIONS: Question[] = [
       { side: "B", text: "월세는 그냥 사라지는 돈", likes: 38 },
     ],
   },
-  // --- 이미지 질문 ---
-  {
-    id: "ex-15", qtype: "Snack", axis: null,
-    valueA: "핫플러", valueB: "집콕러",
-    displayType: "image", category: "라이프", categoryEmoji: "🌿",
-    topic: "lifestyle", tension: "freedom_vs_responsibility",
-    question: "소개팅 나간다, 뭐 입지?",
-    optionA: { label: "캐주얼", img: "/assets/questions/style-casual.png" },
-    optionB: { label: "포멀", img: "/assets/questions/style-formal.png" },
-    resultA: 63, resultB: 37, totalVotes: 387,
-    reasons: [
-      { side: "A", text: "편해야 대화도 편함", likes: 29 },
-      { side: "B", text: "첫인상이 전부다", likes: 24 },
-    ],
-  },
-  {
-    id: "ex-16", qtype: "Snack", axis: null,
-    valueA: "핫플러", valueB: "집콕러",
-    displayType: "image", category: "여행", categoryEmoji: "✈️",
-    topic: "lifestyle", tension: "freedom_vs_responsibility",
-    question: "이번 주말 어디?",
-    optionA: { label: "산", img: "/assets/questions/travel-mountain.png" },
-    optionB: { label: "바다", img: "/assets/questions/travel-beach.png" },
-    resultA: 44, resultB: 56, totalVotes: 423,
-    reasons: [
-      { side: "A", text: "정상 찍고 내려올 때 성취감", likes: 28 },
-      { side: "B", text: "파도 소리가 힐링 그 자체", likes: 35 },
-    ],
-  },
   // --- 썸/연애 ---
   {
     id: "ex-17", qtype: "Snack", axis: null,
@@ -438,35 +380,6 @@ export const FEED_QUESTIONS: Question[] = [
       { side: "B", text: "밥 해주는 사람이 최고", likes: 38 },
     ],
   },
-  {
-    id: "ex-20", qtype: "Snack", axis: null,
-    valueA: "야식파", valueB: "갓생러",
-    displayType: "text", category: "라이프", categoryEmoji: "🌿",
-    topic: "self", tension: "efficiency_vs_empathy",
-    question: "배달 vs 직접 해먹기?",
-    optionA: { label: "배달이 답" },
-    optionB: { label: "해먹는 게 더 좋음" },
-    resultA: 57, resultB: 43, totalVotes: 367,
-    reasons: [
-      { side: "A", text: "귀찮을 때 배달이 구원", likes: 33 },
-      { side: "B", text: "해먹는 과정도 힐링", likes: 28 },
-    ],
-  },
-  // --- 넷플릭스 vs 유튜브 ---
-  {
-    id: "ex-21", qtype: "Snack", axis: null,
-    valueA: "숏폼중독", valueB: "집콕러",
-    displayType: "text", category: "트렌드", categoryEmoji: "🔥",
-    topic: "lifestyle", tension: "present_vs_future",
-    question: "넷플릭스 vs 유튜브 프리미엄?",
-    optionA: { label: "넷플릭스" },
-    optionB: { label: "유튜브 프리미엄" },
-    resultA: 46, resultB: 54, totalVotes: 445,
-    reasons: [
-      { side: "A", text: "드라마 정주행은 넷플", likes: 32 },
-      { side: "B", text: "광고 없는 유튜브가 인생 바뀜", likes: 38 },
-    ],
-  },
   // --- 커리어 (가볍게) ---
   {
     id: "ex-22", qtype: "Snack", axis: null,
@@ -494,21 +407,6 @@ export const FEED_QUESTIONS: Question[] = [
     reasons: [
       { side: "A", text: "500이면 월 40만 원인데 큼", likes: 36 },
       { side: "B", text: "시간은 돈으로 못 삼", likes: 44 },
-    ],
-  },
-  // --- 현금 vs 카드 ---
-  {
-    id: "ex-24", qtype: "Snack", axis: null,
-    valueA: "가성비파", valueB: "신상헌터",
-    displayType: "text", category: "트렌드", categoryEmoji: "🔥",
-    topic: "money", tension: "efficiency_vs_empathy",
-    question: "현금 vs 카드?",
-    optionA: { label: "현금 위주" },
-    optionB: { label: "카드/페이" },
-    resultA: 22, resultB: 78, totalVotes: 423,
-    reasons: [
-      { side: "A", text: "현금 쓰면 지출 관리 쉬움", likes: 26 },
-      { side: "B", text: "편한 게 최고", likes: 40 },
     ],
   },
   // === 추가 Core (축당 +2, 총 8개) ===
@@ -614,19 +512,6 @@ export const FEED_QUESTIONS: Question[] = [
   },
   // === 추가 Snack (부족 태그 보충) ===
   {
-    id: "ex-25", qtype: "Snack", axis: null,
-    valueA: "맵단짠러", valueB: "디저트덕후",
-    displayType: "text", category: "음식", categoryEmoji: "🍜",
-    topic: "self", tension: "efficiency_vs_empathy",
-    question: "편의점에서 하나만 고른다면",
-    optionA: { label: "불닭볶음면" }, optionB: { label: "허쉬 초코케이크" },
-    resultA: 51, resultB: 49, totalVotes: 398,
-    reasons: [
-      { side: "A", text: "매운 맛이 가성비 최고", likes: 32 },
-      { side: "B", text: "달달한 게 힐링", likes: 31 },
-    ],
-  },
-  {
     id: "ex-26", qtype: "Snack", axis: null,
     valueA: "충동구매러", valueB: "앱테크족",
     displayType: "text", category: "소비", categoryEmoji: "💸",
@@ -650,19 +535,6 @@ export const FEED_QUESTIONS: Question[] = [
     reasons: [
       { side: "A", text: "밤이 돼야 집중됨", likes: 37 },
       { side: "B", text: "아침에 끝내야 하루가 편함", likes: 33 },
-    ],
-  },
-  {
-    id: "ex-28", qtype: "Snack", axis: null,
-    valueA: "디저트덕후", valueB: "맵단짠러",
-    displayType: "text", category: "음식", categoryEmoji: "🍜",
-    topic: "self", tension: "efficiency_vs_empathy",
-    question: "카페에서 더 끌리는 건",
-    optionA: { label: "티라미수" }, optionB: { label: "매콤한 떡볶이" },
-    resultA: 55, resultB: 45, totalVotes: 378,
-    reasons: [
-      { side: "A", text: "카페는 달달한 게 정석", likes: 34 },
-      { side: "B", text: "떡볶이 파는 카페가 천국", likes: 29 },
     ],
   },
   // === 논쟁형 질문 (갈리는 주제, topic/tension 포함) ===
@@ -732,6 +604,52 @@ export const FEED_QUESTIONS: Question[] = [
     topic: "work", tension: "freedom_vs_responsibility",
   },
 ];
+
+// === 신규 현실 갈등형 (2026-04) ===
+FEED_QUESTIONS.push(
+  {
+    id: "conflict-01", qtype: "Snack", axis: null,
+    valueA: "직진파", valueB: "거리두기파",
+    displayType: "text", category: "관계", categoryEmoji: "💕",
+    topic: "relationship", tension: "fairness_vs_generosity",
+    question: "연인이 친구들 술자리에 나를 안 불렀다, 더 가까운 쪽은?",
+    optionA: { label: "서운하면 말한다" },
+    optionB: { label: "친구 시간도 필요하다" },
+    resultA: 51, resultB: 49, totalVotes: 0,
+    reasons: [
+      { side: "A", text: "말 안 하면 혼자 쌓임", likes: 0 },
+      { side: "B", text: "연애가 전부가 아니잖아", likes: 0 },
+    ],
+  },
+  {
+    id: "conflict-02", qtype: "Snack", axis: null,
+    valueA: "의리파", valueB: "원칙파",
+    displayType: "text", category: "관계", categoryEmoji: "💕",
+    topic: "family", tension: "freedom_vs_responsibility",
+    question: "부모가 용돈을 달라고 한다, 더 가까운 쪽은?",
+    optionA: { label: "당연히 드린다" },
+    optionB: { label: "내 생활비가 먼저" },
+    resultA: 49, resultB: 51, totalVotes: 0,
+    reasons: [
+      { side: "A", text: "키워주신 건데 그 정도는", likes: 0 },
+      { side: "B", text: "내가 먼저 자리잡아야 효도도 함", likes: 0 },
+    ],
+  },
+  {
+    id: "conflict-03", qtype: "Snack", axis: null,
+    valueA: "경계파", valueB: "맞춤파",
+    displayType: "text", category: "커리어", categoryEmoji: "💼",
+    topic: "work", tension: "freedom_vs_responsibility",
+    question: "퇴근 후 상사 카톡, 더 가까운 쪽은?",
+    optionA: { label: "퇴근은 퇴근, 내일 본다" },
+    optionB: { label: "일 끝난 거 아니니까 본다" },
+    resultA: 54, resultB: 46, totalVotes: 0,
+    reasons: [
+      { side: "A", text: "퇴근 이후 시간은 내 시간", likes: 0 },
+      { side: "B", text: "급한 건 확인은 해야 함", likes: 0 },
+    ],
+  },
+);
 
 /** 전체 질문 풀 (starter 고정 + feed 셔플) */
 export const SEED_QUESTIONS: Question[] = [...STARTER_QUESTIONS, ...FEED_QUESTIONS];

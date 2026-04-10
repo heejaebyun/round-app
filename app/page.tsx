@@ -94,9 +94,17 @@ export default function Home() {
     if (!showResult) return;
     trackEvent("result_viewed", { questionId: displayQuestion?.id });
     trackEvent("reason_impression", { questionId: displayQuestion?.id });
-    const timer = setTimeout(() => setShowNext(true), 1200);
-    return () => clearTimeout(timer);
-  }, [showResult, displayQuestion]);
+    const showTimer = setTimeout(() => setShowNext(true), 1200);
+    // Auto-advance to next card after result has been visible for 3.7s total
+    const autoAdvanceTimer = setTimeout(() => {
+      setShowNext(false);
+      nextQuestion();
+    }, 3700);
+    return () => {
+      clearTimeout(showTimer);
+      clearTimeout(autoAdvanceTimer);
+    };
+  }, [showResult, displayQuestion, nextQuestion]);
 
   async function ensureTossLogin() {
     if (!isTossEnv) return true;
@@ -148,19 +156,23 @@ export default function Home() {
   const advanceFeed = useCallback(() => {
     if (!displayQuestion) return false;
 
+    // Pre-selection: treat swipe as skip
     if (!showResult && !selectedSide) {
       skipQuestion();
       return true;
     }
 
-    if (showResult && showNext) {
+    // Post-result: any swipe advances (don't wait for showNext)
+    if (showResult) {
       setShowNext(false);
       nextQuestion();
       return true;
     }
 
+    // Mid-selection (tapped A/B but result animation not ready yet):
+    // ignore — let the result render first.
     return false;
-  }, [displayQuestion, nextQuestion, selectedSide, showNext, showResult, skipQuestion]);
+  }, [displayQuestion, nextQuestion, selectedSide, showResult, skipQuestion]);
 
   function handleTouchStart(event: TouchEvent<HTMLDivElement>) {
     const touch = event.touches[0];
@@ -185,12 +197,13 @@ export default function Home() {
   }
 
   function handleWheel(event: WheelEvent<HTMLDivElement>) {
-    if (showResult && !showNext) return;
-    if (!showResult && selectedSide) return;
+    // Allow wheel advance any time there's something to advance to.
+    // (Previously blocked during post-selection pending state; that made
+    // the feed feel unresponsive after tapping A/B.)
     if (event.deltaY < 48) return;
 
     const now = Date.now();
-    if (now - lastWheelAdvanceRef.current < 500) return;
+    if (now - lastWheelAdvanceRef.current < 350) return;
 
     lastWheelAdvanceRef.current = now;
     advanceFeed();
@@ -245,9 +258,13 @@ export default function Home() {
         )}
       </header>
 
-      <main className="no-scrollbar relative z-10 flex flex-1 flex-col overflow-y-auto px-4 pb-24">
+      <main
+        className="no-scrollbar relative z-10 flex flex-1 flex-col overflow-y-auto px-4 pb-24"
+        style={{ scrollSnapType: "y mandatory" }}
+      >
         <div
-          className={showResult ? "" : "my-auto"}
+          className="flex min-h-full flex-col justify-center"
+          style={{ scrollSnapAlign: "start", scrollSnapStop: "always" }}
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
           onWheel={handleWheel}
