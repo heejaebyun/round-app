@@ -6,34 +6,34 @@ import type { Question } from "@/lib/types";
  */
 
 export const STARTER_QUESTIONS: Question[] = [
-  // 1. Snack — 스트레스 음식
+  // 1. Snack — 축의금 (현실 갈등형)
   {
-    id: "d1-01", qtype: "Snack", axis: null,
-    valueA: "맵단짠러", valueB: "디저트덕후",
-    displayType: "text", category: "음식", categoryEmoji: "🍜",
-    topic: "self", tension: "efficiency_vs_empathy",
-    question: "스트레스 받을 때 더 당기는 건?",
-    optionA: { label: "불닭, 엽떡 같은 매운맛" },
-    optionB: { label: "케이크, 마카롱 같은 단맛" },
-    resultA: 54, resultB: 46, totalVotes: 387,
-    reasons: [
-      { side: "A", text: "매운 걸 먹어야 스트레스가 타버림", likes: 34 },
-      { side: "B", text: "혈당 올려야 뇌가 살아남", likes: 29 },
-    ],
-  },
-  // 2. Snack — 밤 11시
-  {
-    id: "d1-02", qtype: "Snack", axis: null,
-    valueA: "야식파", valueB: "갓생러",
-    displayType: "text", category: "라이프", categoryEmoji: "🌿",
-    topic: "self", tension: "present_vs_future",
-    question: "밤 11시, 배가 고프다",
-    optionA: { label: "배달 앱부터 켠다" },
-    optionB: { label: "그냥 참고 잔다" },
+    id: "d1-01b", qtype: "Snack", axis: null,
+    valueA: "현실파", valueB: "예의파",
+    displayType: "text", category: "관계", categoryEmoji: "💕",
+    topic: "manners", tension: "fairness_vs_generosity",
+    question: "친구 결혼식 축의금 5만 원, 더 가까운 쪽은?",
+    optionA: { label: "참석이 더 중요하니까 괜찮다" },
+    optionB: { label: "요즘 물가에 5만 원은 적다" },
     resultA: 48, resultB: 52, totalVotes: 412,
     reasons: [
-      { side: "A", text: "오늘 하루 고생한 나를 위한 보상", likes: 38 },
-      { side: "B", text: "내일 아침 붓기가 더 끔찍함", likes: 35 },
+      { side: "A", text: "참석이 더 중요하지 금액이 중요한가", likes: 38 },
+      { side: "B", text: "요즘 밥값만 해도 5만 원인데", likes: 41 },
+    ],
+  },
+  // 2. Snack — 읽씹
+  {
+    id: "d1-02b", qtype: "Snack", axis: null,
+    valueA: "직진파", valueB: "거리두기파",
+    displayType: "text", category: "관계", categoryEmoji: "💕",
+    topic: "relationship", tension: "care_vs_principle",
+    question: "카톡 읽씹 당했을 때, 더 가까운 쪽은?",
+    optionA: { label: "한 번 더 보낸다" },
+    optionB: { label: "그냥 기다린다" },
+    resultA: 46, resultB: 54, totalVotes: 398,
+    reasons: [
+      { side: "A", text: "확인은 해야 마음이 편함", likes: 34 },
+      { side: "B", text: "재촉하면 오히려 역효과", likes: 39 },
     ],
   },
   // 3. Core — 행동 축 (Action)
@@ -51,19 +51,19 @@ export const STARTER_QUESTIONS: Question[] = [
       { side: "B", text: "어차피 현지에서 살 수 있음", likes: 37 },
     ],
   },
-  // 4. Snack — 샴푸
+  // 4. Snack — 연인 폰 비번
   {
-    id: "d1-04", qtype: "Snack", axis: null,
-    valueA: "신상헌터", valueB: "가성비파",
-    displayType: "text", category: "소비", categoryEmoji: "💸",
-    topic: "money", tension: "efficiency_vs_empathy",
-    question: "샴푸를 사야 할 때 나는",
-    optionA: { label: "처음 보는 신상부터 본다" },
-    optionB: { label: "익숙한 1+1으로 간다" },
-    resultA: 41, resultB: 59, totalVotes: 398,
+    id: "d1-04b", qtype: "Snack", axis: null,
+    valueA: "공유파", valueB: "경계파",
+    displayType: "text", category: "관계", categoryEmoji: "💕",
+    topic: "relationship", tension: "privacy_vs_openness",
+    question: "연인이 휴대폰 비밀번호를 물으면, 더 가까운 쪽은?",
+    optionA: { label: "알려줄 수 있다" },
+    optionB: { label: "사생활이라 싫다" },
+    resultA: 44, resultB: 56, totalVotes: 467,
     reasons: [
-      { side: "A", text: "새로운 향 발견하는 게 소소한 행복", likes: 28 },
-      { side: "B", text: "검증된 게 최고", likes: 36 },
+      { side: "A", text: "숨길 게 없으면 알려줘도 되잖아", likes: 35 },
+      { side: "B", text: "신뢰는 확인하는 게 아니라 믿는 거", likes: 42 },
     ],
   },
   // 5. Core — 보상 축 (Reward)
@@ -81,19 +81,19 @@ export const STARTER_QUESTIONS: Question[] = [
       { side: "B", text: "100만 원은 불려야 의미 있음", likes: 45 },
     ],
   },
-  // 6. Snack — 기분 소비
+  // 6. Snack — 친구 돈 빌려달라
   {
-    id: "d1-06", qtype: "Snack", axis: null,
-    valueA: "충동구매러", valueB: "플렉서",
+    id: "d1-06b", qtype: "Snack", axis: null,
+    valueA: "의리파", valueB: "원칙파",
     displayType: "text", category: "소비", categoryEmoji: "💸",
-    topic: "money", tension: "efficiency_vs_empathy",
-    question: "기분이 바닥일 때 더 가까운 건?",
-    optionA: { label: "자잘한 걸 여러 개 산다" },
-    optionB: { label: "비싼 거 하나를 산다" },
-    resultA: 55, resultB: 45, totalVotes: 378,
+    topic: "relationship", tension: "fairness_vs_generosity",
+    question: "친구가 돈을 빌려달라고 하면, 더 가까운 쪽은?",
+    optionA: { label: "한 번은 도와준다" },
+    optionB: { label: "돈거래는 관계를 망친다" },
+    resultA: 42, resultB: 58, totalVotes: 478,
     reasons: [
-      { side: "A", text: "택배 여러 개 오는 게 행복", likes: 33 },
-      { side: "B", text: "한 방에 시원하게 질러야 풀림", likes: 30 },
+      { side: "A", text: "친구잖아 도와줘야지", likes: 31 },
+      { side: "B", text: "돈 거래는 관계를 망가뜨림", likes: 44 },
     ],
   },
   // 7. Core — 관계 축 (Relation)
@@ -111,34 +111,34 @@ export const STARTER_QUESTIONS: Question[] = [
       { side: "B", text: "말해야 속이 풀림", likes: 36 },
     ],
   },
-  // 8. Snack — 주말
+  // 8. Snack — 회식 2차
   {
-    id: "d1-08", qtype: "Snack", axis: null,
-    valueA: "핫플러", valueB: "집콕러",
-    displayType: "text", category: "라이프", categoryEmoji: "🌿",
-    topic: "self", tension: "freedom_vs_responsibility",
-    question: "아무 일정 없는 주말, 더 끌리는 건?",
-    optionA: { label: "핫플이나 팝업 가기" },
-    optionB: { label: "집에서 하루 종일 쉬기" },
-    resultA: 43, resultB: 57, totalVotes: 412,
+    id: "d1-08b", qtype: "Snack", axis: null,
+    valueA: "경계파", valueB: "맞춤파",
+    displayType: "text", category: "커리어", categoryEmoji: "💼",
+    topic: "work", tension: "freedom_vs_responsibility",
+    question: "회식 2차, 더 가까운 쪽은?",
+    optionA: { label: "빠져도 되는 자리" },
+    optionB: { label: "어느 정도는 맞춰야 함" },
+    resultA: 53, resultB: 47, totalVotes: 445,
     reasons: [
-      { side: "A", text: "나가야 리프레시 됨", likes: 31 },
-      { side: "B", text: "이불 밖은 위험해", likes: 42 },
+      { side: "A", text: "사생활까지 회사가 침범하면 안 됨", likes: 40 },
+      { side: "B", text: "사회생활은 어느 정도 맞추는 것도 실력", likes: 34 },
     ],
   },
-  // 9. Snack — 출퇴근
+  // 9. Snack — 썸 거절
   {
-    id: "d1-09", qtype: "Snack", axis: null,
-    valueA: "숏폼중독", valueB: "앱테크족",
-    displayType: "text", category: "트렌드", categoryEmoji: "🔥",
-    topic: "self", tension: "present_vs_future",
-    question: "버스에서 멍때리다 손이 가는 앱",
-    optionA: { label: "쇼츠, 릴스 같은 짧은 영상" },
-    optionB: { label: "포인트, 적립, 만보기 앱" },
-    resultA: 62, resultB: 38, totalVotes: 456,
+    id: "d1-09b", qtype: "Snack", axis: null,
+    valueA: "직설파", valueB: "완곡파",
+    displayType: "text", category: "관계", categoryEmoji: "💕",
+    topic: "relationship", tension: "honesty_vs_harmony",
+    question: "마음 없는 썸/소개팅 상대에게, 더 가까운 쪽은?",
+    optionA: { label: "바로 말한다" },
+    optionB: { label: "자연스럽게 멀어진다" },
+    resultA: 47, resultB: 53, totalVotes: 423,
     reasons: [
-      { side: "A", text: "도파민 충전은 숏폼이 최고", likes: 40 },
-      { side: "B", text: "10원이라도 아까움", likes: 32 },
+      { side: "A", text: "시간 끌면 서로 피곤함", likes: 36 },
+      { side: "B", text: "직접 말하면 상대가 더 상처받음", likes: 33 },
     ],
   },
   // 10. Core — 동기 축 (Motivation)
@@ -667,19 +667,6 @@ export const FEED_QUESTIONS: Question[] = [
   },
   // === 논쟁형 질문 (갈리는 주제, topic/tension 포함) ===
   {
-    id: "debate-01", qtype: "Snack", axis: null,
-    valueA: "가성비파", valueB: "플렉서",
-    displayType: "text", category: "관계", categoryEmoji: "💕",
-    topic: "manners", tension: "care_vs_principle",
-    question: "축의금 5만 원, 괜찮다고 생각해?",
-    optionA: { label: "괜찮다" }, optionB: { label: "적다" },
-    resultA: 48, resultB: 52, totalVotes: 412,
-    reasons: [
-      { side: "A", text: "참석이 더 중요하지 금액이 중요한가", likes: 38 },
-      { side: "B", text: "요즘 밥값만 해도 5만 원인데", likes: 41 },
-    ],
-  },
-  {
     id: "debate-02", qtype: "Snack", axis: null,
     valueA: "갓생러", valueB: "집콕러",
     displayType: "text", category: "관계", categoryEmoji: "💕",
@@ -689,19 +676,6 @@ export const FEED_QUESTIONS: Question[] = [
     reasons: [
       { side: "A", text: "알면서 모른 척하는 게 더 나쁨", likes: 36 },
       { side: "B", text: "괜히 관계만 어색해짐", likes: 33 },
-    ],
-    topic: "relationship", tension: "privacy_vs_openness",
-  },
-  {
-    id: "debate-03", qtype: "Snack", axis: null,
-    valueA: "핫플러", valueB: "집콕러",
-    displayType: "text", category: "관계", categoryEmoji: "💕",
-    question: "연인 폰 비번, 알고 싶어?",
-    optionA: { label: "알고 싶다" }, optionB: { label: "모르는 게 낫다" },
-    resultA: 44, resultB: 56, totalVotes: 467,
-    reasons: [
-      { side: "A", text: "숨길 게 없으면 알려줘도 되잖아", likes: 35 },
-      { side: "B", text: "신뢰는 확인하는 게 아니라 믿는 거", likes: 42 },
     ],
     topic: "relationship", tension: "privacy_vs_openness",
   },
@@ -730,19 +704,6 @@ export const FEED_QUESTIONS: Question[] = [
       { side: "B", text: "경험에서 나오는 말이니까 참고는 함", likes: 39 },
     ],
     topic: "family", tension: "freedom_vs_responsibility",
-  },
-  {
-    id: "debate-06", qtype: "Snack", axis: null,
-    valueA: "갓생러", valueB: "야행성",
-    displayType: "text", category: "라이프", categoryEmoji: "🌿",
-    question: "친한 친구가 돈을 빌려달라고 한다",
-    optionA: { label: "빌려준다" }, optionB: { label: "거절한다" },
-    resultA: 42, resultB: 58, totalVotes: 478,
-    reasons: [
-      { side: "A", text: "친구잖아 도와줘야지", likes: 31 },
-      { side: "B", text: "돈 거래는 관계를 망가뜨림", likes: 44 },
-    ],
-    topic: "relationship", tension: "care_vs_principle",
   },
   {
     id: "debate-07", qtype: "Snack", axis: null,
