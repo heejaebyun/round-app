@@ -7,6 +7,7 @@ import type { Question, Reason } from "@/lib/types";
 import AnimatedNumber from "./AnimatedNumber";
 import QuestionFeedback from "./QuestionFeedback";
 import VoicesSheet from "./VoicesSheet";
+import { buildQuestionShareText, buildQuestionShareTitle } from "@/lib/questionShare";
 // onSkip is handled by the page-level floating X button now
 
 interface Props {
@@ -66,6 +67,37 @@ export default function QuestionFeedCard({
 
   const [showBar, setShowBar] = useState(false);
   const [sheetOpen, setSheetOpen] = useState(false);
+  const [shareToast, setShareToast] = useState<string | null>(null);
+
+  async function handleShareQuestion() {
+    if (typeof window === "undefined") return;
+    const url = window.location.href.split("#")[0];
+    const text = buildQuestionShareText(question, url);
+    const title = buildQuestionShareTitle(question);
+
+    // Try native share first
+    if (typeof navigator !== "undefined" && typeof navigator.share === "function") {
+      try {
+        await navigator.share({ title, text, url });
+        return;
+      } catch {
+        // user cancelled or native share failed — fall through to clipboard
+      }
+    }
+
+    // Clipboard fallback
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(text);
+        setShareToast("질문 링크를 복사했어요");
+      } else {
+        setShareToast("공유가 지원되지 않아요");
+      }
+    } catch {
+      setShareToast("공유에 실패했어요");
+    }
+    window.setTimeout(() => setShareToast(null), 1600);
+  }
 
   useEffect(() => {
     if (!showResult) {
@@ -299,13 +331,39 @@ export default function QuestionFeedCard({
           )}
         </AnimatePresence>
 
-        {/* swipe hint */}
-        <div className="mt-5 flex flex-col items-center">
+        {/* Secondary: question share + swipe hint */}
+        <div className="mt-4 flex flex-col items-center gap-2.5">
+          <button
+            type="button"
+            onClick={handleShareQuestion}
+            className="inline-flex items-center gap-1 text-[11px] font-semibold text-white/35 transition hover:text-white/70 active:scale-[0.98]"
+            aria-label="질문 공유하기"
+          >
+            <span aria-hidden>↗</span>
+            <span>질문 공유</span>
+          </button>
           <span className="animate-hintBounce round-mono text-[10px] uppercase tracking-[0.32em] text-white/30">
             ↓ 다음 질문
           </span>
         </div>
       </div>
+
+      {/* Toast — bottom of the card, above safe area */}
+      <AnimatePresence>
+        {shareToast && (
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 12 }}
+            transition={{ duration: 0.2 }}
+            className="pointer-events-none absolute inset-x-0 bottom-24 z-30 flex justify-center"
+          >
+            <div className="rounded-full border border-white/10 bg-black/70 px-4 py-2 text-[12px] font-semibold text-white/85 backdrop-blur">
+              {shareToast}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Voices bottom sheet */}
       {selectedSide && (
