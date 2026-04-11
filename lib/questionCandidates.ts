@@ -52,6 +52,13 @@ const CATEGORY_EMOJI: Record<Category, string> = {
   라이프: "🌿",
   여행: "✈️",
   트렌드: "🔥",
+  Food: "🍜",
+  Work: "💼",
+  Relationships: "💕",
+  Money: "💸",
+  Lifestyle: "🌿",
+  Travel: "✈️",
+  Trends: "🔥",
 };
 
 function mapRowToCandidate(row: QuestionCandidateRow): QuestionCandidate {

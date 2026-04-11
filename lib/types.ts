@@ -2,7 +2,8 @@
 
 export type Axis = "Action" | "Motivation" | "Relation" | "Reward";
 
-export const SNACK_TAGS = [
+/** ko-KR persona / reusable tag pool */
+export const SNACK_TAGS_KO = [
   "야식파", "맵단짠러", "디저트덕후", "가성비파", "플렉서",
   "충동구매러", "신상헌터", "야행성", "집콕러", "핫플러",
   "갓생러", "숏폼중독", "앱테크족",
@@ -11,18 +12,60 @@ export const SNACK_TAGS = [
   "의리파", "원칙파", "맞춤파", "직설파", "완곡파",
 ] as const;
 
-export type SnackTag = (typeof SNACK_TAGS)[number];
+/** en-* (US / PH / GB) persona / reusable tag pool */
+export const SNACK_TAGS_EN = [
+  "Realist", "Courteous", "Direct", "Reserved",
+  "Open", "Private", "Loyal", "Principled",
+  "Adaptive", "Diplomatic", "Planner", "Spontaneous",
+] as const;
+
+/**
+ * Type union of all known tags. Kept as a single Question.valueA /
+ * valueB type so components don't have to branch by locale, but the
+ * research pipeline validates locale-appropriate tags separately
+ * (SNACK_TAGS_KO for ko-KR, SNACK_TAGS_EN for en-*).
+ */
+export const SNACK_TAGS = [...SNACK_TAGS_KO, ...SNACK_TAGS_EN] as const;
+
+export type SnackTagKo = (typeof SNACK_TAGS_KO)[number];
+export type SnackTagEn = (typeof SNACK_TAGS_EN)[number];
+export type SnackTag = SnackTagKo | SnackTagEn;
 
 // --- Question types (discriminated union) ---
 
+/**
+ * Category values. ko-KR categories are Korean strings; en-* pools
+ * use the English equivalents. Both live in the same union so a
+ * Question can carry either without generic gymnastics.
+ */
 export type Category =
+  // ko-KR
   | "음식"
   | "커리어"
   | "관계"
   | "소비"
   | "라이프"
   | "여행"
-  | "트렌드";
+  | "트렌드"
+  // en-*
+  | "Food"
+  | "Work"
+  | "Relationships"
+  | "Money"
+  | "Lifestyle"
+  | "Travel"
+  | "Trends";
+
+/** ko → en category mapping, used by the research pipeline to stay consistent */
+export const CATEGORY_EN_BY_KO: Record<string, Category> = {
+  "음식": "Food",
+  "커리어": "Work",
+  "관계": "Relationships",
+  "소비": "Money",
+  "라이프": "Lifestyle",
+  "여행": "Travel",
+  "트렌드": "Trends",
+};
 
 export type QuestionTopic = "relationship" | "money" | "manners" | "work" | "family" | "self" | "lifestyle" | "society";
 export type QuestionTension =

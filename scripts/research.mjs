@@ -1,17 +1,20 @@
 #!/usr/bin/env node
 /**
- * Research agent — Claude CLI subprocess로 질문 후보를 생성해 Supabase에 적재.
+ * Round research agent — Claude CLI subprocess로 질문 후보를 생성해 Supabase에 적재.
  *
  * Usage:
  *   node scripts/research.mjs --locale ko-KR --keywords "직장 갈등,축의금" --count 3
- *   node scripts/research.mjs --locale en-US --keywords "roommate conflict" --count 4
+ *   node scripts/research.mjs --locale en-US --keywords "workplace boundaries" --count 4
+ *   node scripts/research.mjs --locale en-PH --keywords "family obligations,money lending" --count 4
  *
- * 동작:
- *   1. Claude CLI (`claude -p`)에 research + refine + JSON-only 프롬프트 한 방에 전달
- *   2. 응답에서 JSON 추출 → 스키마 검증 → 통과한 것만
- *   3. POST /api/internal/question-candidates 로 INSERT (review_status=pending)
+ * Flow:
+ *   1. Build a locale-aware prompt and hand it to `claude -p`
+ *   2. Extract JSON from the response, validate against locale-specific
+ *      CATEGORIES / TAGS / TOPICS / TENSIONS
+ *   3. POST surviving candidates to /api/internal/question-candidates
  *
- * 안전장치: count 3~4, JSON only, timeout 5분, 1회 retry, 검증 실패 discard.
+ * Safeguards: count capped at 4, JSON-only prompt, 5-min timeout,
+ * one retry on failure, invalid-shape discard.
  */
 
 import { spawn } from "node:child_process";
@@ -22,7 +25,7 @@ import { fileURLToPath } from "node:url";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, "..");
 
-// ── env.local 수동 파싱 ────────────────────────────────────────────
+// ── env.local loader ───────────────────────────────────────────────
 function loadEnvLocal() {
   try {
     const text = readFileSync(resolve(ROOT, ".env.local"), "utf8");
@@ -53,8 +56,7 @@ function parseArgs() {
   return args;
 }
 
-// ── Valid enums (must match lib/types.ts) ──────────────────────────
-const CATEGORIES = ["음식", "커리어", "관계", "소비", "라이프", "여행", "트렌드"];
+// ── Locale-independent enums ───────────────────────────────────────
 const TOPICS = ["relationship", "money", "manners", "work", "family", "self", "lifestyle", "society"];
 const TENSIONS = [
   "care_vs_principle",
@@ -66,19 +68,49 @@ const TENSIONS = [
   "honesty_vs_harmony",
   "fairness_vs_generosity",
 ];
-const SNACK_TAGS = [
+
+// ── Locale-specific enums ──────────────────────────────────────────
+const CATEGORIES_KO = ["음식", "커리어", "관계", "소비", "라이프", "여행", "트렌드"];
+const CATEGORIES_EN = ["Food", "Work", "Relationships", "Money", "Lifestyle", "Travel", "Trends"];
+
+const TAGS_KO = [
   "야식파", "맵단짠러", "디저트덕후", "가성비파", "플렉서",
   "충동구매러", "신상헌터", "야행성", "집콕러", "핫플러",
   "갓생러", "숏폼중독", "앱테크족",
   "현실파", "예의파", "직진파", "거리두기파", "공유파", "경계파",
   "의리파", "원칙파", "맞춤파", "직설파", "완곡파",
 ];
-const LOCALES = ["ko-KR", "en-US", "en-GB"];
+const TAGS_EN = [
+  "Realist", "Courteous", "Direct", "Reserved",
+  "Open", "Private", "Loyal", "Principled",
+  "Adaptive", "Diplomatic", "Planner", "Spontaneous",
+];
+
+const LOCALES = ["ko-KR", "en-US", "en-PH", "en-GB"];
+
+function localeConfig(locale) {
+  if (locale === "ko-KR") {
+    return {
+      categories: CATEGORIES_KO,
+      tags: TAGS_KO,
+      language: "ko",
+    };
+  }
+  // en-US / en-PH / en-GB share the English tag + category pool
+  return {
+    categories: CATEGORIES_EN,
+    tags: TAGS_EN,
+    language: "en",
+  };
+}
 
 // ── Prompt builder ─────────────────────────────────────────────────
 function buildPrompt({ locale, keywords, count }) {
+  const cfg = localeConfig(locale);
   const keywordList = keywords.split(",").map((k) => k.trim()).filter(Boolean);
-  return `당신은 Round 앱(한국어 A/B 선택 소셜 앱)의 질문 리서치 에이전트입니다.
+
+  if (cfg.language === "ko") {
+    return `당신은 Round 앱(한국어 A/B 선택 소셜 앱)의 질문 리서치 에이전트입니다.
 
 # Task
 다음 키워드에 대해 공개 웹을 리서치하여, 실제로 의견이 갈릴만한 현실 갈등형 A/B 질문 후보 ${count}개를 만드세요.
@@ -98,11 +130,11 @@ Keywords: ${keywordList.join(", ")}
   "candidates": [
     {
       "question": "string (Korean, ends with question mark)",
-      "category": "one of: ${CATEGORIES.join(" | ")}",
+      "category": "one of: ${cfg.categories.join(" | ")}",
       "optionA": "string (short Korean)",
       "optionB": "string (short Korean)",
-      "valueA": "one of: ${SNACK_TAGS.join(" | ")}",
-      "valueB": "one of: ${SNACK_TAGS.join(" | ")}",
+      "valueA": "one of: ${cfg.tags.join(" | ")}",
+      "valueB": "one of: ${cfg.tags.join(" | ")}",
       "topic": "one of: ${TOPICS.join(" | ")}",
       "tension": "one of: ${TENSIONS.join(" | ")}",
       "sourceNote": "짧은 요약 + 참고 URL 1개 (형식: '요약 - https://...')"
@@ -115,6 +147,61 @@ Keywords: ${keywordList.join(", ")}
 - Exactly ${count} candidates.
 - All enum fields must match exactly one of the listed values.
 - valueA and valueB must be DIFFERENT tags.
+`;
+  }
+
+  // English locales — prompt and sample output are in English so the
+  // model naturally emits English question text + option labels.
+  const culturalHint =
+    locale === "en-PH"
+      ? "Real-life tensions for Filipino 20–30s: family obligations, money lending between friends, work hierarchy, relationship boundaries with parents, group spending, utang na loob. Keep the situation specific and everyday — not about identity, religion, or politics."
+      : locale === "en-US"
+        ? "Real-life tensions for US 20–30s: workplace boundaries (PTO, after-hours messages), dating money (who pays), roommate conflict, family expectations, friendship fallout. Specific everyday situations, not identity or politics."
+        : "Real-life tensions for English-speaking 20–30s: relationships, money, work, family obligations, friendship. Specific everyday situations, not identity or politics.";
+
+  return `You are the question research agent for Round, an A/B social polling app.
+
+# Task
+Research the public web around the given keywords and produce ${count} reality-conflict A/B question candidates where both sides are defensible and opinions actually split.
+
+Locale: ${locale}
+Keywords: ${keywordList.join(", ")}
+
+# Cultural framing
+${culturalHint}
+
+# Quality bar
+- Both sides must feel reasonable (split near 50:50)
+- Neutral framing only. Start the question with something like
+  "Which side feels closer?" or phrase it as a direct dilemma.
+  Never lead the user.
+- No hate, no politics, no gender war, no personal attacks
+- A Gen Z / millennial reader must be able to answer in one second
+- optionA and optionB should be short, oppositional, and concrete
+
+# Output schema (JSON only, no prose, no markdown fence)
+{
+  "candidates": [
+    {
+      "question": "string (English, ends with question mark)",
+      "category": "one of: ${cfg.categories.join(" | ")}",
+      "optionA": "string (short English, max ~8 words)",
+      "optionB": "string (short English, max ~8 words)",
+      "valueA": "one of: ${cfg.tags.join(" | ")}",
+      "valueB": "one of: ${cfg.tags.join(" | ")}",
+      "topic": "one of: ${TOPICS.join(" | ")}",
+      "tension": "one of: ${TENSIONS.join(" | ")}",
+      "sourceNote": "short summary + 1 URL (format: 'summary — https://...')"
+    }
+  ]
+}
+
+# Rules
+- Return ONLY the JSON object. No explanation, no markdown, no \`\`\`.
+- Exactly ${count} candidates.
+- All enum fields must match exactly one of the listed values.
+- valueA and valueB must be DIFFERENT tags.
+- question, optionA, optionB must be English (not Korean).
 `;
 }
 
@@ -164,17 +251,26 @@ function extractJson(raw) {
 }
 
 function validateCandidate(c, locale) {
+  const cfg = localeConfig(locale);
   const errs = [];
   if (typeof c.question !== "string" || c.question.length < 5) errs.push("question");
-  if (!CATEGORIES.includes(c.category)) errs.push(`category=${c.category}`);
+  if (!cfg.categories.includes(c.category)) errs.push(`category=${c.category}`);
   if (typeof c.optionA !== "string" || !c.optionA) errs.push("optionA");
   if (typeof c.optionB !== "string" || !c.optionB) errs.push("optionB");
-  if (!SNACK_TAGS.includes(c.valueA)) errs.push(`valueA=${c.valueA}`);
-  if (!SNACK_TAGS.includes(c.valueB)) errs.push(`valueB=${c.valueB}`);
+  if (!cfg.tags.includes(c.valueA)) errs.push(`valueA=${c.valueA}`);
+  if (!cfg.tags.includes(c.valueB)) errs.push(`valueB=${c.valueB}`);
   if (c.valueA === c.valueB) errs.push("valueA==valueB");
   if (!TOPICS.includes(c.topic)) errs.push(`topic=${c.topic}`);
   if (!TENSIONS.includes(c.tension)) errs.push(`tension=${c.tension}`);
   if (!LOCALES.includes(locale)) errs.push(`locale=${locale}`);
+
+  // Cross-locale leak check: ko-KR question should be Korean, en-* should be English.
+  if (errs.length === 0) {
+    const hasHangul = /[\uAC00-\uD7AF]/.test(c.question);
+    if (cfg.language === "ko" && !hasHangul) errs.push("question not Korean");
+    if (cfg.language === "en" && hasHangul) errs.push("question has Korean characters");
+  }
+
   return errs;
 }
 
@@ -248,7 +344,7 @@ async function main() {
   for (const c of candidates) {
     const errs = validateCandidate(c, args.locale);
     if (errs.length > 0) {
-      console.warn(`[discard] ${c.question?.slice(0, 40) ?? "(no question)"} — ${errs.join(", ")}`);
+      console.warn(`[discard] ${String(c.question ?? "(no question)").slice(0, 40)} — ${errs.join(", ")}`);
       discarded++;
       continue;
     }
@@ -262,7 +358,7 @@ async function main() {
     }
   }
 
-  console.log(`\n[research] done. inserted=${inserted} discarded=${discarded}`);
+  console.log(`\n[research] done. locale=${args.locale} inserted=${inserted} discarded=${discarded}`);
   if (inserted === 0) process.exit(3);
 }
 
