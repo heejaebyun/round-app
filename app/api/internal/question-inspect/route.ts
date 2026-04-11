@@ -4,14 +4,7 @@ import { getQuestionMetrics, getQuestionMetricsBatch } from "@/lib/questionMetri
 import { getQuestionFeedbackSummary, getQuestionFeedbackBatch } from "@/lib/questionFeedbackSummary";
 import { getQuestionOpsMetrics, deriveQuestionStatus } from "@/utils/questionOps";
 import { getApprovedQuestionCandidates } from "@/lib/questionCandidates";
-
-const INTERNAL_KEY = process.env.INTERNAL_API_KEY?.trim();
-
-function isAuthorized(request: NextRequest): boolean {
-  // fail-closed: 프로덕션에서 키 없으면 거부
-  if (!INTERNAL_KEY) return process.env.NODE_ENV !== "production";
-  return request.headers.get("x-internal-key")?.trim() === INTERNAL_KEY;
-}
+import { isAuthorized } from "@/lib/internalAuth";
 
 /**
  * GET /api/internal/question-inspect?id=d1-01

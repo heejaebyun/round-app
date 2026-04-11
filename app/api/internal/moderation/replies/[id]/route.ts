@@ -1,12 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { deleteReply } from "@/lib/replyModeration";
-
-const INTERNAL_KEY = process.env.INTERNAL_API_KEY?.trim();
-
-function isAuthorized(request: NextRequest): boolean {
-  if (!INTERNAL_KEY) return process.env.NODE_ENV !== "production";
-  return request.headers.get("x-internal-key")?.trim() === INTERNAL_KEY;
-}
+import { isAuthorized } from "@/lib/internalAuth";
 
 export async function DELETE(
   request: NextRequest,

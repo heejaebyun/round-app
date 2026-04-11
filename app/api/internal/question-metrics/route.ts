@@ -1,13 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { updateQuestionSnapshot, updateActiveQuestionSnapshots } from "@/utils/snapshotUpdater";
-
-const INTERNAL_KEY = process.env.INTERNAL_API_KEY?.trim();
-
-function isAuthorized(request: NextRequest): boolean {
-  // fail-closed: 프로덕션에서 키 없으면 거부
-  if (!INTERNAL_KEY) return process.env.NODE_ENV !== "production";
-  return request.headers.get("x-internal-key")?.trim() === INTERNAL_KEY;
-}
+import { isAuthorized } from "@/lib/internalAuth";
 
 /**
  * POST /api/internal/question-metrics

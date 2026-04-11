@@ -12,8 +12,6 @@ import type {
   QuestionTopic,
 } from "@/lib/types";
 
-const STORAGE_KEY = "round_admin_internal_key";
-
 const CATEGORIES: Category[] = ["관계", "소비", "커리어", "라이프", "음식", "여행", "트렌드"];
 const TOPICS: QuestionTopic[] = ["relationship", "money", "manners", "work", "family", "self", "lifestyle", "society"];
 const TENSIONS: QuestionTension[] = [
@@ -93,8 +91,8 @@ function getStatusTone(status: QuestionStatus) {
 }
 
 export default function AdminQuestionsPage() {
-  const [internalKey, setInternalKey] = useState("");
-  const [savedKey, setSavedKey] = useState("");
+  const [emailInput, setEmailInput] = useState("");
+  const [authed, setAuthed] = useState<boolean | null>(null); // null = unknown, false = locked out, true = logged in
   const [pending, setPending] = useState<QuestionCandidate[]>([]);
   const [approved, setApproved] = useState<QuestionCandidate[]>([]);
   const [opsSummary, setOpsSummary] = useState<InspectSummary | null>(null);
@@ -103,19 +101,23 @@ export default function AdminQuestionsPage() {
   const [message, setMessage] = useState("");
   const [form, setForm] = useState<QuestionCandidateInsert>(EMPTY_FORM);
 
+  // Check existing session on mount
   useEffect(() => {
-    const stored = localStorage.getItem(STORAGE_KEY) ?? "";
-    setSavedKey(stored);
-    setInternalKey(stored);
+    void (async () => {
+      try {
+        const res = await fetch("/api/admin/me", { credentials: "include" });
+        const json = (await res.json()) as { authenticated?: boolean };
+        setAuthed(!!json.authenticated);
+      } catch {
+        setAuthed(false);
+      }
+    })();
   }, []);
 
-  const authHeaders = useMemo<HeadersInit>(() => {
-    const headers = new Headers({ "Content-Type": "application/json" });
-    if (savedKey) {
-      headers.set("x-internal-key", savedKey);
-    }
-    return headers;
-  }, [savedKey]);
+  const authHeaders = useMemo<HeadersInit>(
+    () => new Headers({ "Content-Type": "application/json" }),
+    [],
+  );
 
   const topQuestions = useMemo(() => opsSummary?.questions.slice(0, 12) ?? [], [opsSummary]);
   const topReplyRateQuestions = useMemo(
@@ -123,17 +125,22 @@ export default function AdminQuestionsPage() {
     [opsSummary],
   );
 
+  const fetchOpts: RequestInit = useMemo(
+    () => ({ credentials: "include" as RequestCredentials }),
+    [],
+  );
+
   async function loadAll() {
-    if (!savedKey) return;
+    if (!authed) return;
     setLoading(true);
     setMessage("");
 
     try {
       const [pendingRes, approvedRes, inspectRes, repliesRes] = await Promise.all([
-        fetch("/api/internal/question-candidates?status=pending", { headers: authHeaders }),
-        fetch("/api/internal/question-candidates?status=approved", { headers: authHeaders }),
-        fetch("/api/internal/question-inspect?all=true", { headers: authHeaders }),
-        fetch("/api/internal/moderation/replies?limit=20", { headers: authHeaders }),
+        fetch("/api/internal/question-candidates?status=pending", fetchOpts),
+        fetch("/api/internal/question-candidates?status=approved", fetchOpts),
+        fetch("/api/internal/question-inspect?all=true", fetchOpts),
+        fetch("/api/internal/moderation/replies?limit=20", fetchOpts),
       ]);
 
       if (!pendingRes.ok || !approvedRes.ok || !inspectRes.ok || !repliesRes.ok) {
@@ -158,22 +165,58 @@ export default function AdminQuestionsPage() {
   }
 
   useEffect(() => {
-    if (savedKey) {
+    if (authed) {
       void loadAll();
     }
-  }, [savedKey]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [authed]);
 
-  function saveKey() {
-    localStorage.setItem(STORAGE_KEY, internalKey.trim());
-    setSavedKey(internalKey.trim());
+  async function handleLogin() {
+    const email = emailInput.trim();
+    if (!email) {
+      setMessage("이메일을 입력해주세요.");
+      return;
+    }
+    setLoading(true);
     setMessage("");
+    try {
+      const res = await fetch("/api/admin/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ email }),
+      });
+      if (!res.ok) {
+        const json = await res.json().catch(() => ({}));
+        setMessage(json.message ?? "로그인 실패");
+        return;
+      }
+      setAuthed(true);
+    } catch {
+      setMessage("로그인 요청에 실패했어요.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleLogout() {
+    setLoading(true);
+    try {
+      await fetch("/api/admin/logout", { method: "POST", credentials: "include" });
+    } catch {
+      // ignore
+    } finally {
+      setAuthed(false);
+      setPending([]);
+      setApproved([]);
+      setOpsSummary(null);
+      setRecentReplies([]);
+      setLoading(false);
+    }
   }
 
   async function createCandidate() {
-    if (!savedKey) {
-      setMessage("먼저 내부 키를 저장해주세요.");
-      return;
-    }
+    if (!authed) return;
 
     setLoading(true);
     setMessage("");
@@ -181,6 +224,7 @@ export default function AdminQuestionsPage() {
       const res = await fetch("/api/internal/question-candidates", {
         method: "POST",
         headers: authHeaders,
+        credentials: "include",
         body: JSON.stringify(form),
       });
 
@@ -201,13 +245,13 @@ export default function AdminQuestionsPage() {
   }
 
   async function approveCandidate(id: string) {
-    if (!savedKey) return;
+    if (!authed) return;
     setLoading(true);
     setMessage("");
     try {
       const res = await fetch(`/api/internal/question-candidates/${id}/approve`, {
         method: "POST",
-        headers: { "x-internal-key": savedKey },
+        credentials: "include",
       });
 
       if (!res.ok) {
@@ -226,13 +270,13 @@ export default function AdminQuestionsPage() {
   }
 
   async function rejectCandidate(id: string) {
-    if (!savedKey) return;
+    if (!authed) return;
     setLoading(true);
     setMessage("");
     try {
       const res = await fetch(`/api/internal/question-candidates/${id}/reject`, {
         method: "POST",
-        headers: { "x-internal-key": savedKey },
+        credentials: "include",
       });
 
       if (!res.ok) {
@@ -251,13 +295,14 @@ export default function AdminQuestionsPage() {
   }
 
   async function refreshMetrics() {
-    if (!savedKey) return;
+    if (!authed) return;
     setLoading(true);
     setMessage("");
     try {
       const res = await fetch("/api/internal/question-metrics", {
         method: "POST",
         headers: authHeaders,
+        credentials: "include",
         body: JSON.stringify({ batch: true }),
       });
 
@@ -278,13 +323,13 @@ export default function AdminQuestionsPage() {
   }
 
   async function deleteReplyItem(id: string) {
-    if (!savedKey) return;
+    if (!authed) return;
     setLoading(true);
     setMessage("");
     try {
       const res = await fetch(`/api/internal/moderation/replies/${id}`, {
         method: "DELETE",
-        headers: { "x-internal-key": savedKey },
+        credentials: "include",
       });
 
       if (!res.ok) {
@@ -318,7 +363,7 @@ export default function AdminQuestionsPage() {
               <button
                 type="button"
                 onClick={() => void refreshMetrics()}
-                disabled={!savedKey || loading}
+                disabled={!authed || loading}
                 className="min-h-11 rounded-2xl border border-cyan-300/30 bg-cyan-300/10 px-4 text-sm font-semibold text-cyan-100 disabled:opacity-50"
               >
                 메트릭 배치 실행
@@ -326,30 +371,46 @@ export default function AdminQuestionsPage() {
               <button
                 type="button"
                 onClick={() => void loadAll()}
-                disabled={!savedKey || loading}
+                disabled={!authed || loading}
                 className="min-h-11 rounded-2xl border border-white/12 px-4 text-sm font-semibold text-white/80 disabled:opacity-50"
               >
                 전체 새로고침
               </button>
+              {authed && (
+                <button
+                  type="button"
+                  onClick={() => void handleLogout()}
+                  className="min-h-11 rounded-2xl border border-white/10 px-4 text-sm font-semibold text-white/55"
+                >
+                  로그아웃
+                </button>
+              )}
             </div>
           </div>
 
-          <div className="mt-4 flex flex-col gap-2 sm:flex-row">
-            <input
-              type="password"
-              value={internalKey}
-              onChange={(e) => setInternalKey(e.target.value)}
-              placeholder="INTERNAL_API_KEY"
-              className="min-h-11 flex-1 rounded-2xl border border-white/10 bg-white/[0.04] px-4 text-sm text-white outline-none"
-            />
-            <button
-              type="button"
-              onClick={saveKey}
-              className="min-h-11 rounded-2xl bg-white px-4 text-sm font-bold text-slate-900"
-            >
-              키 저장
-            </button>
-          </div>
+          {!authed && (
+            <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+              <input
+                type="email"
+                value={emailInput}
+                onChange={(e) => setEmailInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") void handleLogin();
+                }}
+                placeholder="관리자 이메일"
+                autoComplete="email"
+                className="min-h-11 flex-1 rounded-2xl border border-white/10 bg-white/[0.04] px-4 text-sm text-white outline-none"
+              />
+              <button
+                type="button"
+                onClick={() => void handleLogin()}
+                disabled={loading}
+                className="min-h-11 rounded-2xl bg-white px-4 text-sm font-bold text-slate-900 disabled:opacity-50"
+              >
+                로그인
+              </button>
+            </div>
+          )}
           {message && <p className="mt-3 text-sm text-cyan-200/80">{message}</p>}
         </section>
 
