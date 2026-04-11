@@ -163,35 +163,6 @@ export const STARTER_QUESTIONS: Question[] = [
  * 참여형 톤, 설문형 금지.
  */
 export const FEED_QUESTIONS: Question[] = [
-  // --- 음식 ---
-  {
-    id: "ex-01", qtype: "Snack", axis: null,
-    valueA: "야식파", valueB: "갓생러",
-    displayType: "text", category: "음식", categoryEmoji: "🍜",
-    topic: "self", tension: "present_vs_future",
-    question: "야식 먹고 후회한 적 있어?",
-    optionA: { label: "후회해도 또 먹음" },
-    optionB: { label: "그래서 안 먹기로 했음" },
-    resultA: 58, resultB: 42, totalVotes: 334,
-    reasons: [
-      { side: "A", text: "후회가 야식 맛의 일부", likes: 31 },
-      { side: "B", text: "다음 날 컨디션이 증명함", likes: 27 },
-    ],
-  },
-  {
-    id: "ex-02", qtype: "Snack", axis: null,
-    valueA: "맵단짠러", valueB: "디저트덕후",
-    displayType: "text", category: "음식", categoryEmoji: "🍜",
-    topic: "self", tension: "present_vs_future",
-    question: "점심 후 디저트는?",
-    optionA: { label: "배부른데 굳이 안 먹음" },
-    optionB: { label: "디저트는 별도 위장" },
-    resultA: 41, resultB: 59, totalVotes: 356,
-    reasons: [
-      { side: "A", text: "칼로리가 무서움", likes: 25 },
-      { side: "B", text: "디저트 빠지면 점심이 아님", likes: 38 },
-    ],
-  },
   // --- 소비 ---
   {
     id: "ex-03", qtype: "Snack", axis: null,
@@ -219,20 +190,6 @@ export const FEED_QUESTIONS: Question[] = [
     reasons: [
       { side: "A", text: "받는 사람이 알아봄", likes: 29 },
       { side: "B", text: "마음이 중요하지 가격이 중요한가", likes: 35 },
-    ],
-  },
-  {
-    id: "ex-05", qtype: "Snack", axis: null,
-    valueA: "신상헌터", valueB: "가성비파",
-    displayType: "text", category: "소비", categoryEmoji: "💸",
-    topic: "money", tension: "present_vs_future",
-    question: "새 아이폰 나왔다",
-    optionA: { label: "출시일에 바꾼다" },
-    optionB: { label: "내 폰 아직 멀쩡한데" },
-    resultA: 32, resultB: 68, totalVotes: 478,
-    reasons: [
-      { side: "A", text: "카메라 차이가 체감됨", likes: 28 },
-      { side: "B", text: "100만 원이면 여행 감", likes: 44 },
     ],
   },
   // --- 관계 ---
@@ -276,35 +233,6 @@ export const FEED_QUESTIONS: Question[] = [
     reasons: [
       { side: "A", text: "시간 끌면 더 꼬임", likes: 34 },
       { side: "B", text: "감정 정리 후가 진짜 대화", likes: 37 },
-    ],
-  },
-  // --- 트렌드 ---
-  {
-    id: "ex-11", qtype: "Snack", axis: null,
-    valueA: "숏폼중독", valueB: "갓생러",
-    displayType: "text", category: "트렌드", categoryEmoji: "🔥",
-    topic: "self", tension: "efficiency_vs_empathy",
-    question: "MBTI 믿어?",
-    optionA: { label: "꽤 맞더라" },
-    optionB: { label: "재미일 뿐" },
-    resultA: 47, resultB: 53, totalVotes: 487,
-    reasons: [
-      { side: "A", text: "주변 사람 보면 진짜 맞음", likes: 38 },
-      { side: "B", text: "바넘 효과일 뿐", likes: 35 },
-    ],
-  },
-  {
-    id: "ex-12", qtype: "Snack", axis: null,
-    valueA: "숏폼중독", valueB: "앱테크족",
-    displayType: "text", category: "트렌드", categoryEmoji: "🔥",
-    topic: "self", tension: "present_vs_future",
-    question: "AI 써본 적 있어?",
-    optionA: { label: "매일 씀" },
-    optionB: { label: "거의 안 씀" },
-    resultA: 52, resultB: 48, totalVotes: 445,
-    reasons: [
-      { side: "A", text: "안 쓰면 손해인 세상", likes: 37 },
-      { side: "B", text: "아직 쓸 일이 없었음", likes: 29 },
     ],
   },
   // --- 소비/재테크 ---
@@ -365,21 +293,6 @@ export const FEED_QUESTIONS: Question[] = [
       { side: "B", text: "관계 망치면 복구 불가", likes: 36 },
     ],
   },
-  // --- 라이프 추가 ---
-  {
-    id: "ex-19", qtype: "Snack", axis: null,
-    valueA: "갓생러", valueB: "야행성",
-    displayType: "text", category: "라이프", categoryEmoji: "🌿",
-    topic: "self", tension: "freedom_vs_responsibility",
-    question: "자취 vs 부모님 집?",
-    optionA: { label: "자취" },
-    optionB: { label: "부모님 집" },
-    resultA: 53, resultB: 47, totalVotes: 389,
-    reasons: [
-      { side: "A", text: "자유가 곧 행복", likes: 35 },
-      { side: "B", text: "밥 해주는 사람이 최고", likes: 38 },
-    ],
-  },
   // --- 커리어 (가볍게) ---
   {
     id: "ex-22", qtype: "Snack", axis: null,
@@ -421,18 +334,6 @@ export const FEED_QUESTIONS: Question[] = [
     reasons: [
       { side: "A", text: "늦는 건 예의가 아님", likes: 33 },
       { side: "B", text: "일찍 가면 할 게 없음", likes: 37 },
-    ],
-  },
-  {
-    id: "core-a3", qtype: "Core", axis: "Action", valueA: -10, valueB: 10,
-    displayType: "text", category: "라이프", categoryEmoji: "🌿",
-    topic: "self", tension: "freedom_vs_responsibility",
-    question: "냉장고 재료 떨어지면",
-    optionA: { label: "미리 리스트 써서 장 봄" }, optionB: { label: "그때그때 눈에 보이는 거 삼" },
-    resultA: 42, resultB: 58, totalVotes: 356,
-    reasons: [
-      { side: "A", text: "안 사면 또 시킴", likes: 28 },
-      { side: "B", text: "장보기는 즉흥이 맞음", likes: 34 },
     ],
   },
   // Reward 축
@@ -522,19 +423,6 @@ export const FEED_QUESTIONS: Question[] = [
     reasons: [
       { side: "A", text: "안 쓰면 아까움", likes: 30 },
       { side: "B", text: "쿠폰에 끌려가면 결국 낭비", likes: 28 },
-    ],
-  },
-  {
-    id: "ex-27", qtype: "Snack", axis: null,
-    valueA: "야행성", valueB: "갓생러",
-    displayType: "text", category: "라이프", categoryEmoji: "🌿",
-    topic: "self", tension: "freedom_vs_responsibility",
-    question: "가장 생산적인 시간대",
-    optionA: { label: "밤 10시 이후" }, optionB: { label: "아침 일찍" },
-    resultA: 54, resultB: 46, totalVotes: 412,
-    reasons: [
-      { side: "A", text: "밤이 돼야 집중됨", likes: 37 },
-      { side: "B", text: "아침에 끝내야 하루가 편함", likes: 33 },
     ],
   },
   // === 논쟁형 질문 (갈리는 주제, topic/tension 포함) ===
@@ -647,6 +535,90 @@ FEED_QUESTIONS.push(
     reasons: [
       { side: "A", text: "퇴근 이후 시간은 내 시간", likes: 0 },
       { side: "B", text: "급한 건 확인은 해야 함", likes: 0 },
+    ],
+  },
+  {
+    id: "conflict-04", qtype: "Snack", axis: null,
+    valueA: "원칙파", valueB: "맞춤파",
+    displayType: "text", category: "관계", categoryEmoji: "💕",
+    topic: "relationship", tension: "fairness_vs_generosity",
+    question: "커플 데이트 비용, 더 가까운 쪽은?",
+    optionA: { label: "무조건 반반이 공평하다" },
+    optionB: { label: "많이 버는 쪽이 더 낸다" },
+    resultA: 51, resultB: 49, totalVotes: 0,
+    reasons: [
+      { side: "A", text: "반반이 제일 깔끔함", likes: 0 },
+      { side: "B", text: "비율로 나누는 게 현실적", likes: 0 },
+    ],
+  },
+  {
+    id: "conflict-05", qtype: "Snack", axis: null,
+    valueA: "직설파", valueB: "완곡파",
+    displayType: "text", category: "관계", categoryEmoji: "💕",
+    topic: "relationship", tension: "honesty_vs_harmony",
+    question: "친구 외모 변화가 안 좋아 보여, 더 가까운 쪽은?",
+    optionA: { label: "솔직하게 말해준다" },
+    optionB: { label: "굳이 말 안 한다" },
+    resultA: 47, resultB: 53, totalVotes: 0,
+    reasons: [
+      { side: "A", text: "모르는 게 더 민폐", likes: 0 },
+      { side: "B", text: "외모는 건드리면 안 됨", likes: 0 },
+    ],
+  },
+  {
+    id: "conflict-06", qtype: "Snack", axis: null,
+    valueA: "공유파", valueB: "경계파",
+    displayType: "text", category: "관계", categoryEmoji: "💕",
+    topic: "family", tension: "privacy_vs_openness",
+    question: "부모가 내 연봉을 물어보면, 더 가까운 쪽은?",
+    optionA: { label: "정확한 금액을 말한다" },
+    optionB: { label: "대충 둘러댄다" },
+    resultA: 43, resultB: 57, totalVotes: 0,
+    reasons: [
+      { side: "A", text: "숨길 이유가 없음", likes: 0 },
+      { side: "B", text: "잔소리의 시작", likes: 0 },
+    ],
+  },
+  {
+    id: "conflict-07", qtype: "Snack", axis: null,
+    valueA: "거리두기파", valueB: "의리파",
+    displayType: "text", category: "관계", categoryEmoji: "💕",
+    topic: "manners", tension: "fairness_vs_generosity",
+    question: "전 애인 결혼식 초대장을 받았다, 더 가까운 쪽은?",
+    optionA: { label: "안 간다" },
+    optionB: { label: "축하해주러 간다" },
+    resultA: 64, resultB: 36, totalVotes: 0,
+    reasons: [
+      { side: "A", text: "서로를 위한 거리", likes: 0 },
+      { side: "B", text: "끝은 깔끔하게", likes: 0 },
+    ],
+  },
+  {
+    id: "conflict-08", qtype: "Snack", axis: null,
+    valueA: "원칙파", valueB: "거리두기파",
+    displayType: "text", category: "커리어", categoryEmoji: "💼",
+    topic: "work", tension: "honesty_vs_harmony",
+    question: "회식에서 상사가 외모를 지적한다, 더 가까운 쪽은?",
+    optionA: { label: "그 자리에서 받아친다" },
+    optionB: { label: "웃고 넘긴다" },
+    resultA: 45, resultB: 55, totalVotes: 0,
+    reasons: [
+      { side: "A", text: "한번 봐주면 계속 함", likes: 0 },
+      { side: "B", text: "공식적인 방법으로 처리", likes: 0 },
+    ],
+  },
+  {
+    id: "conflict-09", qtype: "Snack", axis: null,
+    valueA: "원칙파", valueB: "현실파",
+    displayType: "text", category: "소비", categoryEmoji: "💸",
+    topic: "money", tension: "stability_vs_growth",
+    question: "월급의 80%를 다루면, 더 가까운 쪽은?",
+    optionA: { label: "80% 저축이 맞다" },
+    optionB: { label: "지금을 사는 게 맞다" },
+    resultA: 52, resultB: 48, totalVotes: 0,
+    reasons: [
+      { side: "A", text: "복리가 답이다", likes: 0 },
+      { side: "B", text: "젊을 때 경험이 자산", likes: 0 },
     ],
   },
 );
