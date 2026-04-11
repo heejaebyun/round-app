@@ -39,7 +39,7 @@ export type QuestionStakes = "low" | "social" | "identity" | "financial";
 export type QuestionRiskTag = "ragebait" | "gender_war" | "political" | "defamation_risk" | "too_niche" | "sensitive";
 export type QuestionStatus = "test" | "rising" | "evergreen" | "archive";
 export type QuestionSourceType = "community" | "news_comment" | "internal_submission" | "manual_editorial";
-export type QuestionLocale = "ko-KR" | "en-US" | "en-GB";
+export type QuestionLocale = "ko-KR" | "en-US" | "en-PH" | "en-GB";
 export type QuestionCandidateReviewStatus = "pending" | "approved" | "rejected";
 
 interface BaseQuestion {

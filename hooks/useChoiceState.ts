@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useCallback, useMemo, useEffect } from "react";
-import type { UserChoice, Question, QuestionMetricsSnapshot } from "@/lib/types";
-import { STARTER_QUESTIONS, FEED_QUESTIONS } from "@/data/questions";
+import type { UserChoice, Question, QuestionLocale, QuestionMetricsSnapshot } from "@/lib/types";
+import { getQuestionsForLocale } from "@/data/questions";
 import { getQuestionOpsMetrics } from "@/utils/questionOps";
 import { getActiveFeedQuestions } from "@/utils/feedSelection";
 import { getQuestionMetricsBatch } from "@/lib/questionMetrics";
@@ -29,32 +29,38 @@ function persistChoices(choices: UserChoice[]) {
 /**
  * Fallback feed (no metrics yet): starter fixed → feed shuffled.
  */
-function mergeFeedQuestions(dynamicQuestions: Question[] = []): Question[] {
+function mergeFeedQuestions(baseFeed: Question[], dynamicQuestions: Question[] = []): Question[] {
   const seen = new Set<string>();
-  return [...FEED_QUESTIONS, ...dynamicQuestions].filter((q) => {
+  return [...baseFeed, ...dynamicQuestions].filter((q) => {
     if (seen.has(q.id)) return false;
     seen.add(q.id);
     return true;
   });
 }
 
-function buildFallbackSequence(dynamicQuestions: Question[] = []): Question[] {
-  const shuffled = [...mergeFeedQuestions(dynamicQuestions)].sort(() => Math.random() - 0.5);
-  return [...STARTER_QUESTIONS, ...shuffled];
+function buildFallbackSequence(
+  starter: Question[],
+  baseFeed: Question[],
+  dynamicQuestions: Question[] = [],
+): Question[] {
+  const shuffled = [...mergeFeedQuestions(baseFeed, dynamicQuestions)].sort(() => Math.random() - 0.5);
+  return [...starter, ...shuffled];
 }
 
 /**
  * Status-aware feed: starter fixed → feed sorted by status policy.
  */
 function buildStatusAwareSequence(
+  starter: Question[],
   feedQuestions: Question[],
   metricsMap: Map<string, QuestionMetricsSnapshot>,
 ): Question[] {
   const activeFeed = getActiveFeedQuestions(feedQuestions, metricsMap);
-  return [...STARTER_QUESTIONS, ...activeFeed];
+  return [...starter, ...activeFeed];
 }
 
-export function useChoiceState() {
+export function useChoiceState(locale?: QuestionLocale) {
+  const bundle = useMemo(() => getQuestionsForLocale(locale), [locale]);
   const [choices, setChoices] = useState<UserChoice[]>(() => loadChoices());
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedSide, setSelectedSide] = useState<"A" | "B" | null>(null);
@@ -64,23 +70,30 @@ export function useChoiceState() {
   const [skippedIds, setSkippedIds] = useState<string[]>([]);
 
   // Start with fallback, upgrade when metrics arrive
-  const [allQuestions, setAllQuestions] = useState<Question[]>(buildFallbackSequence);
+  const [allQuestions, setAllQuestions] = useState<Question[]>(() =>
+    buildFallbackSequence(bundle.starter, bundle.feed),
+  );
 
-  // Load metrics once on mount, then rebuild feed
+  // Rebuild fallback when locale bundle changes
+  useEffect(() => {
+    setAllQuestions(buildFallbackSequence(bundle.starter, bundle.feed));
+  }, [bundle]);
+
+  // Load metrics once on mount (and on locale swap), then rebuild feed
   useEffect(() => {
     let cancelled = false;
     void (async () => {
       try {
         const approved = await getApprovedQuestionCandidates();
-        const mergedFeed = mergeFeedQuestions(approved);
+        const mergedFeed = mergeFeedQuestions(bundle.feed, approved);
         if (!cancelled && approved.length > 0) {
-          setAllQuestions(buildFallbackSequence(approved));
+          setAllQuestions(buildFallbackSequence(bundle.starter, bundle.feed, approved));
         }
 
         const ids = mergedFeed.map((q) => q.id);
         const metricsMap = await getQuestionMetricsBatch(ids);
         if (!cancelled && metricsMap.size > 0) {
-          setAllQuestions(buildStatusAwareSequence(mergedFeed, metricsMap));
+          setAllQuestions(buildStatusAwareSequence(bundle.starter, mergedFeed, metricsMap));
         }
       } catch {
         // Keep fallback
@@ -90,7 +103,7 @@ export function useChoiceState() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [bundle]);
 
   const answeredIds = useMemo(
     () => new Set(choices.map((c) => c.questionId)),

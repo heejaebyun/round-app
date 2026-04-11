@@ -16,9 +16,12 @@ import { useQuestionReasons } from "@/hooks/useQuestionReasons";
 import { useQuestionResult } from "@/hooks/useQuestionResult";
 import { isTossMiniApp } from "@/lib/toss";
 import { registerSessionEnd, trackEvent } from "@/utils/analytics";
+import { useLocale } from "@/hooks/useLocale";
 
 export default function Home() {
   const router = useRouter();
+  const { locale } = useLocale();
+  // locale is passed to useChoiceState so the question pool follows detection
   const {
     currentQuestion,
     resultQuestion,
@@ -31,7 +34,7 @@ export default function Home() {
     nextQuestion,
     skipQuestion,
     addReason,
-  } = useChoiceState();
+  } = useChoiceState(locale);
   const displayQuestion =
     showResult || selectedSide ? resultQuestion ?? currentQuestion : currentQuestion;
 
@@ -288,6 +291,7 @@ export default function Home() {
               if (selectedSide) prependLocalReason(selectedSide, text);
             }}
             contextHint={contextHint}
+            locale={locale}
           />
         </motion.div>
       </AnimatePresence>

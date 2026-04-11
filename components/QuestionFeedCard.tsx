@@ -3,11 +3,12 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { CATEGORY_COLORS } from "@/lib/constants";
-import type { Question, Reason } from "@/lib/types";
+import type { Question, QuestionLocale, Reason } from "@/lib/types";
 import AnimatedNumber from "./AnimatedNumber";
 import QuestionFeedback from "./QuestionFeedback";
 import VoicesSheet from "./VoicesSheet";
 import { buildQuestionShareText, buildQuestionShareTitle } from "@/lib/questionShare";
+import { createT } from "@/lib/i18n";
 // onSkip is handled by the page-level floating X button now
 
 interface Props {
@@ -30,6 +31,8 @@ interface Props {
   onReasonSubmit: (text: string) => void;
   // context
   contextHint?: string | null;
+  // i18n
+  locale?: QuestionLocale;
 }
 
 /**
@@ -60,7 +63,9 @@ export default function QuestionFeedCard({
   onHeart,
   onReasonSubmit,
   contextHint,
+  locale,
 }: Props) {
+  const tt = createT(locale);
   const color = CATEGORY_COLORS[question.category];
   const sideLabel = (s: "A" | "B") =>
     s === "A" ? question.optionA.label : question.optionB.label;
@@ -89,12 +94,12 @@ export default function QuestionFeedCard({
     try {
       if (navigator.clipboard?.writeText) {
         await navigator.clipboard.writeText(text);
-        setShareToast("질문 링크를 복사했어요");
+        setShareToast(tt("shareCopied"));
       } else {
-        setShareToast("공유가 지원되지 않아요");
+        setShareToast(tt("shareFailed"));
       }
     } catch {
-      setShareToast("공유에 실패했어요");
+      setShareToast(tt("shareFailed"));
     }
     window.setTimeout(() => setShareToast(null), 1600);
   }
@@ -168,7 +173,7 @@ export default function QuestionFeedCard({
         </motion.h2>
         {totalVotes > 0 && (
           <p className="mt-4 text-[11px] text-white/35">
-            {totalVotes.toLocaleString()}명 참여
+            {totalVotes.toLocaleString()}{tt("totalVotesSuffix")}
           </p>
         )}
       </div>
@@ -226,7 +231,7 @@ export default function QuestionFeedCard({
               })}
               {isPending && (
                 <div className="mt-1 text-center text-[11px] text-cyan-300/70">
-                  집계 중…
+                  {tt("counting")}
                 </div>
               )}
             </motion.div>
@@ -298,13 +303,13 @@ export default function QuestionFeedCard({
                 >
                   {bestSame && (
                     <p className="truncate text-[12px] text-white/55">
-                      <span className="mr-1.5 text-white/30">같은 선택</span>
+                      <span className="mr-1.5 text-white/30">{tt("sameSide")}</span>
                       {bestSame.text}
                     </p>
                   )}
                   {bestOpposite && (
                     <p className="truncate text-[12px] text-white/55">
-                      <span className="mr-1.5 text-white/30">반대 선택</span>
+                      <span className="mr-1.5 text-white/30">{tt("oppositeSide")}</span>
                       {bestOpposite.text}
                     </p>
                   )}
@@ -323,7 +328,7 @@ export default function QuestionFeedCard({
                   onClick={() => setSheetOpen(true)}
                   className="flex flex-1 items-center justify-center gap-1.5 rounded-full border border-white/10 bg-white/[0.04] py-2.5 text-[12px] font-semibold text-white/70 transition hover:bg-white/[0.08] active:scale-[0.985]"
                 >
-                  💬 의견 {allReasons.length}개 보기
+                  💬 {tt("viewOpinions")} {allReasons.length}{locale && locale !== "ko-KR" ? "" : "개 보기"}
                 </button>
                 <QuestionFeedback questionId={question.id} />
               </motion.div>
@@ -337,13 +342,13 @@ export default function QuestionFeedCard({
             type="button"
             onClick={handleShareQuestion}
             className="inline-flex items-center gap-1 text-[11px] font-semibold text-white/35 transition hover:text-white/70 active:scale-[0.98]"
-            aria-label="질문 공유하기"
+            aria-label={tt("shareQuestion")}
           >
             <span aria-hidden>↗</span>
-            <span>질문 공유</span>
+            <span>{tt("shareQuestion")}</span>
           </button>
           <span className="animate-hintBounce round-mono text-[10px] uppercase tracking-[0.32em] text-white/30">
-            ↓ 다음 질문
+            ↓ {tt("swipeHint")}
           </span>
         </div>
       </div>
