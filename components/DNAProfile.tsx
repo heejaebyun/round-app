@@ -1,11 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import type { ChoiceDNA, UserChoice } from "@/lib/types";
-import { buildDNAShareUrl } from "@/lib/share";
+import type { Category, ChoiceDNA, UserChoice } from "@/lib/types";
+import { buildDNAShareUrl, SHARE_MIN_CHOICES } from "@/lib/share";
 import { SITE } from "@/lib/site";
 import { trackEvent } from "@/utils/analytics";
 import { getAxisInterpretation, getTagInterpretation, generateSummaryLine } from "@/utils/dnaCalculator";
+import { computeTodayTrace } from "@/lib/userActivity";
 import ActivitySummary from "./ActivitySummary";
 
 interface Props {
@@ -29,8 +30,32 @@ export default function DNAProfile({ dna, progressMessage, choices, onResetChoic
   const summaryLine = generateSummaryLine(dna.archetype, dna.topTag, dna.scores);
 
   async function handleShare() {
-    if (dna.totalChoices < 10) return;
-    const url = buildDNAShareUrl(SITE.url, dna);
+    if (dna.totalChoices < SHARE_MIN_CHOICES) return;
+
+    // Top category — same-day top, fall back to overall top from choices
+    const trace = computeTodayTrace(choices);
+    let topCategory: Category | null = trace.topCategory?.category ?? null;
+    if (!topCategory && choices.length > 0) {
+      const counts = new Map<Category, number>();
+      for (const c of choices) counts.set(c.category, (counts.get(c.category) ?? 0) + 1);
+      const top = Array.from(counts.entries()).sort((a, b) => b[1] - a[1])[0];
+      topCategory = top ? top[0] : null;
+    }
+
+    // Most extreme axis label
+    const axisEntries = Object.entries(dna.scores) as [keyof typeof dna.scores, number][];
+    let topAxisLabel: string | null = null;
+    if (axisEntries.length > 0) {
+      const [topAxis, topScore] = axisEntries.reduce((a, b) =>
+        Math.abs(b[1] - 50) > Math.abs(a[1] - 50) ? b : a,
+      );
+      const labels = AXIS_LABELS[topAxis];
+      if (labels) topAxisLabel = topScore <= 50 ? labels[0] : labels[1];
+    }
+
+    const url = buildDNAShareUrl(SITE.url, dna, { topCategory, topAxisLabel });
+    if (!url) return;
+
     try {
       if (typeof navigator !== "undefined" && navigator.share) {
         await navigator.share({ title: dna.fullTitle, text: `나는 "${dna.fullTitle}"`, url });
