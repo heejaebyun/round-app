@@ -17,6 +17,7 @@ export type EventName =
   | "reason_reply_viewed"
   | "question_feedback"
   | "question_feedback_cleared"
+  | "deep_link_opened"
   | "toss_login_started"
   | "toss_login_succeeded"
   | "toss_login_failed"

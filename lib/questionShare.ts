@@ -2,11 +2,28 @@ import type { Question, QuestionLocale } from "./types";
 import { isEnglishLocale } from "./i18n";
 
 /**
+ * Build a deep-link URL that opens Round directly on a specific question.
+ * Format: /?q={questionId} (+ &locale= if not ko-KR)
+ */
+export function buildQuestionDeepLink(
+  baseUrl: string,
+  questionId: string,
+  locale?: QuestionLocale | string | null,
+): string {
+  const base = baseUrl.replace(/\/$/, "");
+  const params = new URLSearchParams();
+  params.set("q", questionId);
+  if (locale && locale !== "ko-KR") {
+    params.set("locale", String(locale));
+  }
+  return `${base}/?${params.toString()}`;
+}
+
+/**
  * Build the plain-text payload we hand to `navigator.share` or paste
  * onto the clipboard when sharing a single feed question.
  *
- * Kept intentionally short so it survives SMS / DM clients without
- * being truncated.
+ * `url` should be a deep-link built by `buildQuestionDeepLink`.
  */
 export function buildQuestionShareText(
   question: Question,
@@ -16,8 +33,8 @@ export function buildQuestionShareText(
   const a = question.optionA?.label ?? "A";
   const b = question.optionB?.label ?? "B";
   const intro = isEnglishLocale(locale)
-    ? "A question was shared with you. Join in and share your thoughts."
-    : "질문이 공유되었어요. 참여하시고 생각을 남겨보세요.";
+    ? "This one really splits people. Which side are you?"
+    : "이거 진짜 갈리던데, 너라면 뭐 골라?";
   return [
     intro,
     "",

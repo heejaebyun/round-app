@@ -7,7 +7,7 @@ import type { Question, QuestionLocale, Reason } from "@/lib/types";
 import AnimatedNumber from "./AnimatedNumber";
 import QuestionFeedback from "./QuestionFeedback";
 import VoicesSheet from "./VoicesSheet";
-import { buildQuestionShareText, buildQuestionShareTitle } from "@/lib/questionShare";
+import { buildQuestionDeepLink, buildQuestionShareText, buildQuestionShareTitle } from "@/lib/questionShare";
 import { createT } from "@/lib/i18n";
 
 interface Props {
@@ -74,14 +74,15 @@ export default function QuestionFeedCard({
 
   async function handleShareQuestion() {
     if (typeof window === "undefined") return;
-    const url = window.location.href.split("#")[0];
-    const text = buildQuestionShareText(question, url, locale);
+    const baseUrl = window.location.origin;
+    const deepLink = buildQuestionDeepLink(baseUrl, question.id, locale);
+    const text = buildQuestionShareText(question, deepLink, locale);
     const title = buildQuestionShareTitle(question);
 
     // Try native share first
     if (typeof navigator !== "undefined" && typeof navigator.share === "function") {
       try {
-        await navigator.share({ title, text, url });
+        await navigator.share({ title, text, url: deepLink });
         return;
       } catch {
         // user cancelled or native share failed — fall through to clipboard

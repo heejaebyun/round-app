@@ -59,7 +59,7 @@ function buildStatusAwareSequence(
   return [...starter, ...activeFeed];
 }
 
-export function useChoiceState(locale?: QuestionLocale) {
+export function useChoiceState(locale?: QuestionLocale, deepLinkQuestionId?: string | null) {
   const bundle = useMemo(() => getQuestionsForLocale(locale), [locale]);
   const [choices, setChoices] = useState<UserChoice[]>(() => loadChoices());
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -112,15 +112,27 @@ export function useChoiceState(locale?: QuestionLocale) {
 
   const unanswered = useMemo(() => {
     const pool = allQuestions.filter((q) => !answeredIds.has(q.id));
-    if (skippedIds.length === 0) return pool;
+
+    // Deep-link: surface the requested question at the front (one-time)
+    let ordered = pool;
+    if (deepLinkQuestionId) {
+      const dlIdx = pool.findIndex((q) => q.id === deepLinkQuestionId);
+      if (dlIdx > 0) {
+        // Move it to position 0 without disrupting the rest
+        ordered = [pool[dlIdx], ...pool.slice(0, dlIdx), ...pool.slice(dlIdx + 1)];
+      }
+      // dlIdx === 0 → already first; dlIdx === -1 → not in pool, ignore
+    }
+
+    if (skippedIds.length === 0) return ordered;
     // Rotate skipped questions to the end (preserving skip order)
     const skippedSet = new Set(skippedIds);
-    const nonSkipped = pool.filter((q) => !skippedSet.has(q.id));
+    const nonSkipped = ordered.filter((q) => !skippedSet.has(q.id));
     const skipped = skippedIds
-      .map((id) => pool.find((q) => q.id === id))
+      .map((id) => ordered.find((q) => q.id === id))
       .filter((q): q is Question => !!q);
     return [...nonSkipped, ...skipped];
-  }, [allQuestions, answeredIds, skippedIds]);
+  }, [allQuestions, answeredIds, skippedIds, deepLinkQuestionId]);
 
   const allDone = unanswered.length === 0;
   const currentQuestion = allDone ? null : unanswered[currentIndex % unanswered.length];

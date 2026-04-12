@@ -23,6 +23,14 @@ export default function Home() {
   const router = useRouter();
   const { locale, ready: localeReady } = useLocale();
   const isEn = isEnglishLocale(locale);
+
+  // Deep-link: read ?q= from URL (one-time on mount)
+  const [deepLinkId] = useState<string | null>(() => {
+    if (typeof window === "undefined") return null;
+    const params = new URLSearchParams(window.location.search);
+    return params.get("q") || null;
+  });
+
   // locale is passed to useChoiceState so the question pool follows detection
   const {
     currentQuestion,
@@ -36,7 +44,7 @@ export default function Home() {
     nextQuestion,
     skipQuestion,
     addReason,
-  } = useChoiceState(locale);
+  } = useChoiceState(locale, deepLinkId);
   const displayQuestion =
     showResult || selectedSide ? resultQuestion ?? currentQuestion : currentQuestion;
 
@@ -68,6 +76,9 @@ export default function Home() {
   useEffect(() => {
     const frame = requestAnimationFrame(() => setMounted(true));
     trackEvent("session_start", { referrer: document.referrer || "direct" });
+    if (deepLinkId) {
+      trackEvent("deep_link_opened", { questionId: deepLinkId });
+    }
     registerSessionEnd();
     return () => cancelAnimationFrame(frame);
   }, []);
