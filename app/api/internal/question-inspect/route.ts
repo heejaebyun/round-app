@@ -71,11 +71,16 @@ export async function GET(request: NextRequest) {
         derivedStatus: status,
         feedbackTotal: fb?.total ?? 0,
         feedbackByReason: fb?.byReason ?? null,
+        // v2 quality signals
+        skipRate: ops.skipRate ?? 0,
+        feedbackRate: ops.feedbackRate ?? 0,
+        reasonEngagementRate: ops.reasonEngagementRate ?? 0,
+        qualityScore: ops.qualityScore ?? 0,
       };
     });
 
-    // Sort by heat desc
-    items.sort((a, b) => (b.heatScore ?? 0) - (a.heatScore ?? 0));
+    // Sort by qualityScore desc (was heat desc)
+    items.sort((a, b) => (b.qualityScore ?? 0) - (a.qualityScore ?? 0));
 
     const statusCounts: Record<string, number> = {};
     for (const item of items) {

@@ -23,6 +23,10 @@ export function getQuestionOpsMetrics(
     nextRate: snapshot?.nextRate,
     heatScore: snapshot?.heatScore,
     longevityScore: snapshot?.longevityScore,
+    skipRate: snapshot?.skipRate,
+    feedbackRate: snapshot?.feedbackRate,
+    reasonEngagementRate: snapshot?.reasonEngagementRate,
+    qualityScore: snapshot?.qualityScore,
   };
 }
 
@@ -32,11 +36,11 @@ const MIN_SAMPLE_SIZE = 5;
 /**
  * Derive question lifecycle status from operating metrics.
  *
- * Simple first-pass heuristic:
+ * Heuristic (v2 — now uses quality signals):
  * - test: default / not enough data (under MIN_SAMPLE_SIZE votes)
- * - archive: enough data AND weak split AND low engagement
- * - rising: high heat AND strong engagement
- * - evergreen: good split AND stable engagement
+ * - archive: (weak split AND low engagement) OR high skip/feedback penalty
+ * - rising: high heat AND strong engagement AND not penalized
+ * - evergreen: good split AND stable engagement AND decent quality
  */
 export function deriveQuestionStatus(metrics: QuestionOpsMetrics): QuestionStatus {
   const { splitScore: ss, voteCount, reasonCtr, replyRate } = metrics;
@@ -51,9 +55,25 @@ export function deriveQuestionStatus(metrics: QuestionOpsMetrics): QuestionStatu
   const strongEngagement = (reasonCtr ?? 0) >= 15 || (replyRate ?? 0) >= 5;
   const highHeat = (metrics.heatScore ?? 0) >= 50;
 
+  // v2 quality signals — use when available, safe defaults when not
+  const skip = metrics.skipRate ?? 0;
+  const feedback = metrics.feedbackRate ?? 0;
+  const quality = metrics.qualityScore ?? 50; // neutral default
+
+  // Penalty triggers: high skip (>40%) or high negative feedback (>20%)
+  const heavilySkipped = skip > 40;
+  const heavilyDisliked = feedback > 20;
+
+  // Archive: original criteria OR strong negative signals
   if (weakSplit && weakEngagement) return "archive";
-  if (highHeat && strongEngagement) return "rising";
-  if (strongSplit && votes >= 10) return "evergreen";
+  if (votes >= 10 && (heavilySkipped || heavilyDisliked) && quality < 30) return "archive";
+
+  // Rising: must not be penalized
+  if (highHeat && strongEngagement && !heavilySkipped && !heavilyDisliked) return "rising";
+
+  // Evergreen: decent quality required
+  if (strongSplit && votes >= 10 && quality >= 35) return "evergreen";
+
   return "test";
 }
 
@@ -93,6 +113,10 @@ export function emptySnapshot(questionId: string): QuestionMetricsSnapshot {
     splitGrade: "C",
     heatScore: 0,
     longevityScore: 0,
+    skipRate: 0,
+    feedbackRate: 0,
+    reasonEngagementRate: 0,
+    qualityScore: 50, // neutral default — not penalized, not rewarded
   };
 }
 

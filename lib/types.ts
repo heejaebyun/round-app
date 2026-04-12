@@ -189,13 +189,18 @@ export interface QuestionOpsMetrics {
   splitGrade: QuestionSplitGrade;
   topic: QuestionTopic | null;
   tension: QuestionTension | null;
-  // Future runtime metrics (populated when live data available)
+  // Runtime metrics (populated when live data available)
   voteCount?: number;
   reasonCtr?: number;
   replyRate?: number;
   nextRate?: number;
   heatScore?: number;
   longevityScore?: number;
+  // Quality signals (v2)
+  skipRate?: number;
+  feedbackRate?: number;
+  reasonEngagementRate?: number;
+  qualityScore?: number;
 }
 
 /** Point-in-time snapshot of question-level operating data */
@@ -210,6 +215,11 @@ export interface QuestionMetricsSnapshot {
   splitGrade: QuestionSplitGrade;
   heatScore?: number;
   longevityScore?: number;
+  // Quality signals (v2 — derived from events + feedback)
+  skipRate?: number;           // question_skipped / card_viewed (0–100)
+  feedbackRate?: number;       // negative feedback / card_viewed (0–100)
+  reasonEngagementRate?: number; // reason_engaged / result_viewed (0–100)
+  qualityScore?: number;       // weighted composite (0–100)
 }
 
 /** Question quality feedback from users */

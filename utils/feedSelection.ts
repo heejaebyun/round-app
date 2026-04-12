@@ -15,7 +15,7 @@ export function getActiveFeedQuestions(
   questions: Question[],
   metricsMap: Map<string, QuestionMetricsSnapshot> | null,
 ): Question[] {
-  type Bucket = { q: Question; status: QuestionStatus; heat: number };
+  type Bucket = { q: Question; status: QuestionStatus; heat: number; quality: number };
 
   const rising: Bucket[] = [];
   const evergreen: Bucket[] = [];
@@ -28,17 +28,23 @@ export function getActiveFeedQuestions(
 
     if (status === "archive") continue; // excluded
 
-    const bucket: Bucket = { q, status, heat: ops.heatScore ?? 0 };
+    const bucket: Bucket = {
+      q,
+      status,
+      heat: ops.heatScore ?? 0,
+      quality: ops.qualityScore ?? 50,
+    };
 
     if (status === "rising") rising.push(bucket);
     else if (status === "evergreen") evergreen.push(bucket);
     else test.push(bucket);
   }
 
-  // Sort within buckets: heat desc
-  const byHeat = (a: Bucket, b: Bucket) => b.heat - a.heat;
-  rising.sort(byHeat);
-  evergreen.sort(byHeat);
+  // Sort within buckets: primary = quality desc, tiebreak = heat desc
+  const byQualityThenHeat = (a: Bucket, b: Bucket) =>
+    b.quality !== a.quality ? b.quality - a.quality : b.heat - a.heat;
+  rising.sort(byQualityThenHeat);
+  evergreen.sort(byQualityThenHeat);
 
   // Test questions: shuffle (experimental)
   for (let i = test.length - 1; i > 0; i--) {

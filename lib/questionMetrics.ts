@@ -12,6 +12,11 @@ interface MetricsRow {
   heat_score: number;
   longevity_score: number;
   captured_at: string;
+  // v2 quality signals (may not exist in DB yet)
+  skip_rate?: number;
+  feedback_rate?: number;
+  reason_engagement_rate?: number;
+  quality_score?: number;
 }
 
 function mapRow(row: MetricsRow): QuestionMetricsSnapshot {
@@ -26,6 +31,10 @@ function mapRow(row: MetricsRow): QuestionMetricsSnapshot {
     splitGrade: row.split_grade as QuestionSplitGrade,
     heatScore: row.heat_score,
     longevityScore: row.longevity_score,
+    skipRate: row.skip_rate,
+    feedbackRate: row.feedback_rate,
+    reasonEngagementRate: row.reason_engagement_rate,
+    qualityScore: row.quality_score,
   };
 }
 
@@ -67,9 +76,7 @@ export async function upsertQuestionMetrics(snapshot: QuestionMetricsSnapshot): 
   const sb = getSupabase();
   if (!sb) return { ok: false };
   try {
-    const { error } = await sb
-      .from("question_metrics_snapshot")
-      .upsert({
+    const row: Record<string, unknown> = {
         question_id: snapshot.questionId,
         vote_count: snapshot.voteCount,
         reason_ctr: snapshot.reasonCtr,
@@ -80,7 +87,16 @@ export async function upsertQuestionMetrics(snapshot: QuestionMetricsSnapshot): 
         heat_score: snapshot.heatScore ?? 0,
         longevity_score: snapshot.longevityScore ?? 0,
         captured_at: snapshot.timestamp,
-      }, { onConflict: "question_id" });
+    };
+    // v2 columns — include if present so they get stored when DB supports them
+    if (snapshot.skipRate != null) row.skip_rate = snapshot.skipRate;
+    if (snapshot.feedbackRate != null) row.feedback_rate = snapshot.feedbackRate;
+    if (snapshot.reasonEngagementRate != null) row.reason_engagement_rate = snapshot.reasonEngagementRate;
+    if (snapshot.qualityScore != null) row.quality_score = snapshot.qualityScore;
+
+    const { error } = await sb
+      .from("question_metrics_snapshot")
+      .upsert(row, { onConflict: "question_id" });
     if (error) { console.warn("[Round] metrics upsert failed:", error.message); return { ok: false }; }
     return { ok: true };
   } catch { return { ok: false }; }

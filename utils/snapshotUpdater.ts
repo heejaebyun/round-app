@@ -8,7 +8,15 @@ import { getSupabase } from "@/lib/supabase";
 import { upsertQuestionMetrics } from "@/lib/questionMetrics";
 import { splitScoreFromVotes, emptySnapshot, deriveQuestionStatus, getQuestionOpsMetrics } from "./questionOps";
 import { splitGrade } from "./splitScore";
-import { computeReasonCtr, computeHeatScore, computeLongevityScore } from "./scoring";
+import {
+  computeReasonCtr,
+  computeHeatScore,
+  computeLongevityScore,
+  computeSkipRate,
+  computeFeedbackRate,
+  computeReasonEngagementRate,
+  computeQualityScore,
+} from "./scoring";
 import type { QuestionSplitGrade, QuestionStatus } from "@/lib/types";
 import { SEED_QUESTIONS } from "@/data/questions";
 import { getApprovedQuestionCandidates } from "@/lib/questionCandidates";
@@ -49,11 +57,31 @@ export async function updateQuestionSnapshot(questionId: string): Promise<boolea
     const replyWritten = eventRows.filter((e) => e.event_name === "reason_reply_written").length;
     const nextClicked = eventRows.filter((e) => e.event_name === "next_card_clicked").length;
     const cardViewed = eventRows.filter((e) => e.event_name === "card_viewed").length;
+    const questionSkipped = eventRows.filter((e) => e.event_name === "question_skipped").length;
+
+    // ─── Feedback (negative only, exclude 'liked') ───
+    let negativeFeedbackCount = 0;
+    try {
+      const sbFb = getSupabase();
+      if (sbFb) {
+        const { data: fbRows } = await sbFb
+          .from("question_feedback")
+          .select("reason")
+          .eq("question_id", questionId)
+          .neq("reason", "liked");
+        negativeFeedbackCount = fbRows?.length ?? 0;
+      }
+    } catch { /* ignore */ }
 
     // ─── Rates ───
     const reasonCtr = computeReasonCtr(reasonEngaged, resultViewed);
     const replyRate = cardViewed > 0 ? Math.round((replyWritten / cardViewed) * 100) : 0;
     const nextRate = cardViewed > 0 ? Math.round((nextClicked / cardViewed) * 100) : 0;
+
+    // ─── Quality signals (v2) ───
+    const skipRate = computeSkipRate(questionSkipped, cardViewed);
+    const feedbackRate = computeFeedbackRate(negativeFeedbackCount, cardViewed);
+    const reasonEngagementRate = computeReasonEngagementRate(reasonEngaged, resultViewed);
 
     // ─── Split ───
     const ss = splitScoreFromVotes(votesA, votesB);
@@ -85,6 +113,17 @@ export async function updateQuestionSnapshot(questionId: string): Promise<boolea
       replyWritten,      // all-time
     );
 
+    // ─── Quality composite ───
+    const qualityScore = computeQualityScore({
+      splitScore: ss,
+      reasonEngagementRate,
+      replyRate,
+      heatScore,
+      longevityScore,
+      skipRate,
+      feedbackRate,
+    });
+
     // ─── Upsert ───
     const snapshot = {
       ...emptySnapshot(questionId),
@@ -96,6 +135,10 @@ export async function updateQuestionSnapshot(questionId: string): Promise<boolea
       splitGrade: sg,
       heatScore,
       longevityScore,
+      skipRate,
+      feedbackRate,
+      reasonEngagementRate,
+      qualityScore,
       timestamp: new Date().toISOString(),
     };
 
