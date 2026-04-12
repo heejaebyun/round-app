@@ -16,12 +16,12 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Round — 골라봐",
+  title: "Round",
   description: "고르고, 결과 보고, 남의 이유 읽기",
   metadataBase: new URL(SITE.url),
   manifest: "/manifest.json",
   openGraph: {
-    title: "Round — 골라봐",
+    title: "Round",
     description: "고르고, 결과 보고, 남의 이유 읽기",
     url: SITE.url,
     siteName: "Round",
@@ -38,7 +38,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Round — 골라봐",
+    title: "Round",
     description: "고르고, 결과 보고, 남의 이유 읽기",
     images: ["/opengraph-image"],
   },

@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 import { SITE } from "@/lib/site";
 
-export const alt = "Round — 골라봐";
+export const alt = "Round";
 export const size = {
   width: 1200,
   height: 630,
