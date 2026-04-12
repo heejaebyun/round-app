@@ -4,10 +4,17 @@ import { SITE } from "@/lib/site";
 import EmailContact from "@/components/EmailContact";
 import { resolveServerLocale } from "@/lib/serverLocale";
 
-export const metadata: Metadata = {
-  title: `Terms of Service — ${SITE.name}`,
-  description: `Terms governing the use of ${SITE.name}.`,
-};
+type PageProps = { searchParams: Promise<Record<string, string | string[] | undefined>> };
+
+export async function generateMetadata({ searchParams }: PageProps): Promise<Metadata> {
+  const { isEn } = await resolveServerLocale(await searchParams);
+  return {
+    title: isEn ? `Terms of Service — ${SITE.name}` : `이용약관 — ${SITE.name}`,
+    description: isEn
+      ? `Terms governing the use of ${SITE.name}.`
+      : `${SITE.name} 서비스 이용에 관한 약관입니다.`,
+  };
+}
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
@@ -22,9 +29,7 @@ function Ul({ children }: { children: React.ReactNode }) {
   return <ul className="ml-4 list-disc space-y-1">{children}</ul>;
 }
 
-type Props = { searchParams: Promise<Record<string, string | string[] | undefined>> };
-
-export default async function TermsPage({ searchParams }: Props) {
+export default async function TermsPage({ searchParams }: PageProps) {
   const { locale, isEn } = await resolveServerLocale(await searchParams);
 
   return (

@@ -6,7 +6,7 @@ import { isEnglishLocale } from "@/lib/i18n";
 const questionMap = new Map<string, Question>();
 for (const q of SEED_QUESTIONS) questionMap.set(q.id, q);
 
-const ARCHETYPE_MAP: Record<string, { name: string; desc: string }> = {
+const ARCHETYPE_MAP_KO: Record<string, { name: string; desc: string }> = {
   "0000": { name: "나홀로 풀코스", desc: "내 예산 안에서 가장 완벽한 혼자만의 시간을 보냄" },
   "1000": { name: "은둔형 플렉서", desc: "혼자 쉬다가도 꽂히는 순간 망설임 없이 결제함" },
   "0100": { name: "안정형 축적가", desc: "불필요한 지출과 만남을 통제하며 안정적으로 쌓아감" },
@@ -25,7 +25,26 @@ const ARCHETYPE_MAP: Record<string, { name: string; desc: string }> = {
   "1111": { name: "무자본 행동대장", desc: "자본이나 계획이 부족해도 사람을 모아 일단 부딪혀 봄" },
 };
 
-export function calculateDNA(choices: UserChoice[]): ChoiceDNA {
+const ARCHETYPE_MAP_EN: Record<string, { name: string; desc: string }> = {
+  "0000": { name: "Solo Perfectionist", desc: "Plans the perfect solo day within budget" },
+  "1000": { name: "Quiet Splurger", desc: "Mostly chill, but goes all-in when something clicks" },
+  "0100": { name: "Steady Stacker", desc: "Cuts unnecessary spending and builds stability quietly" },
+  "1100": { name: "Low-Key Saver", desc: "Minimal spending, minimal hustle — lets savings grow naturally" },
+  "0010": { name: "Planned Social", desc: "Organizes the group calendar, picks the restaurants, enjoys the ride" },
+  "1010": { name: "YOLO Connector", desc: "Lives in the moment with people around" },
+  "0110": { name: "Budget Coordinator", desc: "Social but keeps a tight grip on expenses" },
+  "1110": { name: "Smart Socialite", desc: "Hangs out with people but manages energy and money wisely" },
+  "0001": { name: "Calculated All-In", desc: "Builds the plan solo, gears up, then goes full throttle" },
+  "1001": { name: "Gut-Feel Bulldozer", desc: "When something hits, instinct beats price" },
+  "0101": { name: "Timing Player", desc: "Saves by default, bets big when the moment is right" },
+  "1101": { name: "Instinct Player", desc: "Usually quiet, but locks in hard when conviction hits" },
+  "0011": { name: "Strategic Investor", desc: "Spends freely on people and connections that matter" },
+  "1011": { name: "Flash Mob Leader", desc: "Pulls people together on impulse and makes things happen" },
+  "0111": { name: "Savvy Networker", desc: "Stays social, spots opportunities, never wastes money" },
+  "1111": { name: "Zero-Capital Hustler", desc: "Rallies people and dives in even without a plan or budget" },
+};
+
+export function calculateDNA(choices: UserChoice[], locale?: QuestionLocale | string | null): ChoiceDNA {
   const total = choices.length;
   const scores: UserScores = { Action: 50, Motivation: 50, Relation: 50, Reward: 50 };
   const tags: Record<string, number> = {};
@@ -52,7 +71,12 @@ export function calculateDNA(choices: UserChoice[]): ChoiceDNA {
     scores.Motivation > 50 ? "1" : "0",
   ].join("");
 
-  const archetype = ARCHETYPE_MAP[binaryKey] || { name: "미지의 탐험가", desc: "아직 데이터가 부족합니다" };
+  const en = isEnglishLocale(locale);
+  const archetypeMap = en ? ARCHETYPE_MAP_EN : ARCHETYPE_MAP_KO;
+  const fallback = en
+    ? { name: "Unknown Explorer", desc: "Not enough data yet" }
+    : { name: "미지의 탐험가", desc: "아직 데이터가 부족합니다" };
+  const archetype = archetypeMap[binaryKey] || fallback;
 
   // 상위 1개 태그
   let topTag: string | null = null;

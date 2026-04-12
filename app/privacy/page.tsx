@@ -4,10 +4,17 @@ import { SITE } from "@/lib/site";
 import EmailContact from "@/components/EmailContact";
 import { resolveServerLocale } from "@/lib/serverLocale";
 
-export const metadata: Metadata = {
-  title: `Privacy Policy — ${SITE.name}`,
-  description: `How ${SITE.name} collects and uses your data.`,
-};
+type PageProps = { searchParams: Promise<Record<string, string | string[] | undefined>> };
+
+export async function generateMetadata({ searchParams }: PageProps): Promise<Metadata> {
+  const { isEn } = await resolveServerLocale(await searchParams);
+  return {
+    title: isEn ? `Privacy Policy — ${SITE.name}` : `개인정보처리방침 — ${SITE.name}`,
+    description: isEn
+      ? `How ${SITE.name} collects and uses your data.`
+      : `${SITE.name} 서비스의 개인정보 수집 및 이용에 관한 안내입니다.`,
+  };
+}
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
@@ -22,9 +29,7 @@ function Ul({ children }: { children: React.ReactNode }) {
   return <ul className="ml-4 list-disc space-y-1">{children}</ul>;
 }
 
-type Props = { searchParams: Promise<Record<string, string | string[] | undefined>> };
-
-export default async function PrivacyPage({ searchParams }: Props) {
+export default async function PrivacyPage({ searchParams }: PageProps) {
   const { locale, isEn } = await resolveServerLocale(await searchParams);
 
   return (

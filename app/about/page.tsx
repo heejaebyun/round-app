@@ -4,12 +4,17 @@ import { SITE } from "@/lib/site";
 import EmailContact from "@/components/EmailContact";
 import { resolveServerLocale } from "@/lib/serverLocale";
 
-export const metadata: Metadata = {
-  title: `${SITE.name} — ${SITE.tagline}`,
-  description: "Where opinions split on real-life dilemmas.",
-};
-
 type Props = { searchParams: Promise<Record<string, string | string[] | undefined>> };
+
+export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
+  const { isEn } = await resolveServerLocale(await searchParams);
+  return {
+    title: isEn ? `${SITE.name} — Pick a side` : `${SITE.name} — ${SITE.tagline}`,
+    description: isEn
+      ? "Where opinions split on real-life dilemmas."
+      : "매일 사람들의 선택과 이유가 갈리는 곳.",
+  };
+}
 
 export default async function AboutPage({ searchParams }: Props) {
   const { locale, isEn } = await resolveServerLocale(await searchParams);

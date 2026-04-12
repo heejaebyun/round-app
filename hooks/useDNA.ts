@@ -5,7 +5,7 @@ import type { QuestionLocale, UserChoice } from "@/lib/types";
 import { calculateDNA, getDNAProgressMessage } from "@/utils/dnaCalculator";
 
 export function useDNA(choices: UserChoice[], locale?: QuestionLocale | string | null) {
-  const dna = useMemo(() => calculateDNA(choices), [choices]);
+  const dna = useMemo(() => calculateDNA(choices, locale), [choices, locale]);
 
   const progressMessage = useMemo(
     () => getDNAProgressMessage(dna.totalChoices, dna.archetype, locale),
