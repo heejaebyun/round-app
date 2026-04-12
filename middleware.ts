@@ -96,21 +96,8 @@ export function middleware(request: NextRequest) {
     resolved = DEFAULT_LOCALE;
   }
 
-  // ── Set cookie + optionally strip ?locale= from URL ──────────
-  const needsRedirect = queryLocale && !getSubdomainLocale(host);
-
-  if (needsRedirect) {
-    // Strip ?locale= so the URL stays clean. Keep other params (?q= etc).
-    url.searchParams.delete("locale");
-    const response = NextResponse.redirect(url, 307);
-    response.cookies.set(COOKIE_NAME, resolved, {
-      path: "/",
-      maxAge: 60 * 60 * 24 * 365,
-      sameSite: "lax",
-    });
-    return response;
-  }
-
+  // ── Set cookie (no redirect — redirect causes double-mount which
+  //    re-shuffles the feed and skips the first question) ──────────
   const response = NextResponse.next();
   response.cookies.set(COOKIE_NAME, resolved, {
     path: "/",
