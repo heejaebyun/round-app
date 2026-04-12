@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import type { QuestionLocale } from "@/lib/types";
 
 const SUPPORTED: QuestionLocale[] = ["ko-KR", "en-US", "en-PH", "en-GB"];
@@ -21,6 +21,23 @@ function normalize(raw: string | null | undefined): QuestionLocale | null {
   return null;
 }
 
+function resolveClientLocale(): QuestionLocale {
+  if (typeof window === "undefined") return DEFAULT_LOCALE;
+
+  const params = new URLSearchParams(window.location.search);
+  const qs = normalize(params.get("locale"));
+  if (qs) return qs;
+
+  try {
+    const stored = normalize(window.localStorage.getItem(STORAGE_KEY));
+    if (stored) return stored;
+  } catch {
+    // ignore storage errors (private mode etc.)
+  }
+
+  return normalize(window.navigator.language) ?? DEFAULT_LOCALE;
+}
+
 /**
  * Resolve the active locale for the current session.
  *
@@ -38,45 +55,8 @@ export function useLocale(): {
   ready: boolean;
   setOverride: (next: QuestionLocale | null) => void;
 } {
-  const [locale, setLocale] = useState<QuestionLocale>(DEFAULT_LOCALE);
-  const [ready, setReady] = useState(false);
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-
-    // 1. query string
-    const params = new URLSearchParams(window.location.search);
-    const qs = normalize(params.get("locale"));
-    if (qs) {
-      setLocale(qs);
-      setReady(true);
-      return;
-    }
-
-    // 2. localStorage override
-    try {
-      const stored = normalize(window.localStorage.getItem(STORAGE_KEY));
-      if (stored) {
-        setLocale(stored);
-        setReady(true);
-        return;
-      }
-    } catch {
-      // ignore storage errors (private mode etc.)
-    }
-
-    // 3. navigator.language
-    const nav = normalize(navigator.language);
-    if (nav) {
-      setLocale(nav);
-      setReady(true);
-      return;
-    }
-
-    // 4. default
-    setLocale(DEFAULT_LOCALE);
-    setReady(true);
-  }, []);
+  const [locale, setLocale] = useState<QuestionLocale>(resolveClientLocale);
+  const ready = typeof window !== "undefined";
 
   const setOverride = (next: QuestionLocale | null) => {
     if (typeof window === "undefined") return;

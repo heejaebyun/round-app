@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import type { Reason } from "@/lib/types";
+import type { QuestionLocale, Reason } from "@/lib/types";
 import ReasonThread from "./ReasonThread";
 import { trackEvent } from "@/utils/analytics";
+import { isEnglishLocale } from "@/lib/i18n";
 
 interface Props {
   reason: Reason;
@@ -15,15 +16,17 @@ interface Props {
   onHeart?: (id: string) => Promise<{ ok: boolean; alreadyLiked?: boolean }>;
   delay?: number;
   showReplies?: boolean;
+  locale?: QuestionLocale;
 }
 
 export default function ReasonCard({
   reason, sideLabel, color, selectedOptionId, optionALabel, optionBLabel,
-  onHeart, delay = 0, showReplies,
+  onHeart, delay = 0, showReplies, locale,
 }: Props) {
   const [r, setR] = useState(reason);
   const [threadOpen, setThreadOpen] = useState(false);
   const hasId = !!r.id;
+  const isEn = isEnglishLocale(locale);
 
   const handleHeart = async () => {
     if (!r.id || r.likedByMe || !onHeart) return;
@@ -59,7 +62,7 @@ export default function ReasonCard({
             className="mt-2 flex items-center gap-1 pl-7 text-[11px] text-white/35 hover:text-white/55"
           >
             <span>💬</span>
-            <span>답글</span>
+            <span>{isEn ? "Replies" : "답글"}</span>
           </button>
         )}
       </div>
@@ -74,6 +77,7 @@ export default function ReasonCard({
           optionBLabel={optionBLabel ?? "B"}
           onClose={() => setThreadOpen(false)}
           onHeart={onHeart}
+          locale={locale}
         />
       )}
     </>

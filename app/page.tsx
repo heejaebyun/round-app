@@ -17,10 +17,12 @@ import { useQuestionResult } from "@/hooks/useQuestionResult";
 import { isTossMiniApp } from "@/lib/toss";
 import { registerSessionEnd, trackEvent } from "@/utils/analytics";
 import { useLocale } from "@/hooks/useLocale";
+import { isEnglishLocale } from "@/lib/i18n";
 
 export default function Home() {
   const router = useRouter();
-  const { locale } = useLocale();
+  const { locale, ready: localeReady } = useLocale();
+  const isEn = isEnglishLocale(locale);
   // locale is passed to useChoiceState so the question pool follows detection
   const {
     currentQuestion,
@@ -40,7 +42,7 @@ export default function Home() {
 
   // Context hint — only derived from currentQuestion (the *next* pick),
   // never from a resolved result. Pre-selection surface only.
-  const contextHint = buildContextHint(currentQuestion ?? null, choices);
+  const contextHint = buildContextHint(currentQuestion ?? null, choices, locale);
 
   const liveResult = useQuestionResult(
     displayQuestion?.id,
@@ -207,7 +209,7 @@ export default function Home() {
     advanceFeed();
   }
 
-  if (!mounted) return null;
+  if (!mounted || !localeReady) return null;
 
   if (allDone) {
     return (
@@ -215,17 +217,19 @@ export default function Home() {
         <div className="round-panel-strong w-full max-w-sm rounded-[34px] px-6 py-10 text-center">
           <p className="text-5xl">✨</p>
           <h2 className="mt-5 text-2xl font-black tracking-[-0.04em] text-white">
-            모든 질문을 봤어요
+            {isEn ? "You've seen all the questions" : "모든 질문을 봤어요"}
           </h2>
           <p className="mt-3 text-sm leading-6 text-white/56">
-            {totalAnswered}개의 선택이 쌓였어요. DNA를 확인해보세요.
+            {isEn
+              ? `${totalAnswered} picks are stacked up. Take a look at your DNA.`
+              : `${totalAnswered}개의 선택이 쌓였어요. DNA를 확인해보세요.`}
           </p>
           <button
             type="button"
             onClick={handleOpenDNA}
             className="mt-7 inline-flex min-h-12 items-center justify-center rounded-[22px] bg-white px-6 py-3.5 text-sm font-bold leading-none text-slate-900"
           >
-            내 Choice DNA 보러가기 →
+            {isEn ? "See my Choice DNA →" : "내 Choice DNA 보러가기 →"}
           </button>
         </div>
       </div>
@@ -241,25 +245,18 @@ export default function Home() {
       onTouchEnd={handleTouchEnd}
       onWheel={handleWheel}
     >
-      {/* Floating top bar — brand left, trace/DNA + skip right */}
+      {/* Floating top bar — brand left, trace/DNA right */}
       <div className="pointer-events-none absolute inset-x-0 top-0 z-20 flex items-center justify-between px-5 pt-safe-top">
         <p className="round-mono pointer-events-auto pt-3 text-[13px] font-black tracking-tight text-white/85">
           Round
         </p>
-        <div className="flex items-center gap-2 pt-3">
+        <div className="flex items-center pt-3">
           <TraceChip
             choices={choices}
             isTossEnv={isTossEnv}
+            locale={locale}
             onBeforeNavigate={ensureTossLogin}
           />
-          <button
-            type="button"
-            onClick={skipQuestion}
-            aria-label="건너뛰기"
-            className="pointer-events-auto inline-flex h-7 w-7 items-center justify-center rounded-full text-[12px] text-white/25 transition hover:bg-white/[0.04] hover:text-white/65 active:scale-[0.9]"
-          >
-            ✕
-          </button>
         </div>
       </div>
 

@@ -1,4 +1,5 @@
-import type { Category, Question, UserChoice } from "./types";
+import type { Category, Question, QuestionLocale, UserChoice } from "./types";
+import { isEnglishLocale } from "./i18n";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -23,9 +24,11 @@ export interface TodayTrace {
 export function buildContextHint(
   upcoming: Pick<Question, "category" | "topic" | "tension"> | null | undefined,
   choices: UserChoice[],
+  locale?: QuestionLocale | string | null,
 ): string | null {
   if (!upcoming) return null;
   if (choices.length === 0) return null;
+  const isEn = isEnglishLocale(locale);
 
   // Last → recent-most (choices are appended as user progresses)
   const recent = choices.slice(-5);
@@ -47,16 +50,22 @@ export function buildContextHint(
   if (topEntry && topEntry[1] >= 3) {
     const [topCat] = topEntry;
     if (topCat === upcoming.category) {
-      return `최근 자주 고른 ${topCat} 질문이에요`;
+      return isEn
+        ? `You've been picking ${topCat} questions a lot lately`
+        : `최근 자주 고른 ${topCat} 질문이에요`;
     }
     // Upcoming is a different category than the recent streak —
     // tell the user it's a change of pace. Still measured.
-    return `${topCat}에서 ${upcoming.category}로 주제가 바뀌어요`;
+    return isEn
+      ? `Switching from ${topCat} to ${upcoming.category}`
+      : `${topCat}에서 ${upcoming.category}로 주제가 바뀌어요`;
   }
 
   // 4. Last pick same category → lighter connector
   if (last && last.category === upcoming.category && recent.length >= 2) {
-    return `방금 답한 질문과 결이 비슷해요`;
+    return isEn
+      ? "This feels close to the last question you answered"
+      : `방금 답한 질문과 결이 비슷해요`;
   }
 
   return null;

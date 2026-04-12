@@ -9,7 +9,6 @@ import QuestionFeedback from "./QuestionFeedback";
 import VoicesSheet from "./VoicesSheet";
 import { buildQuestionShareText, buildQuestionShareTitle } from "@/lib/questionShare";
 import { createT } from "@/lib/i18n";
-// onSkip is handled by the page-level floating X button now
 
 interface Props {
   question: Question;
@@ -39,7 +38,6 @@ interface Props {
  * Full-screen short-form question card.
  *
  * Layout:
- *   - Top:    subtle X (skip) + 👍/👎 (hidden pre-selection)
  *   - Middle: category badge + big question text (40~50% of screen)
  *   - Bottom: A/B buttons (pre-selection) OR result bars + voices CTA (post)
  *   - Footer: "↓ 다음 질문" bounce hint
@@ -77,7 +75,7 @@ export default function QuestionFeedCard({
   async function handleShareQuestion() {
     if (typeof window === "undefined") return;
     const url = window.location.href.split("#")[0];
-    const text = buildQuestionShareText(question, url);
+    const text = buildQuestionShareText(question, url, locale);
     const title = buildQuestionShareTitle(question);
 
     // Try native share first
@@ -105,18 +103,10 @@ export default function QuestionFeedCard({
   }
 
   useEffect(() => {
-    if (!showResult) {
-      setShowBar(false);
-      return;
-    }
+    if (!showResult) return;
     const t = setTimeout(() => setShowBar(true), 80);
     return () => clearTimeout(t);
   }, [showResult]);
-
-  // close sheet when question changes
-  useEffect(() => {
-    setSheetOpen(false);
-  }, [question.id]);
 
   return (
     <section
@@ -130,11 +120,6 @@ export default function QuestionFeedCard({
         `,
       }}
     >
-      {/* ─── Top bar: feedback thumbs + skip X ─── */}
-      {/* Card no longer owns the top bar. Skip X + thumbs moved out:
-          - Skip X → floating header in app/page.tsx
-          - 👍/👎  → inline with the 의견 보기 CTA in the result area */}
-
       {/* ─── Middle: category badge + big question ─── */}
       <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-6 pb-4 text-center">
         {/* Context hint — only pre-selection, only if hint exists */}
@@ -330,7 +315,7 @@ export default function QuestionFeedCard({
                 >
                   💬 {tt("viewOpinions")} {allReasons.length}{locale && locale !== "ko-KR" ? "" : "개 보기"}
                 </button>
-                <QuestionFeedback questionId={question.id} />
+                <QuestionFeedback questionId={question.id} locale={locale} />
               </motion.div>
             </motion.div>
           )}
@@ -384,6 +369,7 @@ export default function QuestionFeedCard({
           optionBLabel={question.optionB.label}
           onHeart={onHeart}
           onReasonSubmit={onReasonSubmit}
+          locale={locale}
         />
       )}
     </section>

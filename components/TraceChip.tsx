@@ -2,12 +2,14 @@
 
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
-import type { UserChoice } from "@/lib/types";
+import type { QuestionLocale, UserChoice } from "@/lib/types";
 import { computeTodayTrace } from "@/lib/userActivity";
+import { isEnglishLocale } from "@/lib/i18n";
 
 interface Props {
   choices: UserChoice[];
   isTossEnv: boolean;
+  locale?: QuestionLocale;
   onBeforeNavigate?: () => Promise<boolean> | boolean;
 }
 
@@ -28,9 +30,10 @@ const EMOJI_BY_CATEGORY: Record<string, string> = {
  *
  * Tap → /dna (awaits optional guard, e.g. Toss login).
  */
-export default function TraceChip({ choices, isTossEnv, onBeforeNavigate }: Props) {
+export default function TraceChip({ choices, isTossEnv, locale, onBeforeNavigate }: Props) {
   const router = useRouter();
   const trace = computeTodayTrace(choices);
+  const isEn = isEnglishLocale(locale);
 
   // No same-day footprint yet → fall back to plain DNA entry point.
   // This chip is the *only* way into /dna now, so we always render
@@ -42,9 +45,9 @@ export default function TraceChip({ choices, isTossEnv, onBeforeNavigate }: Prop
   if (trace.count === 0) {
     label = "🧬 DNA";
   } else if (trace.count < 3 || !emoji) {
-    label = `오늘 ${trace.count}개`;
+    label = isEn ? `Today ${trace.count}` : `오늘 ${trace.count}개`;
   } else {
-    label = `${emoji} 오늘 ${trace.count}개`;
+    label = isEn ? `${emoji} Today ${trace.count}` : `${emoji} 오늘 ${trace.count}개`;
   }
 
   const handleClick = async () => {

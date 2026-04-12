@@ -2,9 +2,10 @@
 
 import { useEffect } from "react";
 import { AnimatePresence, motion, type PanInfo } from "framer-motion";
-import type { Reason } from "@/lib/types";
+import type { QuestionLocale, Reason } from "@/lib/types";
 import ReasonList from "./ReasonList";
 import ReasonInput from "./ReasonInput";
+import { isEnglishLocale } from "@/lib/i18n";
 
 interface Props {
   open: boolean;
@@ -18,6 +19,7 @@ interface Props {
   optionBLabel: string;
   onHeart?: (reasonId: string) => Promise<{ ok: boolean; alreadyLiked?: boolean }>;
   onReasonSubmit: (text: string) => void;
+  locale?: QuestionLocale;
 }
 
 /**
@@ -36,7 +38,9 @@ export default function VoicesSheet({
   optionBLabel,
   onHeart,
   onReasonSubmit,
+  locale,
 }: Props) {
+  const isEn = isEnglishLocale(locale);
   // ESC to close
   useEffect(() => {
     if (!open) return;
@@ -97,14 +101,14 @@ export default function VoicesSheet({
             {/* header */}
             <div className="flex items-center justify-between px-5 pb-2">
               <h3 className="text-[15px] font-black tracking-tight text-white">
-                의견 <span className="round-mono text-white/40">{allReasons.length}</span>
+                {isEn ? "Voices" : "의견"} <span className="round-mono text-white/40">{allReasons.length}</span>
               </h3>
               <button
                 type="button"
                 onClick={onClose}
                 className="text-xs text-white/40 hover:text-white/70"
               >
-                닫기
+                {isEn ? "Close" : "닫기"}
               </button>
             </div>
 
@@ -120,12 +124,13 @@ export default function VoicesSheet({
                 optionBLabel={optionBLabel}
                 onHeart={onHeart}
                 embedded
+                locale={locale}
               />
             </div>
 
             {/* footer input */}
             <div className="absolute bottom-0 left-0 right-0 border-t border-white/8 bg-[#0b0d14]/95 px-4 py-3 pb-safe-bottom">
-              <ReasonInput onSubmit={onReasonSubmit} />
+              <ReasonInput onSubmit={onReasonSubmit} locale={locale} />
             </div>
           </motion.div>
         </motion.div>

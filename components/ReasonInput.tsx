@@ -1,14 +1,18 @@
 "use client";
 
 import { useState } from "react";
+import type { QuestionLocale } from "@/lib/types";
+import { isEnglishLocale } from "@/lib/i18n";
 
 interface Props {
   onSubmit: (text: string) => void;
+  locale?: QuestionLocale;
 }
 
-export default function ReasonInput({ onSubmit }: Props) {
+export default function ReasonInput({ onSubmit, locale }: Props) {
   const [text, setText] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const isEn = isEnglishLocale(locale);
 
   const handleSubmit = () => {
     if (!text.trim() || submitted) return;
@@ -20,7 +24,7 @@ export default function ReasonInput({ onSubmit }: Props) {
     return (
       <div className="px-1">
         <div className="rounded-full border border-emerald-400/20 bg-emerald-400/[0.08] px-4 py-2.5 text-center text-xs text-emerald-300/80">
-          ✓ 등록됨
+          {isEn ? "✓ Posted" : "✓ 등록됨"}
         </div>
       </div>
     );
@@ -35,7 +39,7 @@ export default function ReasonInput({ onSubmit }: Props) {
           value={text}
           onChange={(e) => setText(e.target.value.slice(0, 50))}
           onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
-          placeholder="한마디 남기기..."
+          placeholder={isEn ? "Leave a quick thought..." : "한마디 남기기..."}
           className="min-w-0 flex-1 bg-transparent text-sm text-white/80 placeholder-white/25 outline-none"
         />
         <button

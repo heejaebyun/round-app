@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import type { QuestionFeedbackReason } from "@/lib/types";
+import type { QuestionFeedbackReason, QuestionLocale } from "@/lib/types";
 import { clearQuestionFeedback, saveQuestionFeedback } from "@/lib/questionFeedback";
 import { getDeviceId } from "@/utils/analytics";
+import { isEnglishLocale } from "@/lib/i18n";
 
 const DISLIKE_REASONS: { value: QuestionFeedbackReason; label: string }[] = [
   { value: "too_obvious", label: "답이 너무 뻔해요" },
@@ -15,6 +16,7 @@ const DISLIKE_REASONS: { value: QuestionFeedbackReason; label: string }[] = [
 
 interface Props {
   questionId: string;
+  locale?: QuestionLocale;
 }
 
 type Voted = "up" | "down" | null;
@@ -28,16 +30,20 @@ type Voted = "up" | "down" | null;
  * - Switching sides (👍 → 👎 or 👎 → 👍) clears the prior side first.
  * - Modal closes on: backdrop tap, ESC, 취소 button, 👎 re-click.
  */
-export default function QuestionFeedback({ questionId }: Props) {
+export default function QuestionFeedback({ questionId, locale }: Props) {
   const [voted, setVoted] = useState<Voted>(null);
   const [open, setOpen] = useState(false);
   const backdropRef = useRef<HTMLDivElement>(null);
-
-  // Reset state when question changes
-  useEffect(() => {
-    setVoted(null);
-    setOpen(false);
-  }, [questionId]);
+  const isEn = isEnglishLocale(locale);
+  const dislikeReasons = isEn
+    ? [
+        { value: "too_obvious" as const, label: "The answer feels too obvious" },
+        { value: "too_provocative" as const, label: "It feels too provocative" },
+        { value: "weak_context" as const, label: "The context feels weak" },
+        { value: "too_similar" as const, label: "Too many questions like this" },
+        { value: "not_interested" as const, label: "I'm not interested in this topic" },
+      ]
+    : DISLIKE_REASONS;
 
   // ESC key closes modal
   useEffect(() => {
@@ -102,7 +108,7 @@ export default function QuestionFeedback({ questionId }: Props) {
         <button
           type="button"
           onClick={handleUp}
-          aria-label={voted === "up" ? "좋아요 취소" : "이 질문 좋아요"}
+          aria-label={voted === "up" ? (isEn ? "Remove like" : "좋아요 취소") : (isEn ? "Like this question" : "이 질문 좋아요")}
           className={`inline-flex h-7 w-7 items-center justify-center rounded-full border text-[13px] transition ${
             voted === "up"
               ? "border-emerald-400/50 bg-emerald-400/20 text-emerald-200"
@@ -114,7 +120,7 @@ export default function QuestionFeedback({ questionId }: Props) {
         <button
           type="button"
           onClick={handleDown}
-          aria-label={voted === "down" ? "싫어요 취소" : "이 질문 별로"}
+          aria-label={voted === "down" ? (isEn ? "Remove dislike" : "싫어요 취소") : (isEn ? "Dislike this question" : "이 질문 별로")}
           className={`inline-flex h-7 w-7 items-center justify-center rounded-full border text-[13px] transition ${
             voted === "down"
               ? "border-rose-400/50 bg-rose-400/20 text-rose-200"
@@ -138,18 +144,20 @@ export default function QuestionFeedback({ questionId }: Props) {
             onPointerDown={(e) => e.stopPropagation()}
           >
             <div className="mb-4 flex items-center justify-between">
-              <p className="text-sm font-bold text-white/80">이 질문이 별로인 이유</p>
+              <p className="text-sm font-bold text-white/80">
+                {isEn ? "Why doesn't this question work for you?" : "이 질문이 별로인 이유"}
+              </p>
               <button
                 type="button"
                 onClick={() => setOpen(false)}
-                aria-label="닫기"
+                aria-label={isEn ? "Close" : "닫기"}
                 className="text-xs text-white/35 hover:text-white/65"
               >
-                닫기
+                {isEn ? "Close" : "닫기"}
               </button>
             </div>
             <div className="flex flex-col gap-2">
-              {DISLIKE_REASONS.map((r) => (
+              {dislikeReasons.map((r) => (
                 <button
                   key={r.value}
                   onClick={() => handleSelectReason(r.value)}
@@ -163,7 +171,7 @@ export default function QuestionFeedback({ questionId }: Props) {
               onClick={() => setOpen(false)}
               className="mt-3 w-full text-center text-xs text-white/30"
             >
-              취소
+              {isEn ? "Cancel" : "취소"}
             </button>
           </div>
         </div>

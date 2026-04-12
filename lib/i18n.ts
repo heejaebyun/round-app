@@ -63,6 +63,11 @@ const DICTS: Record<QuestionLocale, Dict> = {
   "en-GB": EN,
 };
 
+export function isEnglishLocale(locale: QuestionLocale | string | null | undefined): boolean {
+  if (!locale) return false;
+  return String(locale).toLowerCase().startsWith("en");
+}
+
 /** Look up a UI string for the given locale. Falls back to Korean. */
 export function t(locale: QuestionLocale | string | null | undefined, key: UIKey): string {
   const dict = (locale && DICTS[locale as QuestionLocale]) || KO;

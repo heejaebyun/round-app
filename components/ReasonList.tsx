@@ -1,8 +1,9 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import type { Reason } from "@/lib/types";
+import type { QuestionLocale, Reason } from "@/lib/types";
 import ReasonCard from "./ReasonCard";
+import { isEnglishLocale } from "@/lib/i18n";
 
 type SortKey = "likes" | "recent";
 type FilterKey = "all" | "same" | "opposite";
@@ -17,11 +18,12 @@ interface Props {
   optionBLabel: string;
   onHeart?: (reasonId: string) => Promise<{ ok: boolean; alreadyLiked?: boolean }>;
   embedded?: boolean; // true = 외부 카드 안에 포함됨, 자체 패널 제거
+  locale?: QuestionLocale;
 }
 
 export default function ReasonList({
   bestSame, bestOpposite, allReasons, categoryColor,
-  selectedSide, optionALabel, optionBLabel, onHeart, embedded,
+  selectedSide, optionALabel, optionBLabel, onHeart, embedded, locale,
 }: Props) {
   const [expanded, setExpanded] = useState(false);
   const [sort, setSort] = useState<SortKey>("likes");
@@ -30,6 +32,7 @@ export default function ReasonList({
   const hasBest = bestSame || bestOpposite;
   const oppositeSide = selectedSide === "A" ? "B" : "A";
   const sideLabel = (side: "A" | "B") => side === "A" ? optionALabel : optionBLabel;
+  const isEn = isEnglishLocale(locale);
 
   const filtered = useMemo(() => {
     let list = allReasons;
@@ -55,18 +58,18 @@ export default function ReasonList({
         {!expanded && (
           <>
             {!hasBest ? (
-              <EmptyAll />
+              <EmptyAll locale={locale} />
             ) : (
               <div className="mt-4 flex flex-col gap-3">
                 {bestSame ? (
-                  <BestSection label="같은 선택을 한 사람" reason={bestSame} sideLabel={sideLabel(bestSame.side)} color={categoryColor} selectedOptionId={selectedSide} onHeart={onHeart} />
+                  <BestSection label={isEn ? "People who picked the same side" : "같은 선택을 한 사람"} reason={bestSame} sideLabel={sideLabel(bestSame.side)} color={categoryColor} selectedOptionId={selectedSide} onHeart={onHeart} locale={locale} />
                 ) : (
-                  <EmptySide label="내 선택" prompt="왜 이렇게 골랐는지 한 줄 남겨보세요" />
+                  <EmptySide label={isEn ? "My pick" : "내 선택"} prompt={isEn ? "Leave a quick line about why you picked this" : "왜 이렇게 골랐는지 한 줄 남겨보세요"} />
                 )}
                 {bestOpposite ? (
-                  <BestSection label="반대쪽은 이렇게 봤어요" reason={bestOpposite} sideLabel={sideLabel(bestOpposite.side)} color={categoryColor} selectedOptionId={selectedSide} onHeart={onHeart} />
+                  <BestSection label={isEn ? "Here's how the other side sees it" : "반대쪽은 이렇게 봤어요"} reason={bestOpposite} sideLabel={sideLabel(bestOpposite.side)} color={categoryColor} selectedOptionId={selectedSide} onHeart={onHeart} locale={locale} />
                 ) : (
-                  <EmptySide label="반대 선택" prompt="아직 반대편 의견이 비어 있어요. 첫 반론을 남겨보세요" />
+                  <EmptySide label={isEn ? "Opposite side" : "반대 선택"} prompt={isEn ? "No opposite-side voice yet. Be the first to add one" : "아직 반대편 의견이 비어 있어요. 첫 반론을 남겨보세요"} />
                 )}
               </div>
             )}
@@ -75,7 +78,7 @@ export default function ReasonList({
                 onClick={() => setExpanded(true)}
                 className="mt-4 w-full rounded-[18px] border border-white/8 py-2.5 text-center text-xs font-semibold text-white/50 transition hover:text-white/70"
               >
-                의견 {allReasons.length}개 전체 보기
+                {isEn ? `See all ${allReasons.length} voices` : `의견 ${allReasons.length}개 전체 보기`}
               </button>
             )}
           </>
@@ -87,21 +90,21 @@ export default function ReasonList({
             {/* 헤더 + 접기 */}
             <div className="mb-3 flex items-center justify-between">
               <h3 className="text-sm font-bold text-white/80">
-                전체 의견 <span className="round-mono text-white/40">{allReasons.length}</span>
+                {isEn ? "All voices" : "전체 의견"} <span className="round-mono text-white/40">{allReasons.length}</span>
               </h3>
               <button onClick={() => setExpanded(false)} className="text-xs text-white/40 hover:text-white/60">
-                접기
+                {isEn ? "Collapse" : "접기"}
               </button>
             </div>
 
             {/* 필터 + 정렬 */}
             <div className="mb-4 flex items-center gap-2">
-              <FilterChip active={filter === "all"} onClick={() => setFilter("all")} label="전체" />
+              <FilterChip active={filter === "all"} onClick={() => setFilter("all")} label={isEn ? "All" : "전체"} />
               <FilterChip active={filter === "same"} onClick={() => setFilter("same")} label={`${sideLabel(selectedSide)} (${sameSideCount})`} />
               <FilterChip active={filter === "opposite"} onClick={() => setFilter("opposite")} label={`${sideLabel(oppositeSide)} (${oppositeSideCount})`} />
               <div className="ml-auto" />
-              <SortChip active={sort === "likes"} onClick={() => setSort("likes")} label="공감순" />
-              <SortChip active={sort === "recent"} onClick={() => setSort("recent")} label="최신순" />
+              <SortChip active={sort === "likes"} onClick={() => setSort("likes")} label={isEn ? "Top liked" : "공감순"} />
+              <SortChip active={sort === "recent"} onClick={() => setSort("recent")} label={isEn ? "Recent" : "최신순"} />
             </div>
 
             {/* 리스트 */}
@@ -109,8 +112,8 @@ export default function ReasonList({
               {filtered.length === 0 ? (
                 <div className="rounded-[18px] border border-dashed border-white/10 px-4 py-4 text-center text-xs text-white/40">
                   {filter === "opposite"
-                    ? "아직 반대편 의견이 없어요. 첫 반론을 남겨보세요"
-                    : "이 필터에 해당하는 의견이 아직 없어요"}
+                    ? (isEn ? "No opposite-side voice yet. Be the first to add one" : "아직 반대편 의견이 없어요. 첫 반론을 남겨보세요")
+                    : (isEn ? "No voices match this filter yet" : "이 필터에 해당하는 의견이 아직 없어요")}
                 </div>
               ) : (
                 filtered.map((r, i) => (
@@ -125,6 +128,7 @@ export default function ReasonList({
                     onHeart={onHeart}
                     delay={i * 40}
                     showReplies
+                    locale={locale}
                   />
                 ))
               )}
@@ -136,23 +140,29 @@ export default function ReasonList({
   );
 }
 
-function BestSection({ label, reason, sideLabel, color, selectedOptionId, onHeart }: {
+function BestSection({ label, reason, sideLabel, color, selectedOptionId, onHeart, locale }: {
   label: string; reason: Reason; sideLabel: string; color: string; selectedOptionId: string;
   onHeart?: (id: string) => Promise<{ ok: boolean; alreadyLiked?: boolean }>;
+  locale?: QuestionLocale;
 }) {
   return (
     <div>
       <p className="mb-1.5 text-xs font-semibold text-white/45">{label}</p>
-      <ReasonCard reason={reason} sideLabel={sideLabel} color={color} selectedOptionId={selectedOptionId} onHeart={onHeart} />
+      <ReasonCard reason={reason} sideLabel={sideLabel} color={color} selectedOptionId={selectedOptionId} onHeart={onHeart} locale={locale} />
     </div>
   );
 }
 
-function EmptyAll() {
+function EmptyAll({ locale }: { locale?: QuestionLocale }) {
+  const isEn = isEnglishLocale(locale);
   return (
     <div className="mt-4 rounded-[22px] border border-dashed border-white/10 bg-white/[0.02] px-4 py-5 text-center">
-      <p className="text-sm font-semibold text-white/70">왜 이렇게 골랐는지 한 줄 남겨보세요</p>
-      <p className="mt-1 text-xs text-white/40">당신의 한 줄이 다음 사람의 선택을 바꿀 수 있어요</p>
+      <p className="text-sm font-semibold text-white/70">
+        {isEn ? "Leave a quick line about why you picked this" : "왜 이렇게 골랐는지 한 줄 남겨보세요"}
+      </p>
+      <p className="mt-1 text-xs text-white/40">
+        {isEn ? "Your line could change the next person's choice" : "당신의 한 줄이 다음 사람의 선택을 바꿀 수 있어요"}
+      </p>
     </div>
   );
 }
