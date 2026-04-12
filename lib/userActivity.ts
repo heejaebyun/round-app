@@ -187,16 +187,6 @@ export function buildActivitySentences(
     );
   }
 
-  if (stats.sideARatioLast7d !== null && stats.totalLast7d >= 3) {
-    const dominant = (stats.sideARatioLast7d ?? 0) >= 50 ? "A" : "B";
-    const pct = dominant === "A" ? stats.sideARatioLast7d : stats.sideBRatioLast7d;
-    lines.push(
-      en
-        ? `Picked side ${dominant} in ${pct}% of choices`
-        : `${pct}%의 선택에서 ${dominant}쪽을 골랐어요`,
-    );
-  }
-
   if (stats.reasonsLast7d >= 1) {
     lines.push(
       en
