@@ -18,6 +18,7 @@ import { isTossMiniApp } from "@/lib/toss";
 import { registerSessionEnd, trackEvent } from "@/utils/analytics";
 import { useLocale } from "@/hooks/useLocale";
 import { isEnglishLocale } from "@/lib/i18n";
+import { STORAGE_KEY_SWIPE_HINT_SEEN } from "@/lib/constants";
 
 export default function Home() {
   const router = useRouter();
@@ -69,6 +70,7 @@ export default function Home() {
 
   const [mounted, setMounted] = useState(false);
   const [authenticated, setAuthenticated] = useState(false);
+  const [showSwipeCoachmark, setShowSwipeCoachmark] = useState(false);
   const isTossEnv = mounted && isTossMiniApp();
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
   const lastWheelAdvanceRef = useRef(0);
@@ -82,6 +84,18 @@ export default function Home() {
     registerSessionEnd();
     return () => cancelAnimationFrame(frame);
   }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
+    try {
+      const seen = localStorage.getItem(STORAGE_KEY_SWIPE_HINT_SEEN) === "1";
+      if (!seen && choices.length === 0) {
+        setShowSwipeCoachmark(true);
+      }
+    } catch {
+      // ignore
+    }
+  }, [mounted, choices.length]);
 
   useEffect(() => {
     if (!mounted || !isTossEnv) return;
@@ -157,6 +171,7 @@ export default function Home() {
 
   async function handleChoice(side: "A" | "B") {
     if (!(await ensureTossLogin())) return;
+    dismissSwipeCoachmark();
     choose(side);
   }
 
@@ -167,6 +182,7 @@ export default function Home() {
 
   const advanceFeed = useCallback(() => {
     if (!displayQuestion) return false;
+    dismissSwipeCoachmark();
 
     // Pre-selection: treat swipe as skip
     if (!showResult && !selectedSide) {
@@ -186,6 +202,7 @@ export default function Home() {
   }, [displayQuestion, nextQuestion, selectedSide, showResult, skipQuestion]);
 
   function handleTouchStart(event: TouchEvent<HTMLDivElement>) {
+    if (showSwipeCoachmark) dismissSwipeCoachmark();
     const touch = event.touches[0];
     touchStartRef.current = { x: touch.clientX, y: touch.clientY };
   }
@@ -217,7 +234,17 @@ export default function Home() {
     if (now - lastWheelAdvanceRef.current < 350) return;
 
     lastWheelAdvanceRef.current = now;
+    dismissSwipeCoachmark();
     advanceFeed();
+  }
+
+  function dismissSwipeCoachmark() {
+    setShowSwipeCoachmark(false);
+    try {
+      localStorage.setItem(STORAGE_KEY_SWIPE_HINT_SEEN, "1");
+    } catch {
+      // ignore
+    }
   }
 
   if (!mounted || !localeReady) return null;
@@ -290,6 +317,7 @@ export default function Home() {
             pctA={liveResult.pctA}
             pctB={liveResult.pctB}
             totalVotes={liveResult.totalVotes}
+            showParticipationCount={liveResult.isLive}
             bestSame={bestSame}
             bestOpposite={bestOpposite}
             allReasons={allReasons}
@@ -300,6 +328,8 @@ export default function Home() {
             }}
             contextHint={contextHint}
             locale={locale}
+            showSwipeCoachmark={showSwipeCoachmark && !showResult && !selectedSide}
+            onDismissSwipeCoachmark={dismissSwipeCoachmark}
           />
         </motion.div>
       </AnimatePresence>

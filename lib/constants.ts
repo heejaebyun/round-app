@@ -2,6 +2,7 @@ import type { Category } from "./types";
 
 export const STORAGE_KEY_CHOICES = "round_choices";
 export const STORAGE_KEY_INTRO_SEEN = "round_intro_seen_v1";
+export const STORAGE_KEY_SWIPE_HINT_SEEN = "round_swipe_hint_seen_v1";
 
 export const CATEGORY_COLORS: Record<Category, string> = {
   // ko-KR

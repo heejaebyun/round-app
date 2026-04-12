@@ -1,5 +1,4 @@
 import type { Question, QuestionLocale } from "./types";
-import { isEnglishLocale } from "./i18n";
 
 /**
  * Build a deep-link URL that opens Round directly on a specific question.
@@ -20,24 +19,27 @@ export function buildQuestionDeepLink(
 }
 
 /**
- * Build the plain-text payload we hand to `navigator.share` or paste
- * onto the clipboard when sharing a single feed question.
+ * Build the plain-text share payload.
  *
- * `url` should be a deep-link built by `buildQuestionDeepLink`.
+ * Format:
+ *   {question}
+ *   A. {optionA}
+ *   B. {optionB}
+ *
+ *   {url}
+ *
+ * No cheesy intro line. The question speaks for itself.
+ * URL appears once — navigator.share({ url }) should NOT be set
+ * separately or the link will duplicate on some platforms.
  */
 export function buildQuestionShareText(
   question: Question,
   url: string,
-  locale?: QuestionLocale | string | null,
+  _locale?: QuestionLocale | string | null,
 ): string {
   const a = question.optionA?.label ?? "A";
   const b = question.optionB?.label ?? "B";
-  const intro = isEnglishLocale(locale)
-    ? "This one really splits people. Which side are you?"
-    : "이거 진짜 갈리던데, 너라면 뭐 골라?";
   return [
-    intro,
-    "",
     question.question,
     `A. ${a}`,
     `B. ${b}`,

@@ -22,6 +22,7 @@ interface Props {
   pctA: number;
   pctB: number;
   totalVotes: number;
+  showParticipationCount?: boolean;
   // reasons
   bestSame: Reason | null;
   bestOpposite: Reason | null;
@@ -32,6 +33,9 @@ interface Props {
   contextHint?: string | null;
   // i18n
   locale?: QuestionLocale;
+  // onboarding
+  showSwipeCoachmark?: boolean;
+  onDismissSwipeCoachmark?: () => void;
 }
 
 /**
@@ -40,7 +44,7 @@ interface Props {
  * Layout:
  *   - Middle: category badge + big question text (40~50% of screen)
  *   - Bottom: A/B buttons (pre-selection) OR result bars + voices CTA (post)
- *   - Footer: "↓ 다음 질문" bounce hint
+ *   - Footer: secondary share action only
  *
  * Category accent color injected via data-category attribute
  * (picked up by CSS variables in globals.css → --category-accent).
@@ -55,6 +59,7 @@ export default function QuestionFeedCard({
   pctA,
   pctB,
   totalVotes,
+  showParticipationCount = false,
   bestSame,
   bestOpposite,
   allReasons,
@@ -62,6 +67,8 @@ export default function QuestionFeedCard({
   onReasonSubmit,
   contextHint,
   locale,
+  showSwipeCoachmark = false,
+  onDismissSwipeCoachmark,
 }: Props) {
   const tt = createT(locale);
   const color = CATEGORY_COLORS[question.category];
@@ -82,7 +89,7 @@ export default function QuestionFeedCard({
     // Try native share first
     if (typeof navigator !== "undefined" && typeof navigator.share === "function") {
       try {
-        await navigator.share({ title, text, url: deepLink });
+        await navigator.share({ title, text });
         return;
       } catch {
         // user cancelled or native share failed — fall through to clipboard
@@ -157,7 +164,7 @@ export default function QuestionFeedCard({
         >
           {question.question}
         </motion.h2>
-        {totalVotes > 0 && (
+        {showParticipationCount && totalVotes > 0 && (
           <p className="mt-4 text-[11px] text-white/35">
             {totalVotes.toLocaleString()}{tt("totalVotesSuffix")}
           </p>
@@ -218,6 +225,26 @@ export default function QuestionFeedCard({
               {isPending && (
                 <div className="mt-1 text-center text-[11px] text-cyan-300/70">
                   {tt("counting")}
+                </div>
+              )}
+              {showSwipeCoachmark && (
+                <div className="mt-2 rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-left">
+                  <div className="flex items-start justify-between gap-3">
+                    <p className="text-[12px] leading-5 text-white/68">
+                      {locale && locale !== "ko-KR"
+                        ? "Swipe up to move to the next question. You can skip without answering."
+                        : "위로 밀면 다음 질문으로 넘어가요. 답하지 않아도 건너뛸 수 있어요."}
+                    </p>
+                    {onDismissSwipeCoachmark && (
+                      <button
+                        type="button"
+                        onClick={onDismissSwipeCoachmark}
+                        className="shrink-0 text-[11px] font-semibold text-white/40 transition hover:text-white/70"
+                      >
+                        {locale && locale !== "ko-KR" ? "Got it" : "알겠어요"}
+                      </button>
+                    )}
+                  </div>
                 </div>
               )}
             </motion.div>
@@ -322,8 +349,8 @@ export default function QuestionFeedCard({
           )}
         </AnimatePresence>
 
-        {/* Secondary: question share + swipe hint */}
-        <div className="mt-4 flex flex-col items-center gap-2.5">
+        {/* Secondary: question share */}
+        <div className="mt-4 flex justify-center">
           <button
             type="button"
             onClick={handleShareQuestion}
@@ -333,9 +360,6 @@ export default function QuestionFeedCard({
             <span aria-hidden>↗</span>
             <span>{tt("shareQuestion")}</span>
           </button>
-          <span className="animate-hintBounce round-mono text-[10px] uppercase tracking-[0.32em] text-white/30">
-            ↓ {tt("swipeHint")}
-          </span>
         </div>
       </div>
 

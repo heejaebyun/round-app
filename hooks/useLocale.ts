@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import type { QuestionLocale } from "@/lib/types";
 
 const SUPPORTED: QuestionLocale[] = ["ko-KR", "en-US", "en-PH", "en-GB"];
@@ -48,16 +48,8 @@ export function useLocale(): {
   ready: boolean;
   setOverride: (next: QuestionLocale | null) => void;
 } {
-  const [locale, setLocale] = useState<QuestionLocale>(DEFAULT_LOCALE);
-  const [ready, setReady] = useState(false);
-
-  // Read cookie after mount to avoid SSR/hydration mismatch.
-  // Until ready=true, page.tsx renders null so no flash occurs.
-  useEffect(() => {
-    const fromCookie = readCookie() ?? DEFAULT_LOCALE;
-    setLocale(fromCookie);
-    setReady(true);
-  }, []);
+  const [locale, setLocale] = useState<QuestionLocale>(() => readCookie() ?? DEFAULT_LOCALE);
+  const ready = typeof window !== "undefined";
 
   const setOverride = (next: QuestionLocale | null) => {
     const resolved = next ?? DEFAULT_LOCALE;
