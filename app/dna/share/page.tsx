@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { SITE } from "@/lib/site";
 import { parseDNAShareParams, SHARE_MIN_CHOICES } from "@/lib/share";
+import { buildLocalizedPath } from "@/lib/localeRouting";
+import { resolveServerLocale } from "@/lib/serverLocale";
 
 type Props = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -42,7 +44,10 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
 }
 
 export default async function DNASharePage({ searchParams }: Props) {
-  const share = parseDNAShareParams(await searchParams);
+  const resolvedSearchParams = await searchParams;
+  const share = parseDNAShareParams(resolvedSearchParams);
+  const { locale } = await resolveServerLocale(resolvedSearchParams);
+  const homeHref = buildLocalizedPath("/", locale);
 
   // ── Locked: too few choices to trust the shared card ──────────
   if (share.locked) {
@@ -61,7 +66,7 @@ export default async function DNASharePage({ searchParams }: Props) {
             내 패턴이 만들어져요.
           </p>
           <Link
-            href="/"
+            href={homeHref}
             className="mt-7 inline-flex w-full items-center justify-center rounded-2xl bg-white py-3.5 text-sm font-bold text-slate-900"
           >
             내 DNA 만들러 가기
@@ -106,7 +111,7 @@ export default async function DNASharePage({ searchParams }: Props) {
         </div>
 
         <Link
-          href="/"
+          href={homeHref}
           className="mt-5 inline-flex w-full items-center justify-center rounded-2xl bg-white py-3.5 text-sm font-bold text-slate-900 active:scale-[0.985]"
         >
           나도 내 DNA 만들기

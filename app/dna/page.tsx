@@ -10,12 +10,13 @@ import { trackEvent } from "@/utils/analytics";
 import { STORAGE_KEY_CHOICES } from "@/lib/constants";
 import { useLocale } from "@/hooks/useLocale";
 import { isEnglishLocale } from "@/lib/i18n";
+import { buildLocalizedPath } from "@/lib/localeRouting";
 
 export default function DNAPage() {
   const router = useRouter();
   const { locale } = useLocale();
   const isEn = isEnglishLocale(locale);
-  const homeHref = "/";
+  const homeHref = buildLocalizedPath("/", locale);
   const [choices, setChoices] = useState<UserChoice[]>([]);
   const [mounted, setMounted] = useState(false);
   const hasTrackedView = useRef(false);

@@ -1,12 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import type { Category, ChoiceDNA, QuestionLocale, UserChoice } from "@/lib/types";
-import { buildDNAShareUrl, SHARE_MIN_CHOICES } from "@/lib/share";
+import type { ChoiceDNA, QuestionLocale, UserChoice } from "@/lib/types";
+import { SHARE_MIN_CHOICES } from "@/lib/share";
 import { SITE } from "@/lib/site";
 import { trackEvent } from "@/utils/analytics";
 import { getAxisInterpretation, getTagInterpretation, generateSummaryLine } from "@/utils/dnaCalculator";
-import { computeTodayTrace } from "@/lib/userActivity";
 import { isEnglishLocale } from "@/lib/i18n";
 import ActivitySummary from "./ActivitySummary";
 
@@ -43,45 +42,21 @@ export default function DNAProfile({ dna, progressMessage, choices, locale, onRe
   async function handleShare() {
     if (dna.totalChoices < SHARE_MIN_CHOICES) return;
 
-    // Top category — same-day top, fall back to overall top from choices
-    const trace = computeTodayTrace(choices);
-    let topCategory: Category | null = trace.topCategory?.category ?? null;
-    if (!topCategory && choices.length > 0) {
-      const counts = new Map<Category, number>();
-      for (const c of choices) counts.set(c.category, (counts.get(c.category) ?? 0) + 1);
-      const top = Array.from(counts.entries()).sort((a, b) => b[1] - a[1])[0];
-      topCategory = top ? top[0] : null;
-    }
-
-    // Most extreme axis label
-    const axisEntries = Object.entries(dna.scores) as [keyof typeof dna.scores, number][];
-    let topAxisLabel: string | null = null;
-    if (axisEntries.length > 0) {
-      const [topAxis, topScore] = axisEntries.reduce((a, b) =>
-        Math.abs(b[1] - 50) > Math.abs(a[1] - 50) ? b : a,
-      );
-      const labels = AXIS_LABELS[topAxis];
-      if (labels) topAxisLabel = topScore <= 50 ? labels[0] : labels[1];
-    }
-
-    const url = buildDNAShareUrl(SITE.url, dna, { topCategory, topAxisLabel });
-    if (!url) return;
-
-    // Build a human-readable share text with the URL at the end
+    const homeUrl = SITE.url.replace(/\/$/, "");
     const shareBody = isEn
       ? [
           `My Choice DNA: ${dna.archetype}`,
           dna.topTag ? `#${dna.topTag}` : null,
           `${dna.totalChoices} picks so far`,
           "",
-          url,
+          homeUrl,
         ].filter(Boolean).join("\n")
       : [
           `내 Choice DNA: ${dna.archetype}`,
           dna.topTag ? `#${dna.topTag}` : null,
           `${dna.totalChoices}개의 선택으로 만든 결과`,
           "",
-          url,
+          homeUrl,
         ].filter(Boolean).join("\n");
 
     try {

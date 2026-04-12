@@ -19,6 +19,7 @@ import { registerSessionEnd, trackEvent } from "@/utils/analytics";
 import { useLocale } from "@/hooks/useLocale";
 import { isEnglishLocale } from "@/lib/i18n";
 import { STORAGE_KEY_SWIPE_HINT_SEEN } from "@/lib/constants";
+import { buildLocalizedPath } from "@/lib/localeRouting";
 
 export default function Home() {
   const router = useRouter();
@@ -159,7 +160,7 @@ export default function Home() {
       setAuthenticated(true);
 
       if (data.needsNickname) {
-        router.push("/onboarding/nickname");
+        router.push(buildLocalizedPath("/onboarding/nickname", locale));
         return false;
       }
 
@@ -177,7 +178,7 @@ export default function Home() {
 
   async function handleOpenDNA() {
     if (!(await ensureTossLogin())) return;
-    router.push("/dna");
+    router.push(buildLocalizedPath("/dna", locale));
   }
 
   const advanceFeed = useCallback(() => {

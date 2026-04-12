@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { apiFetch } from "@/lib/api-client";
 import { useLocale } from "@/hooks/useLocale";
 import { isEnglishLocale } from "@/lib/i18n";
+import { buildLocalizedPath } from "@/lib/localeRouting";
 
 type MemberResponse = {
   authenticated: boolean;
@@ -19,6 +20,7 @@ export default function NicknameOnboardingPage() {
   const router = useRouter();
   const { locale } = useLocale();
   const isEn = isEnglishLocale(locale);
+  const homeHref = buildLocalizedPath("/", locale);
   const [loading, setLoading] = useState(true);
   const [pending, setPending] = useState(false);
   const [nickname, setNickname] = useState("");
@@ -34,12 +36,12 @@ export default function NicknameOnboardingPage() {
         if (cancelled) return;
 
         if (!data.authenticated) {
-          router.replace("/");
+          router.replace(homeHref);
           return;
         }
 
         if (!data.needsNickname) {
-          router.replace("/");
+          router.replace(homeHref);
           return;
         }
 
@@ -55,7 +57,7 @@ export default function NicknameOnboardingPage() {
     return () => {
       cancelled = true;
     };
-  }, [router]);
+  }, [homeHref, router]);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -76,7 +78,7 @@ export default function NicknameOnboardingPage() {
         throw new Error(data.message || (isEn ? "Failed to save nickname." : "닉네임 저장에 실패했어요."));
       }
 
-      router.replace("/");
+      router.replace(homeHref);
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : (isEn ? "Failed to save nickname." : "닉네임 저장에 실패했어요."));

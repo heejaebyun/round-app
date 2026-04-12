@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import type { QuestionLocale, UserChoice } from "@/lib/types";
 import { computeTodayTrace } from "@/lib/userActivity";
 import { isEnglishLocale } from "@/lib/i18n";
+import { buildLocalizedPath } from "@/lib/localeRouting";
 
 interface Props {
   choices: UserChoice[];
@@ -34,6 +35,7 @@ export default function TraceChip({ choices, isTossEnv, locale, onBeforeNavigate
   const router = useRouter();
   const trace = computeTodayTrace(choices);
   const isEn = isEnglishLocale(locale);
+  const dnaHref = buildLocalizedPath("/dna", locale ?? "ko-KR");
 
   // No same-day footprint yet → fall back to plain DNA entry point.
   // This chip is the *only* way into /dna now, so we always render
@@ -55,10 +57,8 @@ export default function TraceChip({ choices, isTossEnv, locale, onBeforeNavigate
       const ok = await onBeforeNavigate();
       if (!ok) return;
     }
-    router.push("/dna");
+    router.push(dnaHref);
   };
-
-  const dnaHref = "/dna";
 
   const content = (
     <motion.span

@@ -6,6 +6,8 @@ import { appLogin } from "@apps-in-toss/web-framework";
 import { apiFetch } from "@/lib/api-client";
 import { isTossMiniApp } from "@/lib/toss";
 import { trackEvent } from "@/utils/analytics";
+import { useLocale } from "@/hooks/useLocale";
+import { buildLocalizedPath } from "@/lib/localeRouting";
 
 interface TossSession {
   userKey: number;
@@ -29,11 +31,13 @@ export default function TossLoginButton({
   onStateChange,
 }: TossLoginButtonProps) {
   const router = useRouter();
+  const { locale } = useLocale();
   const [enabled, setEnabled] = useState(false);
   const [pending, setPending] = useState(false);
   const [session, setSession] = useState<TossSession | null>(null);
   const [member, setMember] = useState<TossMember | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const nicknameHref = buildLocalizedPath("/onboarding/nickname", locale);
 
   useEffect(() => {
     if (!isTossMiniApp()) {
@@ -54,7 +58,7 @@ export default function TossLoginButton({
           setSession(data.session ?? null);
           setMember(data.member ?? null);
           onStateChange?.({ ready: true, authenticated: true });
-          if (data.needsNickname) router.push("/onboarding/nickname");
+          if (data.needsNickname) router.push(nicknameHref);
           return;
         }
         setSession(null);
@@ -64,7 +68,7 @@ export default function TossLoginButton({
       .catch(() => {
         onStateChange?.({ ready: true, authenticated: false });
       });
-  }, [onStateChange, router]);
+  }, [nicknameHref, onStateChange, router]);
 
   const description = useMemo(() => {
     if (member?.nickname) return `@${member.nickname}`;
@@ -106,7 +110,7 @@ export default function TossLoginButton({
       setMember(data.member ?? null);
       onStateChange?.({ ready: true, authenticated: true });
       trackEvent("toss_login_succeeded", { referrer: data.session.referrer });
-      if (data.needsNickname) router.push("/onboarding/nickname");
+      if (data.needsNickname) router.push(nicknameHref);
     } catch (err) {
       const message =
         err instanceof Error ? err.message : "토스 로그인에 실패했어요.";

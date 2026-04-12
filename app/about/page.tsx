@@ -3,6 +3,7 @@ import Link from "next/link";
 import { SITE } from "@/lib/site";
 import EmailContact from "@/components/EmailContact";
 import { resolveServerLocale } from "@/lib/serverLocale";
+import { buildLocalizedPath } from "@/lib/localeRouting";
 
 type Props = { searchParams: Promise<Record<string, string | string[] | undefined>> };
 
@@ -18,6 +19,8 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
 
 export default async function AboutPage({ searchParams }: Props) {
   const { locale, isEn } = await resolveServerLocale(await searchParams);
+  const privacyHref = buildLocalizedPath("/privacy", locale);
+  const termsHref = buildLocalizedPath("/terms", locale);
 
   return (
     <main className="no-scrollbar h-full overflow-y-auto">
@@ -97,10 +100,10 @@ export default async function AboutPage({ searchParams }: Props) {
         {/* Footer */}
         <footer className="mt-auto border-t border-white/10 pt-6 text-center text-xs text-white/35">
           <div className="flex justify-center gap-6">
-            <Link href={"/privacy"} className="hover:text-white/60">
+            <Link href={privacyHref} className="hover:text-white/60">
               {isEn ? "Privacy Policy" : "개인정보처리방침"}
             </Link>
-            <Link href={"/terms"} className="hover:text-white/60">
+            <Link href={termsHref} className="hover:text-white/60">
               {isEn ? "Terms of Service" : "이용약관"}
             </Link>
           </div>

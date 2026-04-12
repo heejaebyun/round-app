@@ -1,8 +1,12 @@
 import type { Question, QuestionLocale } from "./types";
+import { buildLocalizedPath } from "./localeRouting";
 
 /**
  * Build a deep-link URL that opens Round directly on a specific question.
- * Format: /?q={questionId} (+ &locale= if not ko-KR)
+ * Format:
+ *   /?q={questionId}
+ *   /en-us?q={questionId}
+ *   /en-ph?q={questionId}
  */
 export function buildQuestionDeepLink(
   baseUrl: string,
@@ -10,12 +14,9 @@ export function buildQuestionDeepLink(
   locale?: QuestionLocale | string | null,
 ): string {
   const base = baseUrl.replace(/\/$/, "");
-  const params = new URLSearchParams();
-  params.set("q", questionId);
-  if (locale && locale !== "ko-KR") {
-    params.set("locale", String(locale));
-  }
-  return `${base}/?${params.toString()}`;
+  const params = new URLSearchParams({ q: questionId });
+  const href = buildLocalizedPath("/", (locale as QuestionLocale | undefined) ?? "ko-KR", params);
+  return `${base}${href}`;
 }
 
 /**
