@@ -67,14 +67,30 @@ export default function DNAProfile({ dna, progressMessage, choices, locale, onRe
     const url = buildDNAShareUrl(SITE.url, dna, { topCategory, topAxisLabel });
     if (!url) return;
 
+    // Build a human-readable share text with the URL at the end
+    const shareBody = isEn
+      ? [
+          `My Choice DNA: ${dna.archetype}`,
+          dna.topTag ? `#${dna.topTag}` : null,
+          `${dna.totalChoices} picks so far`,
+          "",
+          url,
+        ].filter(Boolean).join("\n")
+      : [
+          `내 Choice DNA: ${dna.archetype}`,
+          dna.topTag ? `#${dna.topTag}` : null,
+          `${dna.totalChoices}개의 선택으로 만든 결과`,
+          "",
+          url,
+        ].filter(Boolean).join("\n");
+
     try {
       if (typeof navigator !== "undefined" && navigator.share) {
-        const shareText = isEn ? `I'm "${dna.fullTitle}"` : `나는 "${dna.fullTitle}"`;
-        await navigator.share({ title: dna.fullTitle, text: shareText, url });
+        await navigator.share({ title: dna.fullTitle, text: shareBody });
         trackEvent("dna_shared", { shareTarget: "native" });
         return;
       }
-      await navigator.clipboard.writeText(url);
+      await navigator.clipboard.writeText(shareBody);
       setShareState("copied");
       trackEvent("dna_shared", { shareTarget: "clipboard" });
       setTimeout(() => setShareState("idle"), 1800);
