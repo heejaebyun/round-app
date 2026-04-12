@@ -103,12 +103,36 @@ export function useChoiceState(locale?: QuestionLocale, deepLinkQuestionId?: str
         const metricsMap = await getQuestionMetricsBatch(ids);
 
         if (!cancelled) {
+          let nextList: Question[] | null = null;
+
           if (metricsMap.size > 0) {
-            setAllQuestions(buildStatusAwareSequence(bundle.starter, mergedFeed, metricsMap));
+            nextList = buildStatusAwareSequence(bundle.starter, mergedFeed, metricsMap);
           } else if (approved.length > 0) {
-            setAllQuestions(buildFallbackSequence(bundle.starter, bundle.feed, approved));
+            nextList = buildFallbackSequence(bundle.starter, bundle.feed, approved);
           }
-          // else: keep the initial fallback sequence (no re-shuffle)
+
+          if (nextList) {
+            // Preserve the question the user is currently looking at
+            // so the feed doesn't visibly jump.
+            setAllQuestions((prev) => {
+              const currentId = prev.find((q, i) => {
+                // Find the first unanswered question (approximation —
+                // answeredIds is not available here, but starter[0] is
+                // always the first question for a new user)
+                return i === 0;
+              })?.id;
+
+              if (!currentId) return nextList;
+
+              // If the current question is still in the new list,
+              // move it to index 0 so the user doesn't see a jump
+              const idx = nextList.findIndex((q) => q.id === currentId);
+              if (idx > 0) {
+                return [nextList[idx], ...nextList.slice(0, idx), ...nextList.slice(idx + 1)];
+              }
+              return nextList;
+            });
+          }
         }
       } catch {
         // Keep fallback
