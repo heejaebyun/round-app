@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useMemo, useEffect } from "react";
+import { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import type { UserChoice, Question, QuestionLocale, QuestionMetricsSnapshot } from "@/lib/types";
 import { getQuestionsForLocale } from "@/data/questions";
 import { getQuestionOpsMetrics } from "@/utils/questionOps";
@@ -69,31 +69,46 @@ export function useChoiceState(locale?: QuestionLocale, deepLinkQuestionId?: str
   // Skipped question ids — rotated to the end of the unanswered feed
   const [skippedIds, setSkippedIds] = useState<string[]>([]);
 
-  // Start with fallback, upgrade when metrics arrive
+  // Start with fallback — shuffle ONCE and keep the order stable.
+  // The initial sequence is stored in a ref so subsequent effects
+  // can upgrade the feed portion without re-shuffling starter order.
   const [allQuestions, setAllQuestions] = useState<Question[]>(() =>
     buildFallbackSequence(bundle.starter, bundle.feed),
   );
 
-  // Rebuild fallback when locale bundle changes
+  // Track the last bundle identity so we only rebuild on real locale changes
+  const lastBundleRef = useRef(bundle);
+
+  // Rebuild ONLY when the locale actually changes (not on every render)
   useEffect(() => {
+    if (lastBundleRef.current === bundle) return;
+    lastBundleRef.current = bundle;
     setAllQuestions(buildFallbackSequence(bundle.starter, bundle.feed));
   }, [bundle]);
 
-  // Load metrics once on mount (and on locale swap), then rebuild feed
+  // Load approved candidates + metrics once on mount.
+  // Uses a flag ref so it never re-runs and re-shuffles.
+  const hasLoadedRef = useRef(false);
   useEffect(() => {
+    if (hasLoadedRef.current) return;
+    hasLoadedRef.current = true;
+
     let cancelled = false;
     void (async () => {
       try {
         const approved = await getApprovedQuestionCandidates();
         const mergedFeed = mergeFeedQuestions(bundle.feed, approved);
-        if (!cancelled && approved.length > 0) {
-          setAllQuestions(buildFallbackSequence(bundle.starter, bundle.feed, approved));
-        }
 
         const ids = mergedFeed.map((q) => q.id);
         const metricsMap = await getQuestionMetricsBatch(ids);
-        if (!cancelled && metricsMap.size > 0) {
-          setAllQuestions(buildStatusAwareSequence(bundle.starter, mergedFeed, metricsMap));
+
+        if (!cancelled) {
+          if (metricsMap.size > 0) {
+            setAllQuestions(buildStatusAwareSequence(bundle.starter, mergedFeed, metricsMap));
+          } else if (approved.length > 0) {
+            setAllQuestions(buildFallbackSequence(bundle.starter, bundle.feed, approved));
+          }
+          // else: keep the initial fallback sequence (no re-shuffle)
         }
       } catch {
         // Keep fallback
@@ -103,7 +118,8 @@ export function useChoiceState(locale?: QuestionLocale, deepLinkQuestionId?: str
     return () => {
       cancelled = true;
     };
-  }, [bundle]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const answeredIds = useMemo(
     () => new Set(choices.map((c) => c.questionId)),
