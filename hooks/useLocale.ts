@@ -58,12 +58,6 @@ function resolveClientLocale(): QuestionLocale {
     // ignore storage errors (private mode etc.)
   }
 
-  const cookieLocale = getCookieLocale();
-  if (cookieLocale) {
-    setCookieLocale(cookieLocale);
-    return cookieLocale;
-  }
-
   const nav = normalize(window.navigator.language) ?? DEFAULT_LOCALE;
   setCookieLocale(nav);
   return nav;
@@ -98,7 +92,7 @@ export function useLocale(): {
         setLocale(next);
       } else {
         window.localStorage.removeItem(STORAGE_KEY);
-        const fallback = getCookieLocale() ?? normalize(navigator.language) ?? DEFAULT_LOCALE;
+        const fallback = normalize(navigator.language) ?? DEFAULT_LOCALE;
         setCookieLocale(fallback);
         setLocale(fallback);
       }
