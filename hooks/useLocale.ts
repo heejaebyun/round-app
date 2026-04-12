@@ -38,9 +38,29 @@ function getCookieLocale(): QuestionLocale | null {
   return normalize(raw);
 }
 
+const SUBDOMAIN_MAP: Record<string, QuestionLocale> = {
+  us: "en-US",
+  ph: "en-PH",
+};
+
+function getLocaleFromHostname(): QuestionLocale | null {
+  if (typeof window === "undefined") return null;
+  const parts = window.location.hostname.split(".");
+  if (parts.length < 2) return null;
+  return SUBDOMAIN_MAP[parts[0].toLowerCase()] ?? null;
+}
+
 function resolveClientLocale(): QuestionLocale {
   if (typeof window === "undefined") return DEFAULT_LOCALE;
 
+  // 0. Subdomain — highest priority, overrides everything
+  const fromHost = getLocaleFromHostname();
+  if (fromHost) {
+    setCookieLocale(fromHost);
+    return fromHost;
+  }
+
+  // 1. Query string (debug / deep-link)
   const params = new URLSearchParams(window.location.search);
   const qs = normalize(params.get("locale"));
   if (qs) {
@@ -48,6 +68,7 @@ function resolveClientLocale(): QuestionLocale {
     return qs;
   }
 
+  // 2. localStorage override
   try {
     const stored = normalize(window.localStorage.getItem(STORAGE_KEY));
     if (stored) {
@@ -58,6 +79,7 @@ function resolveClientLocale(): QuestionLocale {
     // ignore storage errors (private mode etc.)
   }
 
+  // 3. navigator.language
   const nav = normalize(window.navigator.language) ?? DEFAULT_LOCALE;
   setCookieLocale(nav);
   return nav;
@@ -67,6 +89,7 @@ function resolveClientLocale(): QuestionLocale {
  * Resolve the active locale for the current session.
  *
  * Priority (highest first):
+ *   0. Subdomain (us.xxx → en-US, ph.xxx → en-PH)
  *   1. `?locale=...` query string (debug override, per-tab)
  *   2. `localStorage.round_locale_override` (persistent manual override)
  *   3. `navigator.language`
