@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { apiFetch } from "@/lib/api-client";
+import { useLocale } from "@/hooks/useLocale";
+import { isEnglishLocale } from "@/lib/i18n";
 
 type MemberResponse = {
   authenticated: boolean;
@@ -15,6 +17,8 @@ type MemberResponse = {
 
 export default function NicknameOnboardingPage() {
   const router = useRouter();
+  const { locale } = useLocale();
+  const isEn = isEnglishLocale(locale);
   const [loading, setLoading] = useState(true);
   const [pending, setPending] = useState(false);
   const [nickname, setNickname] = useState("");
@@ -44,7 +48,7 @@ export default function NicknameOnboardingPage() {
       })
       .catch(() => {
         if (cancelled) return;
-        setError("회원 정보를 확인할 수 없어요.");
+        setError(isEn ? "Unable to verify your account." : "회원 정보를 확인할 수 없어요.");
         setLoading(false);
       });
 
@@ -69,13 +73,13 @@ export default function NicknameOnboardingPage() {
 
       const data = (await response.json()) as { message?: string };
       if (!response.ok) {
-        throw new Error(data.message || "닉네임 저장에 실패했어요.");
+        throw new Error(data.message || (isEn ? "Failed to save nickname." : "닉네임 저장에 실패했어요."));
       }
 
       router.replace("/");
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "닉네임 저장에 실패했어요.");
+      setError(err instanceof Error ? err.message : (isEn ? "Failed to save nickname." : "닉네임 저장에 실패했어요."));
     } finally {
       setPending(false);
     }
@@ -84,7 +88,7 @@ export default function NicknameOnboardingPage() {
   if (loading) {
     return (
       <main className="round-canvas round-shell items-center justify-center px-6 text-sm text-white/60">
-        회원 정보를 불러오는 중...
+        {isEn ? "Loading your profile…" : "회원 정보를 불러오는 중..."}
       </main>
     );
   }
@@ -97,25 +101,27 @@ export default function NicknameOnboardingPage() {
             Welcome
           </p>
           <h1 className="mt-4 text-3xl font-black tracking-[-0.05em] text-white">
-            닉네임을 정해볼까요?
+            {isEn ? "Pick a nickname" : "닉네임을 정해볼까요?"}
           </h1>
           <p className="mt-3 text-sm leading-6 text-white/56">
-            토스 회원 가입이 완료됐어요. 다른 사람들에게 보일 이름을 하나 정해주세요.
+            {isEn
+              ? "You're all signed up. Choose a display name others will see."
+              : "토스 회원 가입이 완료됐어요. 다른 사람들에게 보일 이름을 하나 정해주세요."}
           </p>
           {email && (
             <p className="mt-4 text-xs text-cyan-200/75">
-              연결된 이메일: {email}
+              {isEn ? "Connected email:" : "연결된 이메일:"} {email}
             </p>
           )}
 
           <form onSubmit={handleSubmit} className="mt-7 flex flex-col gap-4">
             <label className="text-sm font-semibold text-white/80">
-              닉네임
+              {isEn ? "Nickname" : "닉네임"}
               <input
                 value={nickname}
                 onChange={(event) => setNickname(event.target.value)}
                 maxLength={12}
-                placeholder="2~12자, 한글/영문/숫자/_"
+                placeholder={isEn ? "2–12 chars, letters/numbers/_" : "2~12자, 한글/영문/숫자/_"}
                 className="mt-2 w-full rounded-[20px] border border-white/10 bg-white/6 px-4 py-3 text-sm text-white outline-none placeholder:text-white/28"
               />
             </label>
@@ -129,7 +135,7 @@ export default function NicknameOnboardingPage() {
               disabled={pending || nickname.trim().length < 2}
               className="rounded-[22px] bg-white px-5 py-3.5 text-sm font-bold text-slate-900 disabled:opacity-50"
             >
-              {pending ? "저장 중..." : "이 닉네임으로 시작하기"}
+              {pending ? (isEn ? "Saving…" : "저장 중...") : (isEn ? "Start with this name" : "이 닉네임으로 시작하기")}
             </button>
           </form>
         </div>

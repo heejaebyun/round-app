@@ -1,29 +1,40 @@
 "use client";
 
 import { useState } from "react";
-import type { Category, ChoiceDNA, UserChoice } from "@/lib/types";
+import type { Category, ChoiceDNA, QuestionLocale, UserChoice } from "@/lib/types";
 import { buildDNAShareUrl, SHARE_MIN_CHOICES } from "@/lib/share";
 import { SITE } from "@/lib/site";
 import { trackEvent } from "@/utils/analytics";
 import { getAxisInterpretation, getTagInterpretation, generateSummaryLine } from "@/utils/dnaCalculator";
 import { computeTodayTrace } from "@/lib/userActivity";
+import { isEnglishLocale } from "@/lib/i18n";
 import ActivitySummary from "./ActivitySummary";
 
 interface Props {
   dna: ChoiceDNA;
   progressMessage: string;
   choices: UserChoice[];
+  locale?: QuestionLocale;
   onResetChoices: () => void;
 }
 
-const AXIS_LABELS: Record<string, [string, string]> = {
+const AXIS_LABELS_KO: Record<string, [string, string]> = {
   Action: ["계획", "즉흥"],
   Reward: ["소비", "저축"],
   Relation: ["독립", "교감"],
   Motivation: ["안정", "도전"],
 };
 
-export default function DNAProfile({ dna, progressMessage, choices, onResetChoices }: Props) {
+const AXIS_LABELS_EN: Record<string, [string, string]> = {
+  Action: ["Planner", "Spontaneous"],
+  Reward: ["Spender", "Saver"],
+  Relation: ["Independent", "Connected"],
+  Motivation: ["Stable", "Growth"],
+};
+
+export default function DNAProfile({ dna, progressMessage, choices, locale, onResetChoices }: Props) {
+  const isEn = isEnglishLocale(locale);
+  const AXIS_LABELS = isEn ? AXIS_LABELS_EN : AXIS_LABELS_KO;
   const [shareState, setShareState] = useState<"idle" | "copied">("idle");
   const [deepDive, setDeepDive] = useState(false);
   const topTags = Object.entries(dna.tags).sort(([, a], [, b]) => b - a).slice(0, 3);
@@ -58,7 +69,8 @@ export default function DNAProfile({ dna, progressMessage, choices, onResetChoic
 
     try {
       if (typeof navigator !== "undefined" && navigator.share) {
-        await navigator.share({ title: dna.fullTitle, text: `나는 "${dna.fullTitle}"`, url });
+        const shareText = isEn ? `I'm "${dna.fullTitle}"` : `나는 "${dna.fullTitle}"`;
+        await navigator.share({ title: dna.fullTitle, text: shareText, url });
         trackEvent("dna_shared", { shareTarget: "native" });
         return;
       }
@@ -72,7 +84,7 @@ export default function DNAProfile({ dna, progressMessage, choices, onResetChoic
   return (
     <div className="flex flex-col gap-5 px-4 py-6">
       {/* 1. 최근 7일 실측 활동 요약 (맨 위) */}
-      <ActivitySummary choices={choices} />
+      <ActivitySummary choices={choices} locale={locale} />
 
       {/* 2. 4축 점수 */}
       <section className="round-panel rounded-[30px] px-5 py-5">
@@ -112,14 +124,16 @@ export default function DNAProfile({ dna, progressMessage, choices, onResetChoic
 
       {/* 총 선택 */}
       <div className="round-panel rounded-3xl p-4 text-center">
-        <p className="text-xs text-white/40">총 선택</p>
-        <p className="round-mono mt-2 text-2xl font-extrabold text-white/84">{dna.totalChoices}회</p>
+        <p className="text-xs text-white/40">{isEn ? "Total picks" : "총 선택"}</p>
+        <p className="round-mono mt-2 text-2xl font-extrabold text-white/84">
+          {isEn ? dna.totalChoices : `${dna.totalChoices}회`}
+        </p>
       </div>
 
       {/* 5. DNA 라벨 배지 (맨 아래, 요약 배지) */}
       <section className="round-panel-strong overflow-hidden rounded-[30px] px-5 py-5">
         <p className="round-mono text-[11px] uppercase tracking-[0.3em] text-cyan-200/60">
-          이번 주의 요약 라벨
+          {isEn ? "This week\u2019s label" : "이번 주의 요약 라벨"}
         </p>
         {dna.topTag && (
           <p className="mt-3 text-sm font-semibold text-cyan-300/80">#{dna.topTag}</p>
@@ -144,7 +158,7 @@ export default function DNAProfile({ dna, progressMessage, choices, onResetChoic
           onClick={() => { setDeepDive(true); trackEvent("dna_profile_viewed", { section: "deep_dive" }); }}
           className="rounded-[22px] border border-cyan-300/20 bg-cyan-300/[0.06] py-3.5 text-center text-sm font-semibold text-cyan-200/80 transition hover:bg-cyan-300/10"
         >
-          내 선택 패턴 더 보기 →
+          {isEn ? "See my pattern details →" : "내 선택 패턴 더 보기 →"}
         </button>
       )}
 
@@ -153,7 +167,7 @@ export default function DNAProfile({ dna, progressMessage, choices, onResetChoic
         <section className="animate-fadeUp round-panel rounded-[30px] px-5 py-5">
           <div className="mb-4 flex items-center justify-between">
             <p className="round-mono text-[11px] uppercase tracking-[0.26em] text-white/35">Deep Dive</p>
-            <button onClick={() => setDeepDive(false)} className="text-xs text-white/35 hover:text-white/55">접기</button>
+            <button onClick={() => setDeepDive(false)} className="text-xs text-white/35 hover:text-white/55">{isEn ? "Close" : "접기"}</button>
           </div>
 
           {/* 축별 해석 */}
@@ -176,7 +190,7 @@ export default function DNAProfile({ dna, progressMessage, choices, onResetChoic
           {/* 태그 해석 */}
           {topTags.length > 0 && (
             <div className="mt-5 flex flex-col gap-2">
-              <p className="text-xs font-semibold text-white/45">태그 해석</p>
+              <p className="text-xs font-semibold text-white/45">{isEn ? "Tag meanings" : "태그 해석"}</p>
               {topTags.map(([tag]) => {
                 const interp = getTagInterpretation(tag);
                 if (!interp) return null;
@@ -201,7 +215,11 @@ export default function DNAProfile({ dna, progressMessage, choices, onResetChoic
       {/* 공유 */}
       <button type="button" onClick={handleShare} disabled={dna.totalChoices < 10}
         className="rounded-3xl border border-white/10 bg-white px-5 py-4 text-sm font-bold text-slate-900 disabled:cursor-not-allowed disabled:bg-white/[0.08] disabled:text-white/38">
-        {dna.totalChoices < 10 ? "10개 선택하면 공유할 수 있어요" : shareState === "copied" ? "링크가 복사됐어요" : "결과 공유하기"}
+        {dna.totalChoices < 10
+          ? (isEn ? "Share unlocks after 10 picks" : "10개 선택하면 공유할 수 있어요")
+          : shareState === "copied"
+            ? (isEn ? "Link copied!" : "링크가 복사됐어요")
+            : (isEn ? "Share my DNA" : "결과 공유하기")}
       </button>
 
       <button
@@ -209,7 +227,7 @@ export default function DNAProfile({ dna, progressMessage, choices, onResetChoic
         onClick={onResetChoices}
         className="text-sm font-semibold text-white/42 transition hover:text-white/68"
       >
-        내 선택 기록 삭제
+        {isEn ? "Delete my choice history" : "내 선택 기록 삭제"}
       </button>
     </div>
   );

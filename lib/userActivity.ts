@@ -162,27 +162,47 @@ export function computeActivityStats(choices: UserChoice[]): ActivityStats {
  * 활동 통계 → 사용자에게 보여줄 서술형 문장 목록.
  * 데이터 부족한 축은 그냥 건너뜀 (거짓말하지 않는다).
  */
-export function buildActivitySentences(stats: ActivityStats): string[] {
+export function buildActivitySentences(
+  stats: ActivityStats,
+  locale?: QuestionLocale | string | null,
+): string[] {
+  const en = isEnglishLocale(locale);
   const lines: string[] = [];
 
   if (stats.totalLast7d === 0) {
-    return ["지난 7일 동안 쌓인 선택이 없어요"];
+    return [en ? "No picks in the last 7 days" : "지난 7일 동안 쌓인 선택이 없어요"];
   }
 
-  lines.push(`지난 7일 동안 ${stats.totalLast7d}개의 질문에 답했어요`);
+  lines.push(
+    en
+      ? `Answered ${stats.totalLast7d} questions in the last 7 days`
+      : `지난 7일 동안 ${stats.totalLast7d}개의 질문에 답했어요`,
+  );
 
   if (stats.topCategoryLast7d && stats.topCategoryLast7d.count >= 2) {
-    lines.push(`가장 많이 고른 주제는 ${stats.topCategoryLast7d.category}예요`);
+    lines.push(
+      en
+        ? `Most picked topic: ${stats.topCategoryLast7d.category}`
+        : `가장 많이 고른 주제는 ${stats.topCategoryLast7d.category}예요`,
+    );
   }
 
   if (stats.sideARatioLast7d !== null && stats.totalLast7d >= 3) {
     const dominant = (stats.sideARatioLast7d ?? 0) >= 50 ? "A" : "B";
     const pct = dominant === "A" ? stats.sideARatioLast7d : stats.sideBRatioLast7d;
-    lines.push(`${pct}%의 선택에서 ${dominant}쪽을 골랐어요`);
+    lines.push(
+      en
+        ? `Picked side ${dominant} in ${pct}% of choices`
+        : `${pct}%의 선택에서 ${dominant}쪽을 골랐어요`,
+    );
   }
 
   if (stats.reasonsLast7d >= 1) {
-    lines.push(`직접 남긴 의견이 ${stats.reasonsLast7d}개예요`);
+    lines.push(
+      en
+        ? `Left ${stats.reasonsLast7d} comment${stats.reasonsLast7d > 1 ? "s" : ""}`
+        : `직접 남긴 의견이 ${stats.reasonsLast7d}개예요`,
+    );
   }
 
   return lines;

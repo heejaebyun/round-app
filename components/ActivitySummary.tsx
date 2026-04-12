@@ -1,26 +1,31 @@
 "use client";
 
-import type { UserChoice } from "@/lib/types";
+import type { QuestionLocale, UserChoice } from "@/lib/types";
 import { buildActivitySentences, computeActivityStats } from "@/lib/userActivity";
+import { isEnglishLocale } from "@/lib/i18n";
 
 interface Props {
   choices: UserChoice[];
+  locale?: QuestionLocale;
 }
 
 /**
- * 실측 기반 최근 7일 활동 요약 카드.
- * 여기엔 로그로 역산 가능한 문장만 들어간다 (dwell time / scroll depth 금지).
+ * Measured last-7-day activity summary card.
+ * Only log-backed sentences — no dwell time / scroll depth guesses.
  */
-export default function ActivitySummary({ choices }: Props) {
+export default function ActivitySummary({ choices, locale }: Props) {
+  const isEn = isEnglishLocale(locale);
   const stats = computeActivityStats(choices);
-  const lines = buildActivitySentences(stats);
+  const lines = buildActivitySentences(stats, locale);
 
   return (
     <section className="round-panel-strong rounded-[30px] px-5 py-5">
       <p className="round-mono text-[11px] uppercase tracking-[0.26em] text-cyan-200/70">
         Last 7 Days
       </p>
-      <p className="mt-2 text-sm font-bold text-white/80">최근 내 선택 기록</p>
+      <p className="mt-2 text-sm font-bold text-white/80">
+        {isEn ? "Recent activity" : "최근 내 선택 기록"}
+      </p>
       <ul className="mt-4 flex flex-col gap-2">
         {lines.map((line, i) => (
           <li

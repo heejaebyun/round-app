@@ -8,9 +8,13 @@ import { useDNA } from "@/hooks/useDNA";
 import type { UserChoice } from "@/lib/types";
 import { trackEvent } from "@/utils/analytics";
 import { STORAGE_KEY_CHOICES } from "@/lib/constants";
+import { useLocale } from "@/hooks/useLocale";
+import { isEnglishLocale } from "@/lib/i18n";
 
 export default function DNAPage() {
   const router = useRouter();
+  const { locale } = useLocale();
+  const isEn = isEnglishLocale(locale);
   const [choices, setChoices] = useState<UserChoice[]>([]);
   const [mounted, setMounted] = useState(false);
   const hasTrackedView = useRef(false);
@@ -38,7 +42,9 @@ export default function DNAPage() {
 
   function handleResetChoices() {
     if (typeof window === "undefined") return;
-    const confirmed = window.confirm("지금까지 쌓인 선택 기록을 삭제할까요?");
+    const confirmed = window.confirm(
+      isEn ? "Delete all your choice history?" : "지금까지 쌓인 선택 기록을 삭제할까요?",
+    );
     if (!confirmed) return;
 
     try {
@@ -59,16 +65,14 @@ export default function DNAPage() {
             DNA
           </p>
           <h1 className="mt-2 text-xl font-black tracking-tight text-white">
-            선택으로 쌓인
-            <br />
-            나의 패턴
+            {isEn ? <>Patterns built<br />from your picks</> : <>선택으로 쌓인<br />나의 패턴</>}
           </h1>
         </div>
         <Link
           href="/"
           className="mt-3 rounded-full border border-white/10 bg-white/[0.05] px-3.5 py-2 text-xs font-semibold text-white/70"
         >
-          돌아가기
+          {isEn ? "Back" : "돌아가기"}
         </Link>
       </header>
 
@@ -78,16 +82,18 @@ export default function DNAPage() {
             <div className="round-panel-strong w-full rounded-[34px] px-6 py-8 text-center">
               <p className="text-5xl">🧬</p>
               <h2 className="mt-5 text-2xl font-black tracking-[-0.04em] text-white">
-                아직 DNA가 없어요
+                {isEn ? "No DNA yet" : "아직 DNA가 없어요"}
               </h2>
               <p className="mx-auto mt-3 max-w-xs text-sm leading-6 text-white/56">
-                질문에 답하기 시작하면 당신의 Choice DNA가 바로 만들어집니다.
+                {isEn
+                  ? "Start answering questions and your Choice DNA will appear right away."
+                  : "질문에 답하기 시작하면 당신의 Choice DNA가 바로 만들어집니다."}
               </p>
               <Link
                 href="/"
                 className="mt-7 inline-flex rounded-[22px] bg-white px-6 py-3.5 text-sm font-bold text-slate-900"
               >
-                질문 시작하기
+                {isEn ? "Start answering" : "질문 시작하기"}
               </Link>
             </div>
           </div>
@@ -96,6 +102,7 @@ export default function DNAPage() {
             dna={dna}
             progressMessage={progressMessage}
             choices={choices}
+            locale={locale}
             onResetChoices={handleResetChoices}
           />
         )}
