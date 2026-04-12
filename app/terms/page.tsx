@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { SITE } from "@/lib/site";
 import EmailContact from "@/components/EmailContact";
+import { resolveServerLocale } from "@/lib/serverLocale";
 
 export const metadata: Metadata = {
   title: `Terms of Service — ${SITE.name}`,
@@ -24,8 +25,7 @@ function Ul({ children }: { children: React.ReactNode }) {
 type Props = { searchParams: Promise<Record<string, string | string[] | undefined>> };
 
 export default async function TermsPage({ searchParams }: Props) {
-  const locale = String((await searchParams).locale ?? "ko-KR");
-  const isEn = locale.toLowerCase().startsWith("en");
+  const { locale, isEn } = await resolveServerLocale(await searchParams);
 
   return (
     <main className="no-scrollbar h-full overflow-y-auto">

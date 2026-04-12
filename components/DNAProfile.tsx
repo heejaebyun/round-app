@@ -38,7 +38,7 @@ export default function DNAProfile({ dna, progressMessage, choices, locale, onRe
   const [shareState, setShareState] = useState<"idle" | "copied">("idle");
   const [deepDive, setDeepDive] = useState(false);
   const topTags = Object.entries(dna.tags).sort(([, a], [, b]) => b - a).slice(0, 3);
-  const summaryLine = generateSummaryLine(dna.archetype, dna.topTag, dna.scores);
+  const summaryLine = generateSummaryLine(dna.archetype, dna.topTag, dna.scores, locale);
 
   async function handleShare() {
     if (dna.totalChoices < SHARE_MIN_CHOICES) return;
@@ -174,7 +174,7 @@ export default function DNAProfile({ dna, progressMessage, choices, locale, onRe
           <div className="flex flex-col gap-4">
             {(Object.entries(dna.scores) as [string, number][]).map(([axis, score]) => {
               const [lo, hi] = AXIS_LABELS[axis] || [axis, axis];
-              const interp = getAxisInterpretation(axis, score);
+              const interp = getAxisInterpretation(axis, score, locale);
               return (
                 <div key={axis} className="rounded-[18px] border border-white/7 bg-white/[0.02] px-4 py-3">
                   <div className="mb-1 flex items-center gap-2">
@@ -192,7 +192,7 @@ export default function DNAProfile({ dna, progressMessage, choices, locale, onRe
             <div className="mt-5 flex flex-col gap-2">
               <p className="text-xs font-semibold text-white/45">{isEn ? "Tag meanings" : "태그 해석"}</p>
               {topTags.map(([tag]) => {
-                const interp = getTagInterpretation(tag);
+                const interp = getTagInterpretation(tag, locale);
                 if (!interp) return null;
                 return (
                   <div key={tag} className="flex items-start gap-2">

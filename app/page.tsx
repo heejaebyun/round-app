@@ -151,7 +151,8 @@ export default function Home() {
 
   async function handleOpenDNA() {
     if (!(await ensureTossLogin())) return;
-    router.push("/dna");
+    const lq = locale !== "ko-KR" ? `?locale=${locale}` : "";
+    router.push(`/dna${lq}`);
   }
 
   const advanceFeed = useCallback(() => {

@@ -55,8 +55,11 @@ export default function TraceChip({ choices, isTossEnv, locale, onBeforeNavigate
       const ok = await onBeforeNavigate();
       if (!ok) return;
     }
-    router.push("/dna");
+    const lq = locale && locale !== "ko-KR" ? `?locale=${locale}` : "";
+    router.push(`/dna${lq}`);
   };
+
+  const dnaHref = locale && locale !== "ko-KR" ? `/dna?locale=${locale}` : "/dna";
 
   const content = (
     <motion.span
@@ -78,7 +81,7 @@ export default function TraceChip({ choices, isTossEnv, locale, onBeforeNavigate
   }
 
   return (
-    <a href="/dna" className="pointer-events-auto">
+    <a href={dnaHref} className="pointer-events-auto">
       {content}
     </a>
   );

@@ -18,7 +18,7 @@ export default function DNAPage() {
   const [choices, setChoices] = useState<UserChoice[]>([]);
   const [mounted, setMounted] = useState(false);
   const hasTrackedView = useRef(false);
-  const { dna, progressMessage } = useDNA(choices);
+  const { dna, progressMessage } = useDNA(choices, locale);
 
   useEffect(() => {
     const frame = requestAnimationFrame(() => {

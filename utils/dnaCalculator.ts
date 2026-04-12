@@ -1,5 +1,6 @@
-import type { UserChoice, ChoiceDNA, Question, UserScores } from "@/lib/types";
+import type { UserChoice, ChoiceDNA, Question, QuestionLocale, UserScores } from "@/lib/types";
 import { SEED_QUESTIONS } from "@/data/questions";
+import { isEnglishLocale } from "@/lib/i18n";
 
 // 질문 맵 (id → Question)
 const questionMap = new Map<string, Question>();
@@ -75,8 +76,7 @@ export function calculateDNA(choices: UserChoice[]): ChoiceDNA {
 
 // --- 심화 보기용 해석 ---
 
-const AXIS_INTERP: Record<string, [string, string, string]> = {
-  // [낮을 때, 중간, 높을 때] — 점수 기준
+const AXIS_INTERP_KO: Record<string, [string, string, string]> = {
   Action: [
     "시작 전 머릿속 정리가 필요한 편이에요. 계획 없이 움직이면 불안해질 수 있어요.",
     "상황에 따라 계획도 즉흥도 유연하게 전환하는 편이에요.",
@@ -99,15 +99,38 @@ const AXIS_INTERP: Record<string, [string, string, string]> = {
   ],
 };
 
-export function getAxisInterpretation(axis: string, score: number): string {
-  const interps = AXIS_INTERP[axis];
+const AXIS_INTERP_EN: Record<string, [string, string, string]> = {
+  Action: [
+    "You like to sort things out before you start. Going in blind makes you uneasy.",
+    "You switch between planning and winging it depending on the situation.",
+    "You move first and think later. Spontaneity gives you energy.",
+  ],
+  Reward: [
+    "You lean toward spending now and enjoying the moment. Experiences are the reward.",
+    "You balance spending and saving pretty well.",
+    "You'd rather keep your options open for the future than cash in now.",
+  ],
+  Relation: [
+    "Solo time is how you recharge. Too many people drains you.",
+    "You balance alone time and social time naturally.",
+    "Being with people charges you up. Sharing makes everything better.",
+  ],
+  Motivation: [
+    "Stability matters to you. You prefer sure things over risky bets.",
+    "You keep a healthy balance between playing it safe and pushing yourself.",
+    "You keep moving toward something bigger. Standing still makes you restless.",
+  ],
+};
+
+export function getAxisInterpretation(axis: string, score: number, locale?: QuestionLocale | string | null): string {
+  const interps = (isEnglishLocale(locale) ? AXIS_INTERP_EN : AXIS_INTERP_KO)[axis];
   if (!interps) return "";
   if (score <= 35) return interps[0];
   if (score >= 65) return interps[2];
   return interps[1];
 }
 
-const TAG_INTERP: Record<string, string> = {
+const TAG_INTERP_KO: Record<string, string> = {
   야식파: "보상과 위로를 음식에서 빠르게 찾는 편",
   맵단짠러: "자극적인 맛에서 스트레스를 해소하는 타입",
   디저트덕후: "달콤함으로 하루의 작은 행복을 챙기는 편",
@@ -121,18 +144,45 @@ const TAG_INTERP: Record<string, string> = {
   갓생러: "루틴과 자기관리에 진심인 타입",
   숏폼중독: "짧고 강한 콘텐츠에 도파민을 느끼는 편",
   앱테크족: "작은 돈도 놓치지 않는 알뜰한 디지털 습관",
+  현실파: "현실적 판단을 우선하는 편",
+  예의파: "체면과 예의를 중시하는 편",
+  직진파: "고민보다 행동이 먼저인 편",
+  거리두기파: "적당한 거리를 유지하는 편",
+  공유파: "경험과 정보를 나누는 걸 좋아하는 편",
+  경계파: "사생활 경계를 중시하는 편",
+  의리파: "관계에서 의리를 우선하는 편",
+  원칙파: "원칙과 기준을 지키는 편",
+  맞춤파: "상황에 맞춰 유연하게 대응하는 편",
+  직설파: "직접적으로 말하는 걸 선호하는 편",
+  완곡파: "돌려 말하는 편이 더 편한 타입",
 };
 
-export function getTagInterpretation(tag: string): string {
-  return TAG_INTERP[tag] ?? "";
+const TAG_INTERP_EN: Record<string, string> = {
+  Realist: "Grounds decisions in practical reality",
+  Courteous: "Values politeness and social grace",
+  Direct: "Says what they mean, no sugarcoating",
+  Reserved: "Prefers keeping a comfortable distance",
+  Open: "Loves sharing experiences and information",
+  Private: "Guards personal space and boundaries",
+  Loyal: "Puts loyalty first in relationships",
+  Principled: "Sticks to their standards and rules",
+  Adaptive: "Adjusts smoothly to whatever comes",
+  Diplomatic: "Navigates conflict with tact",
+  Planner: "Needs a plan before they move",
+  Spontaneous: "Thrives on the unexpected",
+};
+
+export function getTagInterpretation(tag: string, locale?: QuestionLocale | string | null): string {
+  if (isEnglishLocale(locale)) return TAG_INTERP_EN[tag] ?? "";
+  return TAG_INTERP_KO[tag] ?? "";
 }
 
 export function generateSummaryLine(
   archetype: string,
   topTag: string | null,
   scores: UserScores,
+  locale?: QuestionLocale | string | null,
 ): string {
-  // 가장 극단적인 축 찾기
   let extremeAxis = "";
   let extremeDist = 0;
   for (const axis of Object.keys(scores) as (keyof UserScores)[]) {
@@ -140,23 +190,42 @@ export function generateSummaryLine(
     if (dist > extremeDist) { extremeDist = dist; extremeAxis = axis; }
   }
 
-  const axisHint: Record<string, [string, string]> = {
+  if (isEnglishLocale(locale)) {
+    const axisHintEn: Record<string, [string, string]> = {
+      Action: ["plans-first", "moves-first"],
+      Reward: ["lives-in-the-moment", "builds-for-tomorrow"],
+      Relation: ["solo-recharger", "people-powered"],
+      Motivation: ["stability-seeker", "growth-chaser"],
+    };
+    const hints = axisHintEn[extremeAxis];
+    const score = extremeAxis ? scores[extremeAxis as keyof UserScores] : 50;
+    const axisWord = hints ? (score > 50 ? hints[1] : hints[0]) : "";
+    const tagWord = topTag ? `${topTag},` : "In their own way,";
+    return `${tagWord} a ${axisWord} ${archetype}`;
+  }
+
+  const axisHintKo: Record<string, [string, string]> = {
     Action: ["계획을 세워야 안심되는", "일단 움직이는"],
     Reward: ["지금을 즐기는", "미래를 준비하는"],
     Relation: ["혼자가 편한", "사람과 함께하는"],
     Motivation: ["안정을 택하는", "도전을 택하는"],
   };
-
-  const hints = axisHint[extremeAxis];
+  const hints = axisHintKo[extremeAxis];
   const score = extremeAxis ? scores[extremeAxis as keyof UserScores] : 50;
   const axisWord = hints ? (score > 50 ? hints[1] : hints[0]) : "";
   const tagWord = topTag ? `${topTag} 기질에` : "자기만의 감각으로";
-
   return `${tagWord} ${axisWord} ${archetype}`;
 }
 
-export function getDNAProgressMessage(total: number, archetype: string): string {
+export function getDNAProgressMessage(total: number, archetype: string, locale?: QuestionLocale | string | null): string {
   if (total === 0) return "";
+  if (isEnglishLocale(locale)) {
+    if (total <= 3) return "🌱 Building your DNA…";
+    if (total <= 6) return `🧬 You might be '${archetype}'`;
+    if (total <= 9) return `🔬 Getting closer to ${archetype}`;
+    if (total === 10) return `✨ You are ${archetype}`;
+    return `🧬 ${archetype} — gets clearer with every pick`;
+  }
   if (total <= 3) return "🌱 DNA 생성 중...";
   if (total <= 6) return `🧬 '${archetype}'일 수 있어요`;
   if (total <= 9) return `🔬 ${archetype}에 가까워지고 있어요`;

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { SITE } from "@/lib/site";
 import EmailContact from "@/components/EmailContact";
+import { resolveServerLocale } from "@/lib/serverLocale";
 
 export const metadata: Metadata = {
   title: `${SITE.name} — ${SITE.tagline}`,
@@ -11,8 +12,7 @@ export const metadata: Metadata = {
 type Props = { searchParams: Promise<Record<string, string | string[] | undefined>> };
 
 export default async function AboutPage({ searchParams }: Props) {
-  const locale = String((await searchParams).locale ?? "ko-KR");
-  const isEn = locale.toLowerCase().startsWith("en");
+  const { locale, isEn } = await resolveServerLocale(await searchParams);
 
   return (
     <main className="no-scrollbar h-full overflow-y-auto">

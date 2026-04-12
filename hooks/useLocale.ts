@@ -21,21 +21,36 @@ function normalize(raw: string | null | undefined): QuestionLocale | null {
   return null;
 }
 
+const COOKIE_NAME = "round_locale";
+
+function setCookieLocale(locale: QuestionLocale) {
+  if (typeof document === "undefined") return;
+  document.cookie = `${COOKIE_NAME}=${locale}; path=/; max-age=${60 * 60 * 24 * 365}; SameSite=Lax`;
+}
+
 function resolveClientLocale(): QuestionLocale {
   if (typeof window === "undefined") return DEFAULT_LOCALE;
 
   const params = new URLSearchParams(window.location.search);
   const qs = normalize(params.get("locale"));
-  if (qs) return qs;
+  if (qs) {
+    setCookieLocale(qs);
+    return qs;
+  }
 
   try {
     const stored = normalize(window.localStorage.getItem(STORAGE_KEY));
-    if (stored) return stored;
+    if (stored) {
+      setCookieLocale(stored);
+      return stored;
+    }
   } catch {
     // ignore storage errors (private mode etc.)
   }
 
-  return normalize(window.navigator.language) ?? DEFAULT_LOCALE;
+  const nav = normalize(window.navigator.language) ?? DEFAULT_LOCALE;
+  setCookieLocale(nav);
+  return nav;
 }
 
 /**
@@ -63,6 +78,7 @@ export function useLocale(): {
     try {
       if (next) {
         window.localStorage.setItem(STORAGE_KEY, next);
+        setCookieLocale(next);
         setLocale(next);
       } else {
         window.localStorage.removeItem(STORAGE_KEY);
