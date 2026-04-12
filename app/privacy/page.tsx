@@ -35,7 +35,7 @@ export default async function PrivacyPage({ searchParams }: PageProps) {
   return (
     <main className="no-scrollbar h-full overflow-y-auto">
       <div className="mx-auto flex min-h-full max-w-lg flex-col px-6 py-12 text-white/90 pb-safe-bottom">
-        <Link href={`/about${isEn ? "?locale=" + locale : ""}`} className="mb-8 text-sm text-white/40 hover:text-white/60">
+        <Link href={"/about"} className="mb-8 text-sm text-white/40 hover:text-white/60">
           {isEn ? "← About Round" : "← Round 소개"}
         </Link>
 
@@ -111,8 +111,8 @@ export default async function PrivacyPage({ searchParams }: PageProps) {
 
         <footer className="mt-12 border-t border-white/10 pt-6 text-center text-xs text-white/35">
           <div className="flex justify-center gap-6">
-            <Link href={`/about${isEn ? "?locale=" + locale : ""}`} className="hover:text-white/60">{isEn ? "About" : "소개"}</Link>
-            <Link href={`/terms${isEn ? "?locale=" + locale : ""}`} className="hover:text-white/60">{isEn ? "Terms" : "이용약관"}</Link>
+            <Link href={"/about"} className="hover:text-white/60">{isEn ? "About" : "소개"}</Link>
+            <Link href={"/terms"} className="hover:text-white/60">{isEn ? "Terms" : "이용약관"}</Link>
           </div>
         </footer>
       </div>

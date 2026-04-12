@@ -1,45 +1,109 @@
 import { NextRequest, NextResponse } from "next/server";
 
 /**
- * Subdomain-based locale injection.
+ * Locale middleware — single source of truth for the round_locale cookie.
  *
- * Host mapping:
- *   us.round-app-one.vercel.app  → en-US
- *   ph.round-app-one.vercel.app  → en-PH
- *   round-app-one.vercel.app     → ko-KR (default)
- *   localhost:*                   → respects ?locale= or ko-KR
+ * Priority (evaluated once per request, top wins):
+ *   1. Subdomain: us.* → en-US, ph.* → en-PH
+ *   2. ?locale= query param (deep-link / debug override)
+ *   3. Existing round_locale cookie (session continuity)
+ *   4. Accept-Language header (first-visit auto-detect)
+ *   5. Default: ko-KR
  *
- * Sets the round_locale cookie so server pages and client hooks
- * both see the same locale. The cookie is only set if the subdomain
- * implies a non-default locale or if one isn't already present.
+ * The resolved locale is always written to the round_locale cookie.
+ * All downstream code (useLocale, serverLocale, pages) reads this
+ * cookie as the canonical locale. No more multi-source conflicts.
  *
- * Runs on every request but does almost nothing — just a cookie set.
+ * If ?locale= is present, the middleware also strips it from the URL
+ * via redirect so the user sees a clean URL and the cookie carries
+ * the value forward. Exception: ?q= deep-link params are preserved.
  */
+
+const COOKIE_NAME = "round_locale";
+const DEFAULT_LOCALE = "ko-KR";
+const SUPPORTED = new Set(["ko-KR", "en-US", "en-PH", "en-GB"]);
 
 const SUBDOMAIN_MAP: Record<string, string> = {
   us: "en-US",
   ph: "en-PH",
 };
 
-const COOKIE_NAME = "round_locale";
-const DEFAULT_LOCALE = "ko-KR";
+function normalize(raw: string | null | undefined): string | null {
+  if (!raw) return null;
+  const v = raw.trim().toLowerCase().replace("_", "-");
+  if (v === "ko" || v.startsWith("ko-")) return "ko-KR";
+  if (v === "en-us" || v === "en") return "en-US";
+  if (v === "en-ph") return "en-PH";
+  if (v === "en-gb") return "en-GB";
+  if (v.startsWith("en")) return "en-US";
+  return null;
+}
 
-function getLocaleFromHost(host: string): string | null {
-  // Extract subdomain: "us.round-app-one.vercel.app" → "us"
+function parseAcceptLanguage(header: string): string | null {
+  const parts = header.split(",").map((s) => {
+    const [lang, qPart] = s.trim().split(";");
+    const q = qPart ? parseFloat(qPart.replace(/q\s*=\s*/, "")) : 1;
+    return { lang: lang.trim(), q: Number.isFinite(q) ? q : 0 };
+  });
+  parts.sort((a, b) => b.q - a.q);
+  for (const { lang } of parts) {
+    const n = normalize(lang);
+    if (n && SUPPORTED.has(n)) return n;
+  }
+  return null;
+}
+
+function getSubdomainLocale(host: string): string | null {
   const parts = host.split(".");
   if (parts.length < 2) return null;
-  const sub = parts[0].toLowerCase();
-  return SUBDOMAIN_MAP[sub] ?? null;
+  return SUBDOMAIN_MAP[parts[0].toLowerCase()] ?? null;
 }
 
 export function middleware(request: NextRequest) {
   const host = request.headers.get("host") ?? "";
-  const subLocale = getLocaleFromHost(host);
+  const url = request.nextUrl.clone();
+  const queryLocale = url.searchParams.get("locale");
 
-  // If subdomain maps to a locale, inject/overwrite the cookie
-  if (subLocale) {
-    const response = NextResponse.next();
-    response.cookies.set(COOKIE_NAME, subLocale, {
+  // ── Resolve locale ───────────────────────────────────────────
+  let resolved: string | null = null;
+
+  // 1. Subdomain
+  resolved = getSubdomainLocale(host);
+
+  // 2. ?locale= query
+  if (!resolved && queryLocale) {
+    resolved = normalize(queryLocale);
+  }
+
+  // 3. Existing cookie
+  if (!resolved) {
+    const existing = request.cookies.get(COOKIE_NAME)?.value;
+    if (existing && SUPPORTED.has(existing)) {
+      resolved = existing;
+    }
+  }
+
+  // 4. Accept-Language
+  if (!resolved) {
+    const acceptLang = request.headers.get("accept-language");
+    if (acceptLang) {
+      resolved = parseAcceptLanguage(acceptLang);
+    }
+  }
+
+  // 5. Default
+  if (!resolved) {
+    resolved = DEFAULT_LOCALE;
+  }
+
+  // ── Set cookie + optionally strip ?locale= from URL ──────────
+  const needsRedirect = queryLocale && !getSubdomainLocale(host);
+
+  if (needsRedirect) {
+    // Strip ?locale= so the URL stays clean. Keep other params (?q= etc).
+    url.searchParams.delete("locale");
+    const response = NextResponse.redirect(url, 307);
+    response.cookies.set(COOKIE_NAME, resolved, {
       path: "/",
       maxAge: 60 * 60 * 24 * 365,
       sameSite: "lax",
@@ -47,23 +111,15 @@ export function middleware(request: NextRequest) {
     return response;
   }
 
-  // Default host — set ko-KR cookie if none exists yet
-  const existing = request.cookies.get(COOKIE_NAME)?.value;
-  if (!existing) {
-    const response = NextResponse.next();
-    response.cookies.set(COOKIE_NAME, DEFAULT_LOCALE, {
-      path: "/",
-      maxAge: 60 * 60 * 24 * 365,
-      sameSite: "lax",
-    });
-    return response;
-  }
-
-  return NextResponse.next();
+  const response = NextResponse.next();
+  response.cookies.set(COOKIE_NAME, resolved, {
+    path: "/",
+    maxAge: 60 * 60 * 24 * 365,
+    sameSite: "lax",
+  });
+  return response;
 }
 
 export const config = {
-  // Run on all pages but skip static assets and API routes that
-  // already handle auth themselves.
   matcher: ["/((?!_next/static|_next/image|favicon.ico|assets|manifest.json|api/).*)"],
 };

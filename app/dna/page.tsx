@@ -15,7 +15,7 @@ export default function DNAPage() {
   const router = useRouter();
   const { locale } = useLocale();
   const isEn = isEnglishLocale(locale);
-  const homeHref = locale !== "ko-KR" ? `/?locale=${locale}` : "/";
+  const homeHref = "/";
   const [choices, setChoices] = useState<UserChoice[]>([]);
   const [mounted, setMounted] = useState(false);
   const hasTrackedView = useRef(false);

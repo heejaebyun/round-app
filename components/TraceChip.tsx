@@ -55,11 +55,10 @@ export default function TraceChip({ choices, isTossEnv, locale, onBeforeNavigate
       const ok = await onBeforeNavigate();
       if (!ok) return;
     }
-    const lq = locale && locale !== "ko-KR" ? `?locale=${locale}` : "";
-    router.push(`/dna${lq}`);
+    router.push("/dna");
   };
 
-  const dnaHref = locale && locale !== "ko-KR" ? `/dna?locale=${locale}` : "/dna";
+  const dnaHref = "/dna";
 
   const content = (
     <motion.span

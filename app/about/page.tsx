@@ -97,10 +97,10 @@ export default async function AboutPage({ searchParams }: Props) {
         {/* Footer */}
         <footer className="mt-auto border-t border-white/10 pt-6 text-center text-xs text-white/35">
           <div className="flex justify-center gap-6">
-            <Link href={`/privacy${isEn ? "?locale=" + locale : ""}`} className="hover:text-white/60">
+            <Link href={"/privacy"} className="hover:text-white/60">
               {isEn ? "Privacy Policy" : "개인정보처리방침"}
             </Link>
-            <Link href={`/terms${isEn ? "?locale=" + locale : ""}`} className="hover:text-white/60">
+            <Link href={"/terms"} className="hover:text-white/60">
               {isEn ? "Terms of Service" : "이용약관"}
             </Link>
           </div>
