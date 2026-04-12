@@ -15,6 +15,7 @@ export default function DNAPage() {
   const router = useRouter();
   const { locale } = useLocale();
   const isEn = isEnglishLocale(locale);
+  const homeHref = locale !== "ko-KR" ? `/?locale=${locale}` : "/";
   const [choices, setChoices] = useState<UserChoice[]>([]);
   const [mounted, setMounted] = useState(false);
   const hasTrackedView = useRef(false);
@@ -51,7 +52,7 @@ export default function DNAPage() {
       localStorage.removeItem(STORAGE_KEY_CHOICES);
       setChoices([]);
       trackEvent("choices_reset", { from: "dna_page", totalChoices: choices.length });
-      router.replace("/");
+      router.replace(homeHref);
     } catch {}
   }
 
@@ -69,7 +70,7 @@ export default function DNAPage() {
           </h1>
         </div>
         <Link
-          href="/"
+          href={homeHref}
           className="mt-3 rounded-full border border-white/10 bg-white/[0.05] px-3.5 py-2 text-xs font-semibold text-white/70"
         >
           {isEn ? "Back" : "돌아가기"}
@@ -90,7 +91,7 @@ export default function DNAPage() {
                   : "질문에 답하기 시작하면 당신의 Choice DNA가 바로 만들어집니다."}
               </p>
               <Link
-                href="/"
+                href={homeHref}
                 className="mt-7 inline-flex rounded-[22px] bg-white px-6 py-3.5 text-sm font-bold text-slate-900"
               >
                 {isEn ? "Start answering" : "질문 시작하기"}

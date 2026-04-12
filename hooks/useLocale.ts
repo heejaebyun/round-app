@@ -28,6 +28,16 @@ function setCookieLocale(locale: QuestionLocale) {
   document.cookie = `${COOKIE_NAME}=${locale}; path=/; max-age=${60 * 60 * 24 * 365}; SameSite=Lax`;
 }
 
+function getCookieLocale(): QuestionLocale | null {
+  if (typeof document === "undefined") return null;
+  const raw = document.cookie
+    .split(";")
+    .map((part) => part.trim())
+    .find((part) => part.startsWith(`${COOKIE_NAME}=`))
+    ?.slice(`${COOKIE_NAME}=`.length);
+  return normalize(raw);
+}
+
 function resolveClientLocale(): QuestionLocale {
   if (typeof window === "undefined") return DEFAULT_LOCALE;
 
@@ -46,6 +56,12 @@ function resolveClientLocale(): QuestionLocale {
     }
   } catch {
     // ignore storage errors (private mode etc.)
+  }
+
+  const cookieLocale = getCookieLocale();
+  if (cookieLocale) {
+    setCookieLocale(cookieLocale);
+    return cookieLocale;
   }
 
   const nav = normalize(window.navigator.language) ?? DEFAULT_LOCALE;
@@ -82,9 +98,9 @@ export function useLocale(): {
         setLocale(next);
       } else {
         window.localStorage.removeItem(STORAGE_KEY);
-        // fall back to navigator detection
-        const nav = normalize(navigator.language) ?? DEFAULT_LOCALE;
-        setLocale(nav);
+        const fallback = getCookieLocale() ?? normalize(navigator.language) ?? DEFAULT_LOCALE;
+        setCookieLocale(fallback);
+        setLocale(fallback);
       }
     } catch {
       // ignore
