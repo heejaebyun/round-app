@@ -15,13 +15,13 @@ interface Props {
 }
 
 const EMOJI_BY_CATEGORY: Record<string, string> = {
-  음식: "🍜",
-  커리어: "💼",
-  관계: "💕",
-  소비: "💸",
-  라이프: "🌿",
-  여행: "✈️",
-  트렌드: "🔥",
+  음식: "🍜", Food: "🍜",
+  커리어: "💼", Work: "💼",
+  관계: "💕", Relationships: "💕",
+  소비: "💸", Money: "💸",
+  라이프: "🌿", Lifestyle: "🌿",
+  여행: "✈️", Travel: "✈️",
+  트렌드: "🔥", Trends: "🔥",
 };
 
 /**
