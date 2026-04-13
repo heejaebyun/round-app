@@ -1,13 +1,26 @@
 "use client";
 
+import { isTossMiniApp } from "./toss";
+
 /**
- * API fetch — 항상 상대 경로로 호출.
- * 토스 WebView에서 cross-origin 쿠키 문제 방지.
+ * API fetch wrapper.
+ *
+ * Web: relative path (same-origin, cookies work)
+ * Toss mini-app: absolute URL to Vercel production origin
+ *   (.ait is a static bundle — no API routes inside)
  */
+const VERCEL_ORIGIN = "https://round-app-one.vercel.app";
+
 export async function apiFetch(path: string, init?: RequestInit) {
   const normalizedPath = path.startsWith("/") ? path : `/${path}`;
-  return fetch(normalizedPath, {
+  const isToss = typeof window !== "undefined" && isTossMiniApp();
+  const url = isToss ? `${VERCEL_ORIGIN}${normalizedPath}` : normalizedPath;
+
+  return fetch(url, {
     ...init,
-    credentials: "include",
+    // Cross-origin (Toss → Vercel): "omit" because allow-credentials
+    // requires explicit CORS headers. Auth is handled by Toss SDK token
+    // in the request body, not cookies.
+    credentials: isToss ? "omit" : "include",
   });
 }

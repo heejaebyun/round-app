@@ -112,21 +112,33 @@ async function main() {
 
   console.log(`[harness] dispatching: ${task.id} — ${task.title} → ${task.owner_agent}`);
 
-  // Build prompt
+  // Build prompt — static context first (cacheable), dynamic last
   const agentPrompt = loadAgentPrompt(task.owner_agent) || "You are a Round agent.";
   const policy = loadPolicy(task.business_unit) || "{}";
   const progress = readFileSync(PROGRESS_FILE, "utf8");
 
+  // Inject relevant lessons so the agent doesn't repeat known mistakes
+  const lessonsState = loadJson(resolve(STATE_DIR, "lessons.json"));
+  const relevantLessons = lessonsState.lessons
+    .filter((l) => l.scope === task.business_unit || l.scope === "global")
+    .slice(-5) // last 5 relevant
+    .map((l) => `- ${l.summary} (${l.created_at})`)
+    .join("\n");
+
   const fullPrompt = [
+    // --- Static layer (rarely changes, cacheable) ---
     "# Agent Role",
     agentPrompt,
     "",
     "# BU Policy",
     policy,
     "",
+    // --- Session layer ---
     "# Current Progress",
     progress,
     "",
+    relevantLessons ? `# Lessons (avoid these mistakes)\n${relevantLessons}\n` : "",
+    // --- Dynamic layer (changes every task) ---
     "# Task",
     `ID: ${task.id}`,
     `Title: ${task.title}`,
@@ -136,7 +148,7 @@ async function main() {
     "",
     "Execute this task. Return a JSON object with:",
     '{ "summary": "what you did", "outputs": {}, "next_action": "suggested next step or null" }',
-  ].join("\n");
+  ].filter(Boolean).join("\n");
 
   if (args.dryRun) {
     console.log("\n--- DRY RUN: Prompt ---");
