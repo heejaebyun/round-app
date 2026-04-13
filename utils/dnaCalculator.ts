@@ -48,6 +48,26 @@ const ARCHETYPE_MAP_EN: Record<string, { name: string; desc: string }> = {
   "1111": { name: "Zero-Capital Hustler", desc: "Rallies people and dives in even without a plan or budget" },
 };
 
+// PH market — same 16 types, Filipino cultural lens
+const ARCHETYPE_MAP_PH: Record<string, { name: string; desc: string }> = {
+  "0000": { name: "Solo Perfectionist", desc: "Finds peace in a well-planned solo day on a budget" },
+  "1000": { name: "Quiet Splurger", desc: "Chill most of the time, but when something hits — no hesitation" },
+  "0100": { name: "Steady Saver", desc: "Controls spending, avoids unnecessary social pressure, stacks quietly" },
+  "1100": { name: "Low-Key Accumulator", desc: "Not one to spend or rush — savings grow without noise" },
+  "0010": { name: "Barkada Planner", desc: "Takes charge of the group plan, picks the place, makes sure everyone shows up" },
+  "1010": { name: "Saya-First", desc: "Lives for the moment, best when surrounded by people" },
+  "0110": { name: "Budget Barkada", desc: "Always with the group but keeps a close eye on the bill" },
+  "1110": { name: "Smooth Operator", desc: "Sociable and generous, but quietly keeps energy and money in check" },
+  "0001": { name: "Hustle Planner", desc: "Works alone, plans deep, and makes sure every tool is ready" },
+  "1001": { name: "Gut-Feel Grinder", desc: "When instinct says go — price doesn't matter" },
+  "0101": { name: "Timing Diskarte", desc: "Saves hard, waits patiently, then strikes when the moment is right" },
+  "1101": { name: "Instinct Diskarte", desc: "Quiet until conviction kicks in, then goes all-in fast" },
+  "0011": { name: "Generous Connector", desc: "Spends on people and relationships without thinking twice" },
+  "1011": { name: "Instant Barkada Leader", desc: "Gathers people on impulse and makes things happen" },
+  "0111": { name: "Street-Smart Networker", desc: "Social, sharp, never misses an opportunity — but never wastes money" },
+  "1111": { name: "Walang-Budget Warrior", desc: "No plan, no budget? No problem — gather the squad and figure it out" },
+};
+
 type ArchetypeEntry = { name: string; desc: string };
 
 /** Select the archetype map for the given market. */
@@ -55,7 +75,7 @@ function getArchetypeMap(locale?: string | null): Record<string, ArchetypeEntry>
   switch (locale) {
     case "ko-KR": return ARCHETYPE_MAP_KO;
     case "en-US": return ARCHETYPE_MAP_EN;
-    case "en-PH": return ARCHETYPE_MAP_EN; // diverge later with ARCHETYPE_MAP_PH
+    case "en-PH": return ARCHETYPE_MAP_PH;
     default: return isEnglishLocale(locale) ? ARCHETYPE_MAP_EN : ARCHETYPE_MAP_KO;
   }
 }
@@ -162,8 +182,39 @@ const AXIS_INTERP_EN: Record<string, [string, string, string]> = {
   ],
 };
 
+const AXIS_INTERP_PH: Record<string, [string, string, string]> = {
+  Action: [
+    "You need to think things through before moving. Rushing in without a plan stresses you out.",
+    "You're flexible — sometimes you plan, sometimes you just go with the flow.",
+    "You jump in and figure it out. Waiting around is harder than just doing it.",
+  ],
+  Reward: [
+    "You'd rather enjoy now than save for later. Experiences are what matter most.",
+    "You know when to treat yourself and when to save. Balance is your thing.",
+    "You think long-term. Building for tomorrow beats spending today.",
+  ],
+  Relation: [
+    "You recharge alone. Being around too many people drains your energy.",
+    "You're good at balancing alone time and hanging out with others.",
+    "You're happiest with people around. Company makes everything better — shared joy is doubled.",
+  ],
+  Motivation: [
+    "Stability means a lot to you. You'd rather be secure than take a big risk.",
+    "You balance caution and ambition well — you don't rush, but you don't stay still either.",
+    "You're always reaching for more. Settling feels uncomfortable. Growth is non-negotiable.",
+  ],
+};
+
+function getAxisInterp(locale?: string | null): Record<string, [string, string, string]> {
+  switch (locale) {
+    case "ko-KR": return AXIS_INTERP_KO;
+    case "en-PH": return AXIS_INTERP_PH;
+    default: return isEnglishLocale(locale) ? AXIS_INTERP_EN : AXIS_INTERP_KO;
+  }
+}
+
 export function getAxisInterpretation(axis: string, score: number, locale?: QuestionLocale | string | null): string {
-  const interps = (isEnglishLocale(locale) ? AXIS_INTERP_EN : AXIS_INTERP_KO)[axis];
+  const interps = getAxisInterp(locale)[axis];
   if (!interps) return "";
   if (score <= 35) return interps[0];
   if (score >= 65) return interps[2];
@@ -212,9 +263,28 @@ const TAG_INTERP_EN: Record<string, string> = {
   Spontaneous: "Thrives on the unexpected",
 };
 
+const TAG_INTERP_PH: Record<string, string> = {
+  Realist: "Keeps it real — decisions are practical, not sentimental",
+  Courteous: "Respects others' feelings and keeps the peace",
+  Direct: "Says what they mean — no pa-roundabout",
+  Reserved: "Keeps a comfortable distance, values personal space",
+  Open: "Shares freely and builds bonds through openness",
+  Private: "Guards personal boundaries — not everyone needs to know",
+  Loyal: "Sticks by people no matter what. Utang na loob runs deep.",
+  Principled: "Holds firm to rules and fairness, even when it's hard",
+  Adaptive: "Goes with the flow and adjusts to whatever comes",
+  Diplomatic: "Handles conflict smoothly — never confrontational",
+  Planner: "Needs a plan before anything moves forward",
+  Spontaneous: "Thrives on surprise — the best things aren't planned",
+};
+
 export function getTagInterpretation(tag: string, locale?: QuestionLocale | string | null): string {
-  if (isEnglishLocale(locale)) return TAG_INTERP_EN[tag] ?? "";
-  return TAG_INTERP_KO[tag] ?? "";
+  switch (locale) {
+    case "en-PH": return TAG_INTERP_PH[tag] ?? TAG_INTERP_EN[tag] ?? "";
+    default:
+      if (isEnglishLocale(locale)) return TAG_INTERP_EN[tag] ?? "";
+      return TAG_INTERP_KO[tag] ?? "";
+  }
 }
 
 export function generateSummaryLine(
