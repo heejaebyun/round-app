@@ -1,0 +1,18 @@
+{
+  "tasks": [
+    {
+      "id": "task-a60ecc99",
+      "title": "Research 4 Korean questions: 직장 갈등",
+      "business_unit": "ko",
+      "owner_agent": "kr-bu-agent",
+      "status": "done",
+      "priority": "medium",
+      "inputs": {},
+      "outputs": {},
+      "created_at": "2026-04-13T12:19:58.142Z",
+      "updated_at": "2026-04-13T12:20:24.318Z",
+      "next_action": null,
+      "parent_task_id": null
+    }
+  ]
+}

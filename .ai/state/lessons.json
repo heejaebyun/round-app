@@ -1,0 +1,12 @@
+{
+  "lessons": [
+    {
+      "id": "les-0f74d216",
+      "scope": "ko",
+      "summary": "Harness pipeline works end to end",
+      "trigger": "rev-8e92da93 (pass)",
+      "proposed_policy_update": null,
+      "created_at": "2026-04-13T12:20:24.318Z"
+    }
+  ]
+}

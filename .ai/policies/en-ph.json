@@ -1,0 +1,22 @@
+{
+  "scope": "en-ph",
+  "locale": "en-PH",
+  "owns": ["question_pool_ph", "dna_copy_ph", "onboarding_copy_ph", "share_copy_ph"],
+  "cannot_touch": ["feed_engine", "question_os", "scoring", "admin", "auth"],
+  "research_config": {
+    "keywords_default": ["family obligations", "money lending", "work hierarchy", "relationship boundaries", "group spending", "utang na loob"],
+    "batch_size": 4,
+    "framing": "Which side feels closer?"
+  },
+  "quality_rules": {
+    "min_split_balance": 35,
+    "max_skip_rate_before_review": 40,
+    "max_feedback_rate_before_review": 20,
+    "categories": ["Food", "Work", "Relationships", "Money", "Lifestyle", "Travel", "Trends"],
+    "forbidden_topics": ["politics", "religion", "colonial stereotypes", "hate"]
+  },
+  "auto_update_allowed": {
+    "research_config": true,
+    "quality_rules": false
+  }
+}

@@ -1,0 +1,88 @@
+{
+  "agents": [
+    {
+      "id": "core-orchestrator",
+      "business_unit": "core",
+      "responsibility": "Route tasks to the right agent. Monitor pipeline health. Decide what to build next based on metrics and lessons.",
+      "inputs": ["tasks", "metrics", "lessons", "policies"],
+      "outputs": ["task_assignments", "decisions", "priority_changes"],
+      "reviewer": null,
+      "can_update_policy": true,
+      "risk_level": "high",
+      "claude_model": "opus",
+      "active": true
+    },
+    {
+      "id": "review-agent",
+      "business_unit": "core",
+      "responsibility": "Review agent outputs for quality, safety, and policy compliance. Pass, revise, or escalate.",
+      "inputs": ["agent_runs", "policies", "schemas"],
+      "outputs": ["reviews", "verdicts"],
+      "reviewer": null,
+      "can_update_policy": false,
+      "risk_level": "medium",
+      "claude_model": "opus",
+      "active": true
+    },
+    {
+      "id": "core-engineering",
+      "business_unit": "core",
+      "responsibility": "Implement features, fix bugs, refactor code. Reads tasks, writes code, runs tests.",
+      "inputs": ["tasks", "codebase", "policies"],
+      "outputs": ["code_changes", "test_results", "deploy_requests"],
+      "reviewer": "review-agent",
+      "can_update_policy": false,
+      "risk_level": "high",
+      "claude_model": "opus",
+      "active": true
+    },
+    {
+      "id": "toss-bu-agent",
+      "business_unit": "toss",
+      "responsibility": "Manage Toss mini-app submission, build, compliance. Korea market Toss-specific ops.",
+      "inputs": ["tasks", "toss_policies", "build_artifacts"],
+      "outputs": ["build_results", "submission_status", "compliance_checks"],
+      "reviewer": "review-agent",
+      "can_update_policy": false,
+      "risk_level": "medium",
+      "claude_model": "sonnet",
+      "active": false
+    },
+    {
+      "id": "kr-bu-agent",
+      "business_unit": "ko",
+      "responsibility": "Research Korean market questions. Curate, evaluate, and manage ko-KR question pool. Maintain Korean DNA copy and cultural tone.",
+      "inputs": ["tasks", "ko_policies", "question_metrics", "feedback"],
+      "outputs": ["question_candidates", "curation_decisions", "copy_updates"],
+      "reviewer": "review-agent",
+      "can_update_policy": true,
+      "risk_level": "low",
+      "claude_model": "sonnet",
+      "active": true
+    },
+    {
+      "id": "en-bu-agent",
+      "business_unit": "en-us",
+      "responsibility": "Research US market questions. Curate, evaluate, manage en-US question pool. Maintain US DNA copy and cultural tone.",
+      "inputs": ["tasks", "en_us_policies", "question_metrics", "feedback"],
+      "outputs": ["question_candidates", "curation_decisions", "copy_updates"],
+      "reviewer": "review-agent",
+      "can_update_policy": true,
+      "risk_level": "low",
+      "claude_model": "sonnet",
+      "active": true
+    },
+    {
+      "id": "ph-bu-agent",
+      "business_unit": "en-ph",
+      "responsibility": "Research PH market questions. Curate, evaluate, manage en-PH question pool. Maintain Filipino DNA copy and cultural tone.",
+      "inputs": ["tasks", "en_ph_policies", "question_metrics", "feedback"],
+      "outputs": ["question_candidates", "curation_decisions", "copy_updates"],
+      "reviewer": "review-agent",
+      "can_update_policy": true,
+      "risk_level": "low",
+      "claude_model": "sonnet",
+      "active": true
+    }
+  ]
+}

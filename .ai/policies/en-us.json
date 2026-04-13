@@ -1,0 +1,22 @@
+{
+  "scope": "en-us",
+  "locale": "en-US",
+  "owns": ["question_pool_us", "dna_copy_us", "onboarding_copy_us", "share_copy_us"],
+  "cannot_touch": ["feed_engine", "question_os", "scoring", "admin", "auth"],
+  "research_config": {
+    "keywords_default": ["workplace boundaries", "dating money", "roommate conflict", "family expectations", "friendship fallout"],
+    "batch_size": 4,
+    "framing": "Which side feels closer?"
+  },
+  "quality_rules": {
+    "min_split_balance": 35,
+    "max_skip_rate_before_review": 40,
+    "max_feedback_rate_before_review": 20,
+    "categories": ["Food", "Work", "Relationships", "Money", "Lifestyle", "Travel", "Trends"],
+    "forbidden_topics": ["politics", "identity politics", "gender war", "hate", "personal attacks"]
+  },
+  "auto_update_allowed": {
+    "research_config": true,
+    "quality_rules": false
+  }
+}

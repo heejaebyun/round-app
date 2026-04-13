@@ -2,6 +2,10 @@ import type { QuestionLocale } from "./types";
 
 export const DEFAULT_LOCALE: QuestionLocale = "ko-KR";
 
+function isTossBuild(): boolean {
+  return process.env.NEXT_PUBLIC_TOSS_BUILD === "1";
+}
+
 export const LOCALE_PREFIX_BY_CODE: Record<QuestionLocale, string> = {
   "ko-KR": "",
   "en-US": "/en-us",
@@ -26,6 +30,7 @@ export function normalizeLocale(raw: string | null | undefined): QuestionLocale 
 }
 
 export function getLocaleFromPathname(pathname: string | null | undefined): QuestionLocale {
+  if (isTossBuild()) return DEFAULT_LOCALE;
   if (!pathname) return DEFAULT_LOCALE;
   const [, firstSegment] = pathname.split("/");
   return LOCALE_BY_PREFIX[firstSegment?.toLowerCase() ?? ""] ?? DEFAULT_LOCALE;
@@ -58,7 +63,8 @@ export function buildLocalizedPath(
   locale: QuestionLocale = DEFAULT_LOCALE,
   search?: string | URLSearchParams | null,
 ): string {
-  const prefix = LOCALE_PREFIX_BY_CODE[locale] ?? "";
+  const targetLocale = isTossBuild() ? DEFAULT_LOCALE : locale;
+  const prefix = LOCALE_PREFIX_BY_CODE[targetLocale] ?? "";
   const cleanPath = stripLocalePrefix(pathname);
   const query = normalizeSearch(search);
   if (cleanPath === "/") {

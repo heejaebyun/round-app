@@ -1,0 +1,38 @@
+{
+  "scope": "core",
+  "policies": [
+    {
+      "level": "constitution",
+      "auto_update_allowed": false,
+      "rules": [
+        "No politics, hate speech, gender war, or personal attacks in any market",
+        "Data decisions must be backed by measured signals, never guesses",
+        "Never expose user PII in logs, analytics, or shared state",
+        "Core engine (feed, Question OS, scoring) changes require review-agent approval",
+        "Constitution policies cannot be changed by any agent"
+      ]
+    },
+    {
+      "level": "operating",
+      "auto_update_allowed": false,
+      "rules": [
+        "Each market's question pool, DNA copy, and storage are fully isolated",
+        "Approved candidates are filtered by locale before merging into feed",
+        "Quality score below 30 with 10+ votes triggers archive consideration",
+        "Skip rate above 40% flags a question for review",
+        "New features require npm run lint + npm run build passing before deploy",
+        "Operating policy changes require review-agent verdict of 'pass'"
+      ]
+    },
+    {
+      "level": "runtime",
+      "auto_update_allowed": true,
+      "rules": [
+        "Research batch size: 3-4 per market per run",
+        "Question evaluation threshold: both options must be defensible",
+        "Cron metrics update frequency: every 6 hours",
+        "Feed sort: qualityScore desc within each status tier"
+      ]
+    }
+  ]
+}
