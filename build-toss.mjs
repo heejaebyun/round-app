@@ -66,7 +66,10 @@ copyFileSync(toss, main);
 excludedRoutes.forEach(stashPath);
 
 try {
-  execSync("npx next build", { stdio: "inherit" });
+  execSync("npx next build", {
+    stdio: "inherit",
+    env: { ...process.env, NEXT_PUBLIC_TOSS_BUILD: "1" },
+  });
 } finally {
   excludedRoutes.forEach(restorePath);
   if (existsSync(tempDir)) rmSync(tempDir, { recursive: true, force: true });

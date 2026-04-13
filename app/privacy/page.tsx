@@ -3,12 +3,13 @@ import Link from "next/link";
 import { SITE } from "@/lib/site";
 import EmailContact from "@/components/EmailContact";
 import { resolveServerLocale } from "@/lib/serverLocale";
-import { buildLocalizedPath } from "@/lib/localeRouting";
+
+const IS_TOSS = process.env.NEXT_PUBLIC_TOSS_BUILD === "1";
 
 type PageProps = { searchParams: Promise<Record<string, string | string[] | undefined>> };
 
 export async function generateMetadata({ searchParams }: PageProps): Promise<Metadata> {
-  const { isEn } = await resolveServerLocale(await searchParams);
+  const isEn = IS_TOSS ? false : (await resolveServerLocale(await searchParams)).isEn;
   return {
     title: isEn ? `Privacy Policy — ${SITE.name}` : `개인정보처리방침 — ${SITE.name}`,
     description: isEn
@@ -31,14 +32,12 @@ function Ul({ children }: { children: React.ReactNode }) {
 }
 
 export default async function PrivacyPage({ searchParams }: PageProps) {
-  const { locale, isEn } = await resolveServerLocale(await searchParams);
-  const aboutHref = buildLocalizedPath("/about", locale);
-  const termsHref = buildLocalizedPath("/terms", locale);
+  const isEn = IS_TOSS ? false : (await resolveServerLocale(await searchParams)).isEn;
 
   return (
     <main className="no-scrollbar h-full overflow-y-auto">
       <div className="mx-auto flex min-h-full max-w-lg flex-col px-6 py-12 text-white/90 pb-safe-bottom">
-        <Link href={aboutHref} className="mb-8 text-sm text-white/40 hover:text-white/60">
+        <Link href="/about" className="mb-8 text-sm text-white/40 hover:text-white/60">
           {isEn ? "← About Round" : "← Round 소개"}
         </Link>
 
@@ -114,8 +113,8 @@ export default async function PrivacyPage({ searchParams }: PageProps) {
 
         <footer className="mt-12 border-t border-white/10 pt-6 text-center text-xs text-white/35">
           <div className="flex justify-center gap-6">
-            <Link href={aboutHref} className="hover:text-white/60">{isEn ? "About" : "소개"}</Link>
-            <Link href={termsHref} className="hover:text-white/60">{isEn ? "Terms" : "이용약관"}</Link>
+            <Link href="/about" className="hover:text-white/60">{isEn ? "About" : "소개"}</Link>
+            <Link href="/terms" className="hover:text-white/60">{isEn ? "Terms" : "이용약관"}</Link>
           </div>
         </footer>
       </div>
