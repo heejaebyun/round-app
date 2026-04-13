@@ -10,20 +10,23 @@ import { getApprovedQuestionCandidates } from "@/lib/questionCandidates";
 import { trackEvent, getDeviceId } from "@/utils/analytics";
 import { saveVote } from "@/lib/votes";
 import { saveReason } from "@/lib/reasons";
-import { STORAGE_KEY_CHOICES } from "@/lib/constants";
+import { getChoicesStorageKey, migrateChoicesStorage } from "@/lib/constants";
 
-function loadChoices(): UserChoice[] {
+// Run migration once on first import (moves legacy key → ko-KR scoped)
+if (typeof window !== "undefined") migrateChoicesStorage();
+
+function loadChoices(locale: string = "ko-KR"): UserChoice[] {
   if (typeof window === "undefined") return [];
   try {
-    const raw = localStorage.getItem(STORAGE_KEY_CHOICES);
+    const raw = localStorage.getItem(getChoicesStorageKey(locale));
     return raw ? JSON.parse(raw) : [];
   } catch {
     return [];
   }
 }
 
-function persistChoices(choices: UserChoice[]) {
-  localStorage.setItem(STORAGE_KEY_CHOICES, JSON.stringify(choices));
+function persistChoices(choices: UserChoice[], locale: string = "ko-KR") {
+  localStorage.setItem(getChoicesStorageKey(locale), JSON.stringify(choices));
 }
 
 /**
@@ -60,8 +63,9 @@ function buildStatusAwareSequence(
 }
 
 export function useChoiceState(locale?: QuestionLocale, deepLinkQuestionId?: string | null) {
+  const resolvedLocale = locale ?? "ko-KR";
   const bundle = useMemo(() => getQuestionsForLocale(locale), [locale]);
-  const [choices, setChoices] = useState<UserChoice[]>(() => loadChoices());
+  const [choices, setChoices] = useState<UserChoice[]>(() => loadChoices(resolvedLocale));
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedSide, setSelectedSide] = useState<"A" | "B" | null>(null);
   const [showResult, setShowResult] = useState(false);
@@ -197,7 +201,7 @@ export function useChoiceState(locale?: QuestionLocale, deepLinkQuestionId?: str
 
       const updated = [...choices.filter((c) => c.questionId !== currentQuestion.id), choice];
       setChoices(updated);
-      persistChoices(updated);
+      persistChoices(updated, resolvedLocale);
       setResultQuestion(currentQuestion);
       setSelectedSide(side);
       setTimeout(() => setShowResult(true), 300);
@@ -260,7 +264,7 @@ export function useChoiceState(locale?: QuestionLocale, deepLinkQuestionId?: str
         c.questionId === targetQuestion.id ? { ...c, reason: text } : c,
       );
       setChoices(updated);
-      persistChoices(updated);
+      persistChoices(updated, resolvedLocale);
 
       saveReason({
         question_id: targetQuestion.id,

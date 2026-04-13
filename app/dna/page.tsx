@@ -7,7 +7,7 @@ import DNAProfile from "@/components/DNAProfile";
 import { useDNA } from "@/hooks/useDNA";
 import type { UserChoice } from "@/lib/types";
 import { trackEvent } from "@/utils/analytics";
-import { STORAGE_KEY_CHOICES } from "@/lib/constants";
+import { getChoicesStorageKey } from "@/lib/constants";
 import { useLocale } from "@/hooks/useLocale";
 import { isEnglishLocale } from "@/lib/i18n";
 import { buildLocalizedPath } from "@/lib/localeRouting";
@@ -26,7 +26,7 @@ export default function DNAPage() {
     const frame = requestAnimationFrame(() => {
       setMounted(true);
       try {
-        const raw = localStorage.getItem(STORAGE_KEY_CHOICES);
+        const raw = localStorage.getItem(getChoicesStorageKey(locale));
         if (raw) setChoices(JSON.parse(raw));
       } catch {}
     });
@@ -50,7 +50,7 @@ export default function DNAPage() {
     if (!confirmed) return;
 
     try {
-      localStorage.removeItem(STORAGE_KEY_CHOICES);
+      localStorage.removeItem(getChoicesStorageKey(locale));
       setChoices([]);
       trackEvent("choices_reset", { from: "dna_page", totalChoices: choices.length });
       router.replace(homeHref);

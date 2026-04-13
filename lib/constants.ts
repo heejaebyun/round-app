@@ -1,6 +1,32 @@
 import type { Category } from "./types";
 
+/** @deprecated Use getChoicesStorageKey(locale) instead */
 export const STORAGE_KEY_CHOICES = "round_choices";
+
+/** Locale-scoped storage key for choice history */
+export function getChoicesStorageKey(locale: string): string {
+  return `round_choices_${locale}`;
+}
+
+/**
+ * One-time migration: move legacy "round_choices" into the ko-KR
+ * scoped key so existing Korean users don't lose their history.
+ */
+export function migrateChoicesStorage() {
+  if (typeof window === "undefined") return;
+  const LEGACY = "round_choices";
+  const KR_KEY = "round_choices_ko-KR";
+  try {
+    const legacy = localStorage.getItem(LEGACY);
+    if (legacy && !localStorage.getItem(KR_KEY)) {
+      localStorage.setItem(KR_KEY, legacy);
+    }
+    // Don't delete legacy yet — other code may still reference it
+    // during the transition. It'll be cleaned up later.
+  } catch {
+    // ignore
+  }
+}
 export const STORAGE_KEY_INTRO_SEEN = "round_intro_seen_v1";
 export const STORAGE_KEY_SWIPE_HINT_SEEN = "round_swipe_hint_seen_v1";
 
