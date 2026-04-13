@@ -16,16 +16,30 @@ const toss = "next.config.toss.ts";
 const backup = "next.config.backup.ts";
 const tempDir = ".toss-build-temp";
 const excludedRoutes = [
+  // OG / share
   "app/opengraph-image.tsx",
   "app/api/og/dna/route.tsx",
   "app/dna/share/page.tsx",
+  // Auth (server-side, not needed in static export)
   "app/api/auth/toss/login/route.ts",
   "app/api/auth/toss/me/route.ts",
   "app/api/auth/toss/logout/route.ts",
   "app/api/auth/toss/unlink/route.ts",
   "app/api/members/me/route.ts",
+  // Admin (must not be in public bundle)
+  "app/admin/questions/page.tsx",
+  "app/api/admin/login/route.ts",
+  "app/api/admin/logout/route.ts",
+  "app/api/admin/me/route.ts",
+  // Internal ops
   "app/api/internal/question-inspect/route.ts",
   "app/api/internal/question-metrics/route.ts",
+  "app/api/internal/question-candidates/route.ts",
+  "app/api/internal/question-candidates/[id]/approve/route.ts",
+  "app/api/internal/question-candidates/[id]/reject/route.ts",
+  "app/api/internal/moderation/replies/route.ts",
+  "app/api/internal/moderation/replies/[id]/route.ts",
+  // Cron
   "app/api/cron/update-metrics/route.ts",
 ];
 

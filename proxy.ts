@@ -15,12 +15,30 @@ function withLocaleHeader(request: NextRequest, locale: string) {
   return requestHeaders;
 }
 
+function isTossWebView(request: NextRequest): boolean {
+  const ua = request.headers.get("user-agent") ?? "";
+  return ua.includes("TossApp");
+}
+
 export function proxy(request: NextRequest) {
   const url = request.nextUrl.clone();
   const pathname = url.pathname;
   const pathLocale = getLocaleFromPathname(pathname);
   const strippedPath = stripLocalePrefix(pathname);
   const queryLocale = normalizeLocale(url.searchParams.get("locale"));
+
+  // Toss mini-app: always force ko-KR.
+  // /en-us?q=us-01 → /?q=us-01 (strip locale, preserve deep-link query)
+  if (isTossWebView(request)) {
+    if (pathLocale !== DEFAULT_LOCALE || queryLocale) {
+      url.searchParams.delete("locale");
+      url.pathname = strippedPath; // e.g. /en-us/dna → /dna
+      return NextResponse.redirect(url);
+    }
+    return NextResponse.next({
+      request: { headers: withLocaleHeader(request, DEFAULT_LOCALE) },
+    });
+  }
 
   // Backward compat: convert old ?locale= links into canonical locale paths.
   if (queryLocale) {

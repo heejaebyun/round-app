@@ -1,7 +1,7 @@
 {
   "name": "Round",
   "short_name": "Round",
-  "description": "고르기로 발견하는 나의 Choice DNA",
+  "description": "고르고, 결과 보고, 남의 이유 읽기",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#08080d",

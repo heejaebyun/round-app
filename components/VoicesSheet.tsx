@@ -6,6 +6,7 @@ import type { QuestionLocale, Reason } from "@/lib/types";
 import ReasonList from "./ReasonList";
 import ReasonInput from "./ReasonInput";
 import { isEnglishLocale } from "@/lib/i18n";
+import { isTossMiniApp } from "@/lib/toss";
 
 interface Props {
   open: boolean;
