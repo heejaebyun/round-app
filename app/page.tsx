@@ -18,7 +18,7 @@ import { isTossMiniApp } from "@/lib/toss";
 import { registerSessionEnd, trackEvent } from "@/utils/analytics";
 import { useLocale } from "@/hooks/useLocale";
 import { isEnglishLocale } from "@/lib/i18n";
-import { STORAGE_KEY_SWIPE_HINT_SEEN } from "@/lib/constants";
+import { getSwipeHintKey } from "@/lib/constants";
 import { buildLocalizedPath } from "@/lib/localeRouting";
 
 export default function Home() {
@@ -89,7 +89,7 @@ export default function Home() {
   useEffect(() => {
     if (!mounted) return;
     try {
-      const seen = localStorage.getItem(STORAGE_KEY_SWIPE_HINT_SEEN) === "1";
+      const seen = localStorage.getItem(getSwipeHintKey(locale)) === "1";
       if (!seen && choices.length === 0) {
         setShowSwipeCoachmark(true);
       }
@@ -242,7 +242,7 @@ export default function Home() {
   function dismissSwipeCoachmark() {
     setShowSwipeCoachmark(false);
     try {
-      localStorage.setItem(STORAGE_KEY_SWIPE_HINT_SEEN, "1");
+      localStorage.setItem(getSwipeHintKey(locale), "1");
     } catch {
       // ignore
     }

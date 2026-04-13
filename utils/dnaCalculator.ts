@@ -6,6 +6,10 @@ import { isEnglishLocale } from "@/lib/i18n";
 const questionMap = new Map<string, Question>();
 for (const q of SEED_QUESTIONS) questionMap.set(q.id, q);
 
+// ── Market-specific archetype maps ──────────────────────────────
+// en-US and en-PH currently share ARCHETYPE_MAP_EN but the structure
+// supports per-market divergence: just add ARCHETYPE_MAP_PH when needed.
+
 const ARCHETYPE_MAP_KO: Record<string, { name: string; desc: string }> = {
   "0000": { name: "나홀로 풀코스", desc: "내 예산 안에서 가장 완벽한 혼자만의 시간을 보냄" },
   "1000": { name: "은둔형 플렉서", desc: "혼자 쉬다가도 꽂히는 순간 망설임 없이 결제함" },
@@ -44,6 +48,18 @@ const ARCHETYPE_MAP_EN: Record<string, { name: string; desc: string }> = {
   "1111": { name: "Zero-Capital Hustler", desc: "Rallies people and dives in even without a plan or budget" },
 };
 
+type ArchetypeEntry = { name: string; desc: string };
+
+/** Select the archetype map for the given market. */
+function getArchetypeMap(locale?: string | null): Record<string, ArchetypeEntry> {
+  switch (locale) {
+    case "ko-KR": return ARCHETYPE_MAP_KO;
+    case "en-US": return ARCHETYPE_MAP_EN;
+    case "en-PH": return ARCHETYPE_MAP_EN; // diverge later with ARCHETYPE_MAP_PH
+    default: return isEnglishLocale(locale) ? ARCHETYPE_MAP_EN : ARCHETYPE_MAP_KO;
+  }
+}
+
 export function calculateDNA(choices: UserChoice[], locale?: QuestionLocale | string | null): ChoiceDNA {
   const total = choices.length;
   const scores: UserScores = { Action: 50, Motivation: 50, Relation: 50, Reward: 50 };
@@ -72,7 +88,7 @@ export function calculateDNA(choices: UserChoice[], locale?: QuestionLocale | st
   ].join("");
 
   const en = isEnglishLocale(locale);
-  const archetypeMap = en ? ARCHETYPE_MAP_EN : ARCHETYPE_MAP_KO;
+  const archetypeMap = getArchetypeMap(locale);
   const fallback = en
     ? { name: "Unknown Explorer", desc: "Not enough data yet" }
     : { name: "미지의 탐험가", desc: "아직 데이터가 부족합니다" };

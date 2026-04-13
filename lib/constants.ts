@@ -28,7 +28,12 @@ export function migrateChoicesStorage() {
   }
 }
 export const STORAGE_KEY_INTRO_SEEN = "round_intro_seen_v1";
+/** @deprecated Use getSwipeHintKey(locale) instead */
 export const STORAGE_KEY_SWIPE_HINT_SEEN = "round_swipe_hint_seen_v1";
+
+export function getSwipeHintKey(locale: string): string {
+  return `round_swipe_hint_seen_${locale}`;
+}
 
 export const CATEGORY_COLORS: Record<Category, string> = {
   // ko-KR
