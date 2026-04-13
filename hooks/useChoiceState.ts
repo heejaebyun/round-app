@@ -100,7 +100,7 @@ export function useChoiceState(locale?: QuestionLocale, deepLinkQuestionId?: str
     let cancelled = false;
     void (async () => {
       try {
-        const approved = await getApprovedQuestionCandidates();
+        const approved = await getApprovedQuestionCandidates(resolvedLocale);
         const mergedFeed = mergeFeedQuestions(bundle.feed, approved);
 
         const ids = mergedFeed.map((q) => q.id);

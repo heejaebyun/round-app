@@ -221,16 +221,23 @@ export async function rejectQuestionCandidate(
   }
 }
 
-export async function getApprovedQuestionCandidates(): Promise<Question[]> {
+export async function getApprovedQuestionCandidates(locale?: string): Promise<Question[]> {
   const sb = getSupabase();
   if (!sb) return [];
 
   try {
-    const { data, error } = await sb
+    let query = sb
       .from("question_candidates")
       .select("*")
       .eq("review_status", "approved")
       .order("approved_at", { ascending: false });
+
+    // Filter by locale if provided — each market only sees its own candidates
+    if (locale) {
+      query = query.eq("locale", locale);
+    }
+
+    const { data, error } = await query;
     if (error || !data) return [];
     return (data as QuestionCandidateRow[]).map(mapRowToQuestion);
   } catch {
